@@ -66,13 +66,14 @@
 #include <EnergyPlus.hh>
 #include <DataPlant.hh>
 #include <DataGlobals.hh>
+#include <PlantComponent.hh>
 
 namespace EnergyPlus {
 
 namespace PlantComponentTemperatureSources {
 
 	// Using/Aliasing
-	using DataPlant::PlantLocation;
+//	using DataPlant::PlantLocation;
 
 	// Data
 	//MODULE PARAMETER DEFINITIONS:
@@ -141,56 +142,57 @@ namespace PlantComponentTemperatureSources {
 			IsThisSized( false )
 		{}
 
+		// Functions
+
+		static
+		PlantComponent * factory( int objectType, std::string objectName );
+
+		void
+		simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration );
+	
+//	void
+//	SimWaterSource(
+//		std::string const & SourceName, // user-specified name for this component
+//		int const EquipFlowCtrl, // Flow control mode for the equipment
+//		int & CompIndex, // HX number pointer
+//		bool const RunFlag, // simulate HX when TRUE
+//		bool const FirstHVACIteration, // initialize variables when TRUE
+//		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
+//		Real64 & MyLoad, // loop demand component will meet
+//		Real64 & MaxLoad,
+//		Real64 & MinLoad,
+//		Real64 & OptLoad,
+//		bool const GetSizingFactor, // TRUE when just the sizing factor is requested
+//		Real64 & SizingFactor // sizing factor
+//	);
+
+		void
+		InitWaterSource(
+			bool const RunFlag, // TRUE when component operating
+			Real64 const MyLoad,
+			bool const FirstHVACIteration // initialize variables when TRUE
+		);
+
+		void
+		SizeWaterSource();
+
+		void
+		CalcWaterSource(
+			Real64 const MyLoad,
+			bool const RunFlag,
+			int const EquipFlowCtrl // Flow control mode for the equipment
+		);
+
+		void
+		UpdateWaterSource();
+
 	};
 
 	// Object Data
 	extern Array1D< WaterSourceSpecs > WaterSource; // dimension to number of machines
 
-	// Functions
-
 	void
-	SimWaterSource(
-		std::string const & SourceName, // user-specified name for this component
-		int const EquipFlowCtrl, // Flow control mode for the equipment
-		int & CompIndex, // HX number pointer
-		bool const RunFlag, // simulate HX when TRUE
-		bool const FirstHVACIteration, // initialize variables when TRUE
-		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-		Real64 & MyLoad, // loop demand component will meet
-		Real64 & MaxLoad,
-		Real64 & MinLoad,
-		Real64 & OptLoad,
-		bool const GetSizingFactor, // TRUE when just the sizing factor is requested
-		Real64 & SizingFactor // sizing factor
-	);
-
-	void
-	GetWaterSource();
-
-	void
-	InitWaterSource(
-		int const SourceNum, // number of the current component being simulated
-		bool const RunFlag, // TRUE when component operating
-		Real64 const MyLoad,
-		bool const FirstHVACIteration // initialize variables when TRUE
-	);
-
-	void
-	SizeWaterSource( int const SourceNum );
-
-	void
-	CalcWaterSource(
-		int const SourceNum,
-		Real64 const MyLoad,
-		bool const RunFlag,
-		int const EquipFlowCtrl // Flow control mode for the equipment
-	);
-
-	void
-	UpdateWaterSource( int const SourceNum );
-
-	// End of Record Keeping subroutines for the Const COP Chiller Module
-	// *****************************************************************************
+		GetWaterSource();
 
 } // PlantComponentTemperatureSources
 
