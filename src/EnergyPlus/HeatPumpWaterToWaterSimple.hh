@@ -257,7 +257,6 @@ namespace HeatPumpWaterToWaterSimple {
 			SourceSideOutletTemp( 0.0 )
 		{}
 
-		//bool simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip ) override;
 		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
 
 		static
@@ -268,9 +267,6 @@ namespace HeatPumpWaterToWaterSimple {
 
 		void
 		InitWatertoWaterHP(
-			//int const GSHPTypeNum, // Type of GSHP
-			//std::string const & GSHPName, // User Specified Name of GSHP
-			//int const GSHPNum, // GSHP Number
 			bool const FirstHVACIteration,
 			Real64 const MyLoad // Demand Load
 		);
@@ -292,18 +288,19 @@ namespace HeatPumpWaterToWaterSimple {
 
 		void
 		CalcWatertoWaterHPCooling(
-			int const GSHPNum, // GSHP Number
 			Real64 const MyLoad // Operating Load
 		);
 
 		void
 		CalcWatertoWaterHPHeating(
-			int const GSHPNum, // GSHP Number
 			Real64 const MyLoad // Operating Load
 		);
 
 		void
-		UpdateGSHPRecords( int const GSHPNum ); // GSHP number
+		UpdateGSHPRecords(); // GSHP number
+
+		void 
+		getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
 
 	};
 

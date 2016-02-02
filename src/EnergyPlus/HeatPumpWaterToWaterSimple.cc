@@ -73,6 +73,7 @@
 #include <NodeInputManager.hh>
 #include <OutputProcessor.hh>
 #include <PlantUtilities.hh>
+#include <PlantLocation.hh>
 #include <UtilityRoutines.hh>
 
 namespace EnergyPlus {
@@ -163,101 +164,87 @@ namespace HeatPumpWaterToWaterSimple {
 
 	void GshpSpecs::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad )
 	{
-	//	// SUBROUTINE INFORMATION:
-	//	//       AUTHOR         Kenneth Tang
-	//	//       DATE WRITTEN   March 2005
-	//	//       MODIFIED
-	//	//       RE-ENGINEERED  na
+		// SUBROUTINE INFORMATION:
+		//       AUTHOR         Kenneth Tang
+		//       DATE WRITTEN   March 2005
+		//       MODIFIED
+		//       RE-ENGINEERED  na
 
-	//	// PURPOSE OF THIS SUBROUTINE:
-	//	// This subroutine manages Water-to-Water Heat Pump Simple (Equation-Fit Model)
+		// PURPOSE OF THIS SUBROUTINE:
+		// This subroutine manages Water-to-Water Heat Pump Simple (Equation-Fit Model)
 
-	//	// METHODOLOGY EMPLOYED:
+		// METHODOLOGY EMPLOYED:
 
-	//	// REFERENCES:
+		// REFERENCES:
 
-	//	// Using/Aliasing
-	//	using InputProcessor::FindItemInList;
-	//	using PlantUtilities::UpdateChillerComponentCondenserSide;
-	//	using namespace DataEnvironment;
-	//	using General::TrimSigDigits;
-	//	using DataPlant::TypeOf_HPWaterEFCooling;
-	//	using DataPlant::TypeOf_HPWaterEFHeating;
+		// Using/Aliasing
+		using InputProcessor::FindItemInList;
+		using PlantUtilities::UpdateChillerComponentCondenserSide;
+		using namespace DataEnvironment;
+		using General::TrimSigDigits;
+		using DataPlant::TypeOf_HPWaterEFCooling;
+		using DataPlant::TypeOf_HPWaterEFHeating;
 
-	//	// Locals
-	//	// SUBROUTINE ARGUMENT DEFINITIONS:
+		// Locals
+		// SUBROUTINE ARGUMENT DEFINITIONS:
 
-	//	// SUBROUTINE PARAMETER DEFINITIONS:
-	//	// na
+		// SUBROUTINE PARAMETER DEFINITIONS:
+		// na
 
-	//	// INTERFACE BLOCK SPECIFICATIONS
-	//	// na
+		// INTERFACE BLOCK SPECIFICATIONS
+		// na
 
-	//	// DERIVED TYPE DEFINITIONS
-	//	// na
+		// DERIVED TYPE DEFINITIONS
+		// na
 
-	//	// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
+		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
+		Real64 MaxCap;
+		Real64 MinCap;
+		Real64 OptCap;
 
-	//	//Get input from IDF
-	//	if ( GetInputFlag ) {
-	//		GetWatertoWaterHPInput();
-	//		GetInputFlag = false;
-	//	}
+		getDesignCapacities(MaxCap,MinCap,OptCap);
 
-	//	if ( InitLoopEquip ) {
-	//		GSHPNum = FindItemInList( GSHPName, GSHP );
-	//		if ( GSHPNum != 0 ) { // if 0, fall through to next
-	//			if ( GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
-	//				MinCap = 0.0;
-	//				MaxCap = GSHP( GSHPNum ).RatedCapCool;
-	//				OptCap = GSHP( GSHPNum ).RatedCapCool;
-	//			} else if ( GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
-	//				MinCap = 0.0;
-	//				MaxCap = GSHP( GSHPNum ).RatedCapHeat;
-	//				OptCap = GSHP( GSHPNum ).RatedCapHeat;
-	//			} else {
-	//				ShowFatalError( "SimHPWatertoWaterSimple: Module called with incorrect GSHPType=" + GSHPType );
-	//			}
-	//			return;
-	//		}
-	//	}
+		// Calculate Demand on heat pump
+		if ( this->WWHPPlantTypeOfNum == DataPlant::TypeOf_HPWaterEFCooling ) {
+			if ( calledFromLocation.loopNum == this->LoadLoopNum ) { // chilled water loop
 
-	//	// Calculate Demand on heat pump
-	//	if ( GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
-	//		if ( GSHPNum != 0 ) {
-	//			if ( LoopNum == GSHP( GSHPNum ).LoadLoopNum ) { // chilled water loop
+				InitWatertoWaterHP( FirstHVACIteration, CurLoad );
+				CalcWatertoWaterHPCooling( CurLoad );
+				UpdateGSHPRecords();
 
-	//				InitWatertoWaterHP( GSHPTypeNum, GSHPName, GSHPNum, FirstHVACIteration, MyLoad );
-	//				CalcWatertoWaterHPCooling( GSHPNum, MyLoad );
-	//				UpdateGSHPRecords( GSHPNum );
+			} else if ( calledFromLocation.loopNum == this->SourceLoopNum ) { // condenser loop
+				UpdateChillerComponentCondenserSide( this->SourceLoopNum, this->SourceLoopSideNum, TypeOf_HPWaterEFCooling, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, this->QSource, this->SourceSideInletTemp, this->SourceSideOutletTemp, this->SourceSideMassFlowRate, FirstHVACIteration );
+			} else {
+				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + Name );
+			}
+		} else if ( this->WWHPPlantTypeOfNum == DataPlant::TypeOf_HPWaterEFHeating ) {
+			if ( calledFromLocation.loopNum == this->LoadLoopNum ) { // chilled water loop
 
-	//			} else if ( LoopNum == GSHP( GSHPNum ).SourceLoopNum ) { // condenser loop
-	//				UpdateChillerComponentCondenserSide( GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, TypeOf_HPWaterEFCooling, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHPReport( GSHPNum ).QSource, GSHPReport( GSHPNum ).SourceSideInletTemp, GSHPReport( GSHPNum ).SourceSideOutletTemp, GSHPReport( GSHPNum ).SourceSideMassFlowRate, FirstHVACIteration );
-	//			} else {
-	//				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
-	//			}
-	//		} else {
-	//			ShowFatalError( "SimHPWatertoWaterSimple:: Invalid " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
-	//		}
-	//	} else if ( GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
-	//		if ( GSHPNum != 0 ) {
-	//			if ( LoopNum == GSHP( GSHPNum ).LoadLoopNum ) { // chilled water loop
+				InitWatertoWaterHP( FirstHVACIteration, CurLoad );
+				CalcWatertoWaterHPHeating( CurLoad );
+				UpdateGSHPRecords();
+			} else if ( calledFromLocation.loopNum == this->SourceLoopNum ) { // condenser loop
+				UpdateChillerComponentCondenserSide( this->SourceLoopNum, this->SourceLoopSideNum, TypeOf_HPWaterEFHeating, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, - this->QSource, this->SourceSideInletTemp, this->SourceSideOutletTemp, this->SourceSideMassFlowRate, FirstHVACIteration );
+			} else {
+				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + Name );
+			}
+		} // TypeOfEquip
 
-	//				InitWatertoWaterHP( GSHPTypeNum, GSHPName, GSHPNum, FirstHVACIteration, MyLoad );
-	//				CalcWatertoWaterHPHeating( GSHPNum, MyLoad );
-	//				UpdateGSHPRecords( GSHPNum );
-	//			} else if ( LoopNum == GSHP( GSHPNum ).SourceLoopNum ) { // condenser loop
-	//				UpdateChillerComponentCondenserSide( GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, TypeOf_HPWaterEFHeating, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, - GSHPReport( GSHPNum ).QSource, GSHPReport( GSHPNum ).SourceSideInletTemp, GSHPReport( GSHPNum ).SourceSideOutletTemp, GSHPReport( GSHPNum ).SourceSideMassFlowRate, FirstHVACIteration );
-	//			} else {
-	//				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
-	//			}
-	//		} else {
-	//			ShowFatalError( "SimHPWatertoWaterSimple:: Invalid " + HPEqFitHeating + ", Requested Unit=" + GSHPName );
-	//		}
-	//	} else {
-	//		ShowFatalError( "SimHPWatertoWaterSimple: Module called with incorrect GSHPType=" + GSHPType );
-	//	} // TypeOfEquip
+	}
 
+	void GshpSpecs::getDesignCapacities( Real64 & MaxCap, Real64 & MinCap, Real64 & OptCap )
+	{
+		if ( this->WWHPPlantTypeOfNum == DataPlant::TypeOf_HPWaterEFCooling ) {
+			MinCap = 0.0;
+			MaxCap = this->RatedCapCool;
+			OptCap = this->RatedCapCool;
+		} else if ( this->WWHPPlantTypeOfNum == DataPlant::TypeOf_HPWaterEFHeating ) {
+			MinCap = 0.0;
+			MaxCap = this->RatedCapHeat;
+			OptCap = this->RatedCapHeat;
+		} else {
+			ShowFatalError( "SimHPWatertoWaterSimple: Module called with incorrect GSHPType=" + this->WatertoWaterHPType );
+		}
 	}
 
 	void
@@ -267,14 +254,10 @@ namespace HeatPumpWaterToWaterSimple {
 		GetInputFlag = true;
 		InitWatertoWaterHPOneTimeFlag = true;
 		GSHP.deallocate();
-		GSHPReport.deallocate();
 	}
 
 	void
 	GshpSpecs::InitWatertoWaterHP(
-		//int const GSHPTypeNum, // Type of GSHP
-		//std::string const & EP_UNUSED( GSHPName ), // User Specified Name of GSHP
-		//int const GSHPNum, // GSHP Number
 		bool const EP_UNUSED( FirstHVACIteration ),
 		Real64 const MyLoad // Demand Load
 	)
@@ -462,7 +445,7 @@ namespace HeatPumpWaterToWaterSimple {
 
 	void
 	GshpSpecs::CalcWatertoWaterHPCooling(
-		int const GSHPNum, // GSHP Number
+		//int const GSHPNum, // GSHP Number
 		Real64 const MyLoad // Operating Load
 	)
 	{
@@ -542,34 +525,34 @@ namespace HeatPumpWaterToWaterSimple {
 		Real64 CpSourceSide;
 
 		//  LOAD LOCAL VARIABLES FROM DATA STRUCTURE
-		LoadSideVolFlowRateRated = GSHP( GSHPNum ).RatedLoadVolFlowCool;
-		SourceSideVolFlowRateRated = GSHP( GSHPNum ).RatedSourceVolFlowCool;
-		CoolCapRated = GSHP( GSHPNum ).RatedCapCool;
-		CoolPowerRated = GSHP( GSHPNum ).RatedPowerCool;
-		CoolCapCoeff1 = GSHP( GSHPNum ).CoolCap1;
-		CoolCapCoeff2 = GSHP( GSHPNum ).CoolCap2;
-		CoolCapCoeff3 = GSHP( GSHPNum ).CoolCap3;
-		CoolCapCoeff4 = GSHP( GSHPNum ).CoolCap4;
-		CoolCapCoeff5 = GSHP( GSHPNum ).CoolCap5;
-		CoolPowerCoeff1 = GSHP( GSHPNum ).CoolPower1;
-		CoolPowerCoeff2 = GSHP( GSHPNum ).CoolPower2;
-		CoolPowerCoeff3 = GSHP( GSHPNum ).CoolPower3;
-		CoolPowerCoeff4 = GSHP( GSHPNum ).CoolPower4;
-		CoolPowerCoeff5 = GSHP( GSHPNum ).CoolPower5;
+		LoadSideVolFlowRateRated = this->RatedLoadVolFlowCool;
+		SourceSideVolFlowRateRated = this->RatedSourceVolFlowCool;
+		CoolCapRated = this->RatedCapCool;
+		CoolPowerRated = this->RatedPowerCool;
+		CoolCapCoeff1 = this->CoolCap1;
+		CoolCapCoeff2 = this->CoolCap2;
+		CoolCapCoeff3 = this->CoolCap3;
+		CoolCapCoeff4 = this->CoolCap4;
+		CoolCapCoeff5 = this->CoolCap5;
+		CoolPowerCoeff1 = this->CoolPower1;
+		CoolPowerCoeff2 = this->CoolPower2;
+		CoolPowerCoeff3 = this->CoolPower3;
+		CoolPowerCoeff4 = this->CoolPower4;
+		CoolPowerCoeff5 = this->CoolPower5;
 
-		LoadSideMassFlowRate = GSHPReport( GSHPNum ).LoadSideMassFlowRate;
-		LoadSideInletTemp = GSHPReport( GSHPNum ).LoadSideInletTemp;
-		SourceSideMassFlowRate = GSHPReport( GSHPNum ).SourceSideMassFlowRate;
-		SourceSideInletTemp = GSHPReport( GSHPNum ).SourceSideInletTemp;
+		LoadSideMassFlowRate = this->LoadSideMassFlowRate;
+		LoadSideInletTemp = this->LoadSideInletTemp;
+		SourceSideMassFlowRate = this->SourceSideMassFlowRate;
+		SourceSideInletTemp = this->SourceSideInletTemp;
 
 		// If heat pump is not operating, THEN return
-		if ( ! GSHP( GSHPNum ).MustRun ) {
+		if ( ! this->MustRun ) {
 			return;
 		}
 
-		rhoLoadSide = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
+		rhoLoadSide = GetDensityGlycol( PlantLoop( this->LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
 
-		rhoSourceSide = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
+		rhoSourceSide = GetDensityGlycol( PlantLoop( this->SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
 
 		func1 = ( ( LoadSideInletTemp + CelsiustoKelvin ) / Tref );
 		func2 = ( ( SourceSideInletTemp + CelsiustoKelvin ) / Tref );
@@ -581,9 +564,9 @@ namespace HeatPumpWaterToWaterSimple {
 
 		if ( ( QLoad <= 0.0 || Power <= 0.0 ) && ! WarmupFlag ) {
 			if ( QLoad <= 0.0 ) {
-				if ( GSHP( GSHPNum ).CoolCapNegativeCounter < 1 ) {
-					++GSHP( GSHPNum ).CoolCapNegativeCounter;
-					ShowWarningError( HPEqFitCooling + " \"" + GSHP( GSHPNum ).Name + "\":" );
+				if ( this->CoolCapNegativeCounter < 1 ) {
+					++this->CoolCapNegativeCounter;
+					ShowWarningError( HPEqFitCooling + " \"" + this->Name + "\":" );
 					ShowContinueError( " Cooling capacity curve output is <= 0.0 (" + TrimSigDigits( QLoad, 4 ) + ")." );
 					ShowContinueError( " Zero or negative value occurs with a load-side inlet temperature of " + TrimSigDigits( LoadSideInletTemp, 2 ) + " C," );
 					ShowContinueError( " a source-side inlet temperature of " + TrimSigDigits( SourceSideInletTemp, 2 ) + " C," );
@@ -591,13 +574,13 @@ namespace HeatPumpWaterToWaterSimple {
 					ShowContinueError( " and a source-side mass flow rate of " + TrimSigDigits( SourceSideMassFlowRate, 3 ) + " kg/s." );
 					ShowContinueErrorTimeStamp( " The heat pump is turned off for this time step but simulation continues." );
 				} else {
-					ShowRecurringWarningErrorAtEnd( HPEqFitCooling + " \"" + GSHP( GSHPNum ).Name + "\": Cooling capacity curve output is <= 0.0 warning continues...", GSHP( GSHPNum ).CoolCapNegativeIndex, QLoad, QLoad );
+					ShowRecurringWarningErrorAtEnd( HPEqFitCooling + " \"" + this->Name + "\": Cooling capacity curve output is <= 0.0 warning continues...", this->CoolCapNegativeIndex, QLoad, QLoad );
 				}
 			}
 			if ( Power <= 0.0 ) {
-				if ( GSHP( GSHPNum ).CoolPowerNegativeCounter < 1 ) {
-					++GSHP( GSHPNum ).CoolPowerNegativeCounter;
-					ShowWarningError( HPEqFitCooling + " \"" + GSHP( GSHPNum ).Name + "\":" );
+				if ( this->CoolPowerNegativeCounter < 1 ) {
+					++this->CoolPowerNegativeCounter;
+					ShowWarningError( HPEqFitCooling + " \"" + this->Name + "\":" );
 					ShowContinueError( " Cooling compressor power curve output is <= 0.0 (" + TrimSigDigits( Power, 4 ) + ")." );
 					ShowContinueError( " Zero or negative value occurs with a load-side inlet temperature of " + TrimSigDigits( LoadSideInletTemp, 2 ) + " C," );
 					ShowContinueError( " a source-side inlet temperature of " + TrimSigDigits( SourceSideInletTemp, 2 ) + " C," );
@@ -605,7 +588,7 @@ namespace HeatPumpWaterToWaterSimple {
 					ShowContinueError( " and a source-side mass flow rate of " + TrimSigDigits( SourceSideMassFlowRate, 3 ) + " kg/s." );
 					ShowContinueErrorTimeStamp( " The heat pump is turned off for this time step but simulation continues." );
 				} else {
-					ShowRecurringWarningErrorAtEnd( HPEqFitCooling + " \"" + GSHP( GSHPNum ).Name + "\": Cooling compressor power curve output is <= 0.0 warning continues...", GSHP( GSHPNum ).CoolPowerNegativeIndex, Power, Power );
+					ShowRecurringWarningErrorAtEnd( HPEqFitCooling + " \"" + this->Name + "\": Cooling compressor power curve output is <= 0.0 warning continues...", this->CoolPowerNegativeIndex, Power, Power );
 				}
 			}
 
@@ -624,28 +607,28 @@ namespace HeatPumpWaterToWaterSimple {
 			QSource *= PartLoadRatio;
 		}
 
-		CpLoadSide = GetSpecificHeatGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
+		CpLoadSide = GetSpecificHeatGlycol( PlantLoop( this->LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
 
-		CpSourceSide = GetSpecificHeatGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
+		CpSourceSide = GetSpecificHeatGlycol( PlantLoop( this->SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
 
 		LoadSideOutletTemp = LoadSideInletTemp - QLoad / ( LoadSideMassFlowRate * CpLoadSide );
 		SourceSideOutletTemp = SourceSideInletTemp + QSource / ( SourceSideMassFlowRate * CpSourceSide );
 
 		ReportingConstant = TimeStepSys * SecInHour;
 
-		GSHPReport( GSHPNum ).Power = Power;
-		GSHPReport( GSHPNum ).Energy = Power * ReportingConstant;
-		GSHPReport( GSHPNum ).QSource = QSource;
-		GSHPReport( GSHPNum ).QLoad = QLoad;
-		GSHPReport( GSHPNum ).QSourceEnergy = QSource * ReportingConstant;
-		GSHPReport( GSHPNum ).QLoadEnergy = QLoad * ReportingConstant;
-		GSHPReport( GSHPNum ).LoadSideOutletTemp = LoadSideOutletTemp;
-		GSHPReport( GSHPNum ).SourceSideOutletTemp = SourceSideOutletTemp;
+		this->Power = Power;
+		this->Energy = Power * ReportingConstant;
+		this->QSource = QSource;
+		this->QLoad = QLoad;
+		this->QSourceEnergy = QSource * ReportingConstant;
+		this->QLoadEnergy = QLoad * ReportingConstant;
+		this->LoadSideOutletTemp = LoadSideOutletTemp;
+		this->SourceSideOutletTemp = SourceSideOutletTemp;
 	}
 
 	void
 	GshpSpecs::CalcWatertoWaterHPHeating(
-		int const GSHPNum, // GSHP Number
+		//int const GSHPNum, // GSHP Number
 		Real64 const MyLoad // Operating Load
 	)
 	{
@@ -723,33 +706,33 @@ namespace HeatPumpWaterToWaterSimple {
 		Real64 CpSourceSide;
 
 		//  LOAD LOCAL VARIABLES FROM DATA STRUCTURE
-		LoadSideVolFlowRateRated = GSHP( GSHPNum ).RatedLoadVolFlowHeat;
-		SourceSideVolFlowRateRated = GSHP( GSHPNum ).RatedSourceVolFlowHeat;
-		HeatCapRated = GSHP( GSHPNum ).RatedCapHeat;
-		HeatPowerRated = GSHP( GSHPNum ).RatedPowerHeat;
-		HeatCapCoeff1 = GSHP( GSHPNum ).HeatCap1;
-		HeatCapCoeff2 = GSHP( GSHPNum ).HeatCap2;
-		HeatCapCoeff3 = GSHP( GSHPNum ).HeatCap3;
-		HeatCapCoeff4 = GSHP( GSHPNum ).HeatCap4;
-		HeatCapCoeff5 = GSHP( GSHPNum ).HeatCap5;
-		HeatPowerCoeff1 = GSHP( GSHPNum ).HeatPower1;
-		HeatPowerCoeff2 = GSHP( GSHPNum ).HeatPower2;
-		HeatPowerCoeff3 = GSHP( GSHPNum ).HeatPower3;
-		HeatPowerCoeff4 = GSHP( GSHPNum ).HeatPower4;
-		HeatPowerCoeff5 = GSHP( GSHPNum ).HeatPower5;
+		LoadSideVolFlowRateRated = this->RatedLoadVolFlowHeat;
+		SourceSideVolFlowRateRated = this->RatedSourceVolFlowHeat;
+		HeatCapRated = this->RatedCapHeat;
+		HeatPowerRated = this->RatedPowerHeat;
+		HeatCapCoeff1 = this->HeatCap1;
+		HeatCapCoeff2 = this->HeatCap2;
+		HeatCapCoeff3 = this->HeatCap3;
+		HeatCapCoeff4 = this->HeatCap4;
+		HeatCapCoeff5 = this->HeatCap5;
+		HeatPowerCoeff1 = this->HeatPower1;
+		HeatPowerCoeff2 = this->HeatPower2;
+		HeatPowerCoeff3 = this->HeatPower3;
+		HeatPowerCoeff4 = this->HeatPower4;
+		HeatPowerCoeff5 = this->HeatPower5;
 
-		LoadSideMassFlowRate = GSHPReport( GSHPNum ).LoadSideMassFlowRate;
-		LoadSideInletTemp = GSHPReport( GSHPNum ).LoadSideInletTemp;
-		SourceSideMassFlowRate = GSHPReport( GSHPNum ).SourceSideMassFlowRate;
-		SourceSideInletTemp = GSHPReport( GSHPNum ).SourceSideInletTemp;
+		LoadSideMassFlowRate = this->LoadSideMassFlowRate;
+		LoadSideInletTemp = this->LoadSideInletTemp;
+		SourceSideMassFlowRate = this->SourceSideMassFlowRate;
+		SourceSideInletTemp = this->SourceSideInletTemp;
 
 		// If heat pump is not operating, THEN return
-		if ( ! GSHP( GSHPNum ).MustRun ) {
+		if ( ! this->MustRun ) {
 			return;
 		}
-		rhoLoadSide = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
+		rhoLoadSide = GetDensityGlycol( PlantLoop( this->LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
 
-		rhoSourceSide = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
+		rhoSourceSide = GetDensityGlycol( PlantLoop( this->SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
 
 		func1 = ( ( LoadSideInletTemp + CelsiustoKelvin ) / Tref );
 		func2 = ( ( SourceSideInletTemp + CelsiustoKelvin ) / Tref );
@@ -761,9 +744,9 @@ namespace HeatPumpWaterToWaterSimple {
 
 		if ( ( QLoad <= 0.0 || Power <= 0.0 ) && ! WarmupFlag ) {
 			if ( QLoad <= 0.0 ) {
-				if ( GSHP( GSHPNum ).HeatCapNegativeCounter < 1 ) {
-					++GSHP( GSHPNum ).HeatCapNegativeCounter;
-					ShowWarningError( HPEqFitHeating + " \"" + GSHP( GSHPNum ).Name + "\":" );
+				if ( this->HeatCapNegativeCounter < 1 ) {
+					++this->HeatCapNegativeCounter;
+					ShowWarningError( HPEqFitHeating + " \"" + this->Name + "\":" );
 					ShowContinueError( " Heating capacity curve output is <= 0.0 (" + TrimSigDigits( QLoad, 4 ) + ")." );
 					ShowContinueError( " Zero or negative value occurs with a load-side inlet temperature of " + TrimSigDigits( LoadSideInletTemp, 2 ) + " C," );
 					ShowContinueError( " a source-side inlet temperature of " + TrimSigDigits( SourceSideInletTemp, 2 ) + " C," );
@@ -771,13 +754,13 @@ namespace HeatPumpWaterToWaterSimple {
 					ShowContinueError( " and a source-side mass flow rate of " + TrimSigDigits( SourceSideMassFlowRate, 3 ) + " kg/s." );
 					ShowContinueErrorTimeStamp( " The heat pump is turned off for this time step but simulation continues." );
 				} else {
-					ShowRecurringWarningErrorAtEnd( HPEqFitHeating + " \"" + GSHP( GSHPNum ).Name + "\": Heating capacity curve output is <= 0.0 warning continues...", GSHP( GSHPNum ).HeatCapNegativeIndex, QLoad, QLoad );
+					ShowRecurringWarningErrorAtEnd( HPEqFitHeating + " \"" + this->Name + "\": Heating capacity curve output is <= 0.0 warning continues...", this->HeatCapNegativeIndex, QLoad, QLoad );
 				}
 			}
 			if ( Power <= 0.0 ) {
-				if ( GSHP( GSHPNum ).HeatPowerNegativeCounter < 1 ) {
-					++GSHP( GSHPNum ).HeatPowerNegativeCounter;
-					ShowWarningError( HPEqFitHeating + " \"" + GSHP( GSHPNum ).Name + "\":" );
+				if ( this->HeatPowerNegativeCounter < 1 ) {
+					++this->HeatPowerNegativeCounter;
+					ShowWarningError( HPEqFitHeating + " \"" + this->Name + "\":" );
 					ShowContinueError( " Heating compressor power curve output is <= 0.0 (" + TrimSigDigits( Power, 4 ) + ")." );
 					ShowContinueError( " Zero or negative value occurs with a load-side inlet temperature of " + TrimSigDigits( LoadSideInletTemp, 2 ) + " C," );
 					ShowContinueError( " a source-side inlet temperature of " + TrimSigDigits( SourceSideInletTemp, 2 ) + " C," );
@@ -785,7 +768,7 @@ namespace HeatPumpWaterToWaterSimple {
 					ShowContinueError( " and a source-side mass flow rate of " + TrimSigDigits( SourceSideMassFlowRate, 3 ) + " kg/s." );
 					ShowContinueErrorTimeStamp( " The heat pump is turned off for this time step but simulation continues." );
 				} else {
-					ShowRecurringWarningErrorAtEnd( HPEqFitHeating + " \"" + GSHP( GSHPNum ).Name + "\": Heating compressor power curve output is <= 0.0 warning continues...", GSHP( GSHPNum ).HeatPowerNegativeIndex, Power, Power );
+					ShowRecurringWarningErrorAtEnd( HPEqFitHeating + " \"" + this->Name + "\": Heating compressor power curve output is <= 0.0 warning continues...", this->HeatPowerNegativeIndex, Power, Power );
 				}
 			}
 
@@ -804,27 +787,27 @@ namespace HeatPumpWaterToWaterSimple {
 			QSource *= PartLoadRatio;
 		}
 
-		CpLoadSide = GetSpecificHeatGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
+		CpLoadSide = GetSpecificHeatGlycol( PlantLoop( this->LoadLoopNum ).FluidName, LoadSideInletTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
 
-		CpSourceSide = GetSpecificHeatGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
+		CpSourceSide = GetSpecificHeatGlycol( PlantLoop( this->SourceLoopNum ).FluidName, SourceSideInletTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
 
 		LoadSideOutletTemp = LoadSideInletTemp + QLoad / ( LoadSideMassFlowRate * CpLoadSide );
 		SourceSideOutletTemp = SourceSideInletTemp - QSource / ( SourceSideMassFlowRate * CpSourceSide );
 
 		ReportingConstant = TimeStepSys * SecInHour;
 
-		GSHPReport( GSHPNum ).Power = Power;
-		GSHPReport( GSHPNum ).Energy = Power * ReportingConstant;
-		GSHPReport( GSHPNum ).QSource = QSource;
-		GSHPReport( GSHPNum ).QLoad = QLoad;
-		GSHPReport( GSHPNum ).QSourceEnergy = QSource * ReportingConstant;
-		GSHPReport( GSHPNum ).QLoadEnergy = QLoad * ReportingConstant;
-		GSHPReport( GSHPNum ).LoadSideOutletTemp = LoadSideOutletTemp;
-		GSHPReport( GSHPNum ).SourceSideOutletTemp = SourceSideOutletTemp;
+		this->Power = Power;
+		this->Energy = Power * ReportingConstant;
+		this->QSource = QSource;
+		this->QLoad = QLoad;
+		this->QSourceEnergy = QSource * ReportingConstant;
+		this->QLoadEnergy = QLoad * ReportingConstant;
+		this->LoadSideOutletTemp = LoadSideOutletTemp;
+		this->SourceSideOutletTemp = SourceSideOutletTemp;
 	}
 
 	void
-	GshpSpecs::UpdateGSHPRecords( int const GSHPNum ) // GSHP number
+	GshpSpecs::UpdateGSHPRecords() // GSHP number
 	{
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR:          Kenneth Tang
@@ -854,25 +837,25 @@ namespace HeatPumpWaterToWaterSimple {
 		int LoadSideInletNode; // Load Side inlet node number, water side
 		int LoadSideOutletNode; // Load Side outlet node number, water side
 
-		LoadSideInletNode = GSHP( GSHPNum ).LoadSideInletNodeNum;
-		LoadSideOutletNode = GSHP( GSHPNum ).LoadSideOutletNodeNum;
-		SourceSideInletNode = GSHP( GSHPNum ).SourceSideInletNodeNum;
-		SourceSideOutletNode = GSHP( GSHPNum ).SourceSideOutletNodeNum;
+		LoadSideInletNode = this->LoadSideInletNodeNum;
+		LoadSideOutletNode = this->LoadSideOutletNodeNum;
+		SourceSideInletNode = this->SourceSideInletNodeNum;
+		SourceSideOutletNode = this->SourceSideOutletNodeNum;
 
-		if ( ! GSHP( GSHPNum ).MustRun ) {
+		if ( ! this->MustRun ) {
 			// Heatpump is off; just pass through conditions
-			GSHPReport( GSHPNum ).Power = 0.0;
-			GSHPReport( GSHPNum ).Energy = 0.0;
-			GSHPReport( GSHPNum ).QSource = 0.0;
-			GSHPReport( GSHPNum ).QSourceEnergy = 0.0;
-			GSHPReport( GSHPNum ).QLoad = 0.0;
-			GSHPReport( GSHPNum ).QLoadEnergy = 0.0;
-			GSHPReport( GSHPNum ).LoadSideOutletTemp = GSHPReport( GSHPNum ).LoadSideInletTemp;
-			GSHPReport( GSHPNum ).SourceSideOutletTemp = GSHPReport( GSHPNum ).SourceSideInletTemp;
+			this->Power = 0.0;
+			this->Energy = 0.0;
+			this->QSource = 0.0;
+			this->QSourceEnergy = 0.0;
+			this->QLoad = 0.0;
+			this->QLoadEnergy = 0.0;
+			this->LoadSideOutletTemp = this->LoadSideInletTemp;
+			this->SourceSideOutletTemp = this->SourceSideInletTemp;
 		}
 
-		Node( SourceSideOutletNode ).Temp = GSHPReport( GSHPNum ).SourceSideOutletTemp;
-		Node( LoadSideOutletNode ).Temp = GSHPReport( GSHPNum ).LoadSideOutletTemp;
+		Node( SourceSideOutletNode ).Temp = this->SourceSideOutletTemp;
+		Node( LoadSideOutletNode ).Temp = this->LoadSideOutletTemp;
 	}
 
 	PlantComponent * GshpSpecs::factory( int objectType, std::string objectName )
@@ -925,7 +908,7 @@ namespace HeatPumpWaterToWaterSimple {
 		GetInputFlag = true;
 		InitWatertoWaterHPOneTimeFlag = true;
 		GSHP.deallocate();
-		GSHPReport.deallocate();
+		//GSHPReport.deallocate();
 	}
 
 	void
