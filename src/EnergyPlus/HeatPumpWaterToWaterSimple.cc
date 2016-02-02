@@ -161,10 +161,103 @@ namespace HeatPumpWaterToWaterSimple {
 
 	// MODULE SUBROUTINES:
 
-	bool 
-	GshpSpecs::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip )
+	void GshpSpecs::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration )
 	{
-		return true;
+	//	// SUBROUTINE INFORMATION:
+	//	//       AUTHOR         Kenneth Tang
+	//	//       DATE WRITTEN   March 2005
+	//	//       MODIFIED
+	//	//       RE-ENGINEERED  na
+
+	//	// PURPOSE OF THIS SUBROUTINE:
+	//	// This subroutine manages Water-to-Water Heat Pump Simple (Equation-Fit Model)
+
+	//	// METHODOLOGY EMPLOYED:
+
+	//	// REFERENCES:
+
+	//	// Using/Aliasing
+	//	using InputProcessor::FindItemInList;
+	//	using PlantUtilities::UpdateChillerComponentCondenserSide;
+	//	using namespace DataEnvironment;
+	//	using General::TrimSigDigits;
+	//	using DataPlant::TypeOf_HPWaterEFCooling;
+	//	using DataPlant::TypeOf_HPWaterEFHeating;
+
+	//	// Locals
+	//	// SUBROUTINE ARGUMENT DEFINITIONS:
+
+	//	// SUBROUTINE PARAMETER DEFINITIONS:
+	//	// na
+
+	//	// INTERFACE BLOCK SPECIFICATIONS
+	//	// na
+
+	//	// DERIVED TYPE DEFINITIONS
+	//	// na
+
+	//	// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
+
+	//	//Get input from IDF
+	//	if ( GetInputFlag ) {
+	//		GetWatertoWaterHPInput();
+	//		GetInputFlag = false;
+	//	}
+
+	//	if ( InitLoopEquip ) {
+	//		GSHPNum = FindItemInList( GSHPName, GSHP );
+	//		if ( GSHPNum != 0 ) { // if 0, fall through to next
+	//			if ( GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
+	//				MinCap = 0.0;
+	//				MaxCap = GSHP( GSHPNum ).RatedCapCool;
+	//				OptCap = GSHP( GSHPNum ).RatedCapCool;
+	//			} else if ( GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
+	//				MinCap = 0.0;
+	//				MaxCap = GSHP( GSHPNum ).RatedCapHeat;
+	//				OptCap = GSHP( GSHPNum ).RatedCapHeat;
+	//			} else {
+	//				ShowFatalError( "SimHPWatertoWaterSimple: Module called with incorrect GSHPType=" + GSHPType );
+	//			}
+	//			return;
+	//		}
+	//	}
+
+	//	// Calculate Demand on heat pump
+	//	if ( GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
+	//		if ( GSHPNum != 0 ) {
+	//			if ( LoopNum == GSHP( GSHPNum ).LoadLoopNum ) { // chilled water loop
+
+	//				InitWatertoWaterHP( GSHPTypeNum, GSHPName, GSHPNum, FirstHVACIteration, MyLoad );
+	//				CalcWatertoWaterHPCooling( GSHPNum, MyLoad );
+	//				UpdateGSHPRecords( GSHPNum );
+
+	//			} else if ( LoopNum == GSHP( GSHPNum ).SourceLoopNum ) { // condenser loop
+	//				UpdateChillerComponentCondenserSide( GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, TypeOf_HPWaterEFCooling, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHPReport( GSHPNum ).QSource, GSHPReport( GSHPNum ).SourceSideInletTemp, GSHPReport( GSHPNum ).SourceSideOutletTemp, GSHPReport( GSHPNum ).SourceSideMassFlowRate, FirstHVACIteration );
+	//			} else {
+	//				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
+	//			}
+	//		} else {
+	//			ShowFatalError( "SimHPWatertoWaterSimple:: Invalid " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
+	//		}
+	//	} else if ( GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
+	//		if ( GSHPNum != 0 ) {
+	//			if ( LoopNum == GSHP( GSHPNum ).LoadLoopNum ) { // chilled water loop
+
+	//				InitWatertoWaterHP( GSHPTypeNum, GSHPName, GSHPNum, FirstHVACIteration, MyLoad );
+	//				CalcWatertoWaterHPHeating( GSHPNum, MyLoad );
+	//				UpdateGSHPRecords( GSHPNum );
+	//			} else if ( LoopNum == GSHP( GSHPNum ).SourceLoopNum ) { // condenser loop
+	//				UpdateChillerComponentCondenserSide( GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, TypeOf_HPWaterEFHeating, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, - GSHPReport( GSHPNum ).QSource, GSHPReport( GSHPNum ).SourceSideInletTemp, GSHPReport( GSHPNum ).SourceSideOutletTemp, GSHPReport( GSHPNum ).SourceSideMassFlowRate, FirstHVACIteration );
+	//			} else {
+	//				ShowFatalError( "SimHPWatertoWaterSimple:: Invalid loop connection " + HPEqFitCooling + ", Requested Unit=" + GSHPName );
+	//			}
+	//		} else {
+	//			ShowFatalError( "SimHPWatertoWaterSimple:: Invalid " + HPEqFitHeating + ", Requested Unit=" + GSHPName );
+	//		}
+	//	} else {
+	//		ShowFatalError( "SimHPWatertoWaterSimple: Module called with incorrect GSHPType=" + GSHPType );
+	//	} // TypeOfEquip
+
 	}
 
 	void
@@ -179,11 +272,11 @@ namespace HeatPumpWaterToWaterSimple {
 
 	void
 	GshpSpecs::InitWatertoWaterHP(
-		int const GSHPTypeNum, // Type of GSHP
-		std::string const & EP_UNUSED( GSHPName ), // User Specified Name of GSHP
-		int const GSHPNum, // GSHP Number
-		bool const EP_UNUSED( FirstHVACIteration ),
-		Real64 const MyLoad // Demand Load
+		//int const GSHPTypeNum, // Type of GSHP
+		//std::string const & EP_UNUSED( GSHPName ), // User Specified Name of GSHP
+		//int const GSHPNum, // GSHP Number
+		bool const EP_UNUSED( FirstHVACIteration )
+		//Real64 const MyLoad // Demand Load
 	)
 	{
 
@@ -235,71 +328,61 @@ namespace HeatPumpWaterToWaterSimple {
 		int LoadSideOutletNode; // Load Side Outlet Node
 		int SourceSideInletNode; // Source Side Inlet Node
 		int SourceSideOutletNode; // Source Side Outlet Node
-		static Array1D_bool MyEnvrnFlag; // Flag required to keep track of initialization
 		static bool OneTimeFlag( true ); // One Time Flag
 		static Real64 CurrentSimTime( 0.0 ); // Current Simulation Time
 		static Real64 PrevSimTime( 0.0 ); // Previous Simulation Time
-		static Array1D_bool MyPlanScanFlag;
 
 		int LoopNum;
 		int LoopSideNum;
 		Real64 rho; // local fluid density
 
-		if ( InitWatertoWaterHPOneTimeFlag ) {
-			MyPlanScanFlag.allocate( NumGSHPs );
-			MyEnvrnFlag.allocate( NumGSHPs );
-			InitWatertoWaterHPOneTimeFlag = false;
-			MyEnvrnFlag = true;
-			MyPlanScanFlag = true;
-		}
+		this->MustRun = true; // Reset MustRun flag to TRUE
+		LoadSideInletNode = this->LoadSideInletNodeNum;
+		LoadSideOutletNode = this->LoadSideOutletNodeNum;
+		SourceSideInletNode = this->SourceSideInletNodeNum;
+		SourceSideOutletNode = this->SourceSideOutletNodeNum;
 
-		GSHP( GSHPNum ).MustRun = true; // Reset MustRun flag to TRUE
-		LoadSideInletNode = GSHP( GSHPNum ).LoadSideInletNodeNum;
-		LoadSideOutletNode = GSHP( GSHPNum ).LoadSideOutletNodeNum;
-		SourceSideInletNode = GSHP( GSHPNum ).SourceSideInletNodeNum;
-		SourceSideOutletNode = GSHP( GSHPNum ).SourceSideOutletNodeNum;
-
-		if ( MyEnvrnFlag( GSHPNum ) && BeginEnvrnFlag ) {
+		if ( this->MyEnvrnFlag && BeginEnvrnFlag ) {
 			//Initialize all report variables to a known state at beginning of simulation
 
-			GSHPReport( GSHPNum ).Power = 0.0;
-			GSHPReport( GSHPNum ).Energy = 0.0;
-			GSHPReport( GSHPNum ).QLoad = 0.0;
-			GSHPReport( GSHPNum ).QLoadEnergy = 0.0;
-			GSHPReport( GSHPNum ).QSource = 0.0;
-			GSHPReport( GSHPNum ).QSourceEnergy = 0.0;
-			GSHPReport( GSHPNum ).LoadSideMassFlowRate = 0.0;
-			GSHPReport( GSHPNum ).LoadSideInletTemp = 0.0;
-			GSHPReport( GSHPNum ).LoadSideOutletTemp = 0.0;
-			GSHPReport( GSHPNum ).SourceSideMassFlowRate = 0.0;
-			GSHPReport( GSHPNum ).SourceSideInletTemp = 0.0;
-			GSHPReport( GSHPNum ).SourceSideOutletTemp = 0.0;
-			GSHP( GSHPNum ).IsOn = false;
-			GSHP( GSHPNum ).MustRun = true;
+			this->Power = 0.0;
+			this->Energy = 0.0;
+			this->QLoad = 0.0;
+			this->QLoadEnergy = 0.0;
+			this->QSource = 0.0;
+			this->QSourceEnergy = 0.0;
+			this->LoadSideMassFlowRate = 0.0;
+			this->LoadSideInletTemp = 0.0;
+			this->LoadSideOutletTemp = 0.0;
+			this->SourceSideMassFlowRate = 0.0;
+			this->SourceSideInletTemp = 0.0;
+			this->SourceSideOutletTemp = 0.0;
+			this->IsOn = false;
+			this->MustRun = true;
 
-			if ( GSHP( GSHPNum ).WWHPPlantTypeOfNum == TypeOf_HPWaterEFHeating ) {
-				rho = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, InitConvTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
-				GSHP( GSHPNum ).LoadSideDesignMassFlow = GSHP( GSHPNum ).RatedLoadVolFlowHeat * rho;
-				rho = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, InitConvTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
-				GSHP( GSHPNum ).SourceSideDesignMassFlow = GSHP( GSHPNum ).RatedSourceVolFlowHeat * rho;
-			} else if ( GSHP( GSHPNum ).WWHPPlantTypeOfNum == TypeOf_HPWaterEFCooling ) {
-				rho = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidName, InitConvTemp, PlantLoop( GSHP( GSHPNum ).LoadLoopNum ).FluidIndex, RoutineName );
-				GSHP( GSHPNum ).LoadSideDesignMassFlow = GSHP( GSHPNum ).RatedLoadVolFlowCool * rho;
-				rho = GetDensityGlycol( PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidName, InitConvTemp, PlantLoop( GSHP( GSHPNum ).SourceLoopNum ).FluidIndex, RoutineName );
-				GSHP( GSHPNum ).SourceSideDesignMassFlow = GSHP( GSHPNum ).RatedSourceVolFlowCool * rho;
+			if ( this->WWHPPlantTypeOfNum == TypeOf_HPWaterEFHeating ) {
+				rho = GetDensityGlycol( PlantLoop( this->LoadLoopNum ).FluidName, InitConvTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
+				this->LoadSideDesignMassFlow = this->RatedLoadVolFlowHeat * rho;
+				rho = GetDensityGlycol( PlantLoop( this->SourceLoopNum ).FluidName, InitConvTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
+				this->SourceSideDesignMassFlow = this->RatedSourceVolFlowHeat * rho;
+			} else if ( this->WWHPPlantTypeOfNum == TypeOf_HPWaterEFCooling ) {
+				rho = GetDensityGlycol( PlantLoop( this->LoadLoopNum ).FluidName, InitConvTemp, PlantLoop( this->LoadLoopNum ).FluidIndex, RoutineName );
+				this->LoadSideDesignMassFlow = this->RatedLoadVolFlowCool * rho;
+				rho = GetDensityGlycol( PlantLoop( this->SourceLoopNum ).FluidName, InitConvTemp, PlantLoop( this->SourceLoopNum ).FluidIndex, RoutineName );
+				this->SourceSideDesignMassFlow = this->RatedSourceVolFlowCool * rho;
 			}
 
-			InitComponentNodes( 0.0, GSHP( GSHPNum ).LoadSideDesignMassFlow, GSHP( GSHPNum ).LoadSideInletNodeNum, GSHP( GSHPNum ).LoadSideOutletNodeNum, GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum );
+			InitComponentNodes( 0.0, this->LoadSideDesignMassFlow, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum, this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum );
 
-			InitComponentNodes( 0.0, GSHP( GSHPNum ).SourceSideDesignMassFlow, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, GSHP( GSHPNum ).SourceBranchNum, GSHP( GSHPNum ).SourceCompNum );
+			InitComponentNodes( 0.0, this->SourceSideDesignMassFlow, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, this->SourceLoopNum, this->SourceLoopSideNum, this->SourceBranchNum, this->SourceCompNum );
 
-			if ( Node( GSHP( GSHPNum ).SourceSideOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) Node( GSHP( GSHPNum ).SourceSideOutletNodeNum ).TempSetPoint = 0.0;
-			Node( GSHP( GSHPNum ).SourceSideInletNodeNum ).Temp = Node( GSHP( GSHPNum ).SourceSideOutletNodeNum ).TempSetPoint + 30;
+			if ( Node( this->SourceSideOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) Node( this->SourceSideOutletNodeNum ).TempSetPoint = 0.0;
+			Node( this->SourceSideInletNodeNum ).Temp = Node( this->SourceSideOutletNodeNum ).TempSetPoint + 30;
 
-			MyEnvrnFlag( GSHPNum ) = false;
+			this->MyEnvrnFlag = false;
 		}
 		// Reset the environment flag
-		if ( ! BeginEnvrnFlag ) MyEnvrnFlag( GSHPNum ) = true;
+		if ( ! BeginEnvrnFlag ) this->MyEnvrnFlag = true;
 
 		if ( PrevSimTime != CurrentSimTime ) {
 			PrevSimTime = CurrentSimTime;
@@ -313,67 +396,67 @@ namespace HeatPumpWaterToWaterSimple {
 			OneTimeFlag = false;
 		}
 
-		LoopNum = GSHP( GSHPNum ).LoadLoopNum;
-		LoopSideNum = GSHP( GSHPNum ).LoadLoopSideNum;
+		LoopNum = this->LoadLoopNum;
+		LoopSideNum = this->LoadLoopSideNum;
 
 		if ( CurrentSimTime > 0.0 ) OneTimeFlag = true;
 
 		if ( MyLoad > 0.0 && GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
-			GSHP( GSHPNum ).MustRun = true;
-			GSHP( GSHPNum ).IsOn = true;
+			this->MustRun = true;
+			this->IsOn = true;
 		} else if ( MyLoad < 0.0 && GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
-			GSHP( GSHPNum ).MustRun = true;
-			GSHP( GSHPNum ).IsOn = true;
+			this->MustRun = true;
+			this->IsOn = true;
 		} else {
-			GSHP( GSHPNum ).MustRun = false;
-			GSHP( GSHPNum ).IsOn = false;
+			this->MustRun = false;
+			this->IsOn = false;
 		}
 
 		//*******Set flow based on "flowlock" and "run" flags**********
 		// Set flows if the heat pump is not running
-		if ( ! GSHP( GSHPNum ).MustRun ) {
-			GSHPReport( GSHPNum ).LoadSideMassFlowRate = 0.0;
-			GSHPReport( GSHPNum ).SourceSideMassFlowRate = 0.0;
+		if ( ! this->MustRun ) {
+			this->LoadSideMassFlowRate = 0.0;
+			this->SourceSideMassFlowRate = 0.0;
 
-			SetComponentFlowRate( GSHPReport( GSHPNum ).LoadSideMassFlowRate, GSHP( GSHPNum ).LoadSideInletNodeNum, GSHP( GSHPNum ).LoadSideOutletNodeNum, GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum );
-			SetComponentFlowRate( GSHPReport( GSHPNum ).SourceSideMassFlowRate, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, GSHP( GSHPNum ).SourceBranchNum, GSHP( GSHPNum ).SourceCompNum );
-			PlantUtilities::PullCompInterconnectTrigger( GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum , GSHP( GSHPNum ).CondMassFlowIndex, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, GSHPReport( GSHPNum ).SourceSideMassFlowRate );
+			SetComponentFlowRate( this->LoadSideMassFlowRate, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum, this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum );
+			SetComponentFlowRate( this->SourceSideMassFlowRate, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, this->SourceLoopNum, this->SourceLoopSideNum, this->SourceBranchNum, this->SourceCompNum );
+			PlantUtilities::PullCompInterconnectTrigger( this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum , this->CondMassFlowIndex, this->SourceLoopNum, this->LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, this->SourceSideMassFlowRate );
 			// Set flows if the heat pump is running
 		} else { // the heat pump must run
 
-			GSHPReport( GSHPNum ).LoadSideMassFlowRate = GSHP( GSHPNum ).LoadSideDesignMassFlow;
-			GSHPReport( GSHPNum ).SourceSideMassFlowRate = GSHP( GSHPNum ).SourceSideDesignMassFlow;
+			this->LoadSideMassFlowRate = this->LoadSideDesignMassFlow;
+			this->SourceSideMassFlowRate = this->SourceSideDesignMassFlow;
 			// now check against and request in plant
-			SetComponentFlowRate( GSHPReport( GSHPNum ).LoadSideMassFlowRate, GSHP( GSHPNum ).LoadSideInletNodeNum, GSHP( GSHPNum ).LoadSideOutletNodeNum, GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum );
-			SetComponentFlowRate( GSHPReport( GSHPNum ).SourceSideMassFlowRate, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, GSHP( GSHPNum ).SourceBranchNum, GSHP( GSHPNum ).SourceCompNum );
+			SetComponentFlowRate( this->LoadSideMassFlowRate, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum, this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum );
+			SetComponentFlowRate( this->SourceSideMassFlowRate, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, this->SourceLoopNum, this->SourceLoopSideNum, this->SourceBranchNum, this->SourceCompNum );
 			//if there's no flowin one, turn the entire "heat pump off"
-			if ( GSHPReport( GSHPNum ).LoadSideMassFlowRate <= 0.0 || GSHPReport( GSHPNum ).SourceSideMassFlowRate <= 0.0 ) {
+			if ( this->LoadSideMassFlowRate <= 0.0 || this->SourceSideMassFlowRate <= 0.0 ) {
 
-				GSHPReport( GSHPNum ).LoadSideMassFlowRate = 0.0;
-				GSHPReport( GSHPNum ).SourceSideMassFlowRate = 0.0;
-				GSHP( GSHPNum ).MustRun = false;
+				this->LoadSideMassFlowRate = 0.0;
+				this->SourceSideMassFlowRate = 0.0;
+				this->MustRun = false;
 
-				SetComponentFlowRate( GSHPReport( GSHPNum ).LoadSideMassFlowRate, GSHP( GSHPNum ).LoadSideInletNodeNum, GSHP( GSHPNum ).LoadSideOutletNodeNum, GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum );
-				SetComponentFlowRate( GSHPReport( GSHPNum ).SourceSideMassFlowRate, GSHP( GSHPNum ).SourceSideInletNodeNum, GSHP( GSHPNum ).SourceSideOutletNodeNum, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).SourceLoopSideNum, GSHP( GSHPNum ).SourceBranchNum, GSHP( GSHPNum ).SourceCompNum );
-				PlantUtilities::PullCompInterconnectTrigger( GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum , GSHP( GSHPNum ).CondMassFlowIndex, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, GSHPReport( GSHPNum ).SourceSideMassFlowRate );
+				SetComponentFlowRate( this->LoadSideMassFlowRate, this->LoadSideInletNodeNum, this->LoadSideOutletNodeNum, this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum );
+				SetComponentFlowRate( this->SourceSideMassFlowRate, this->SourceSideInletNodeNum, this->SourceSideOutletNodeNum, this->SourceLoopNum, this->SourceLoopSideNum, this->SourceBranchNum, this->SourceCompNum );
+				PlantUtilities::PullCompInterconnectTrigger( this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum , this->CondMassFlowIndex, this->SourceLoopNum, this->LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, this->SourceSideMassFlowRate );
 				return;
 			}
-			PlantUtilities::PullCompInterconnectTrigger( GSHP( GSHPNum ).LoadLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, GSHP( GSHPNum ).LoadBranchNum, GSHP( GSHPNum ).LoadCompNum , GSHP( GSHPNum ).CondMassFlowIndex, GSHP( GSHPNum ).SourceLoopNum, GSHP( GSHPNum ).LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, GSHPReport( GSHPNum ).SourceSideMassFlowRate );
+			PlantUtilities::PullCompInterconnectTrigger( this->LoadLoopNum, this->LoadLoopSideNum, this->LoadBranchNum, this->LoadCompNum , this->CondMassFlowIndex, this->SourceLoopNum, this->LoadLoopSideNum, DataPlant::CriteriaType_MassFlowRate, this->SourceSideMassFlowRate );
 		}
 
 		// Get inlet temps
-		GSHPReport( GSHPNum ).LoadSideInletTemp = Node( LoadSideInletNode ).Temp;
-		GSHPReport( GSHPNum ).SourceSideInletTemp = Node( SourceSideInletNode ).Temp;
+		this->LoadSideInletTemp = Node( LoadSideInletNode ).Temp;
+		this->SourceSideInletTemp = Node( SourceSideInletNode ).Temp;
 
 		// Outlet variables
-		GSHPReport( GSHPNum ).Power = 0.0;
-		GSHPReport( GSHPNum ).Energy = 0.0;
-		GSHPReport( GSHPNum ).QLoad = 0.0;
-		GSHPReport( GSHPNum ).QLoadEnergy = 0.0;
-		GSHPReport( GSHPNum ).QSource = 0.0;
-		GSHPReport( GSHPNum ).QSourceEnergy = 0.0;
-		GSHPReport( GSHPNum ).LoadSideOutletTemp = 0.0;
-		GSHPReport( GSHPNum ).SourceSideOutletTemp = 0.0;
+		this->Power = 0.0;
+		this->Energy = 0.0;
+		this->QLoad = 0.0;
+		this->QLoadEnergy = 0.0;
+		this->QSource = 0.0;
+		this->QSourceEnergy = 0.0;
+		this->LoadSideOutletTemp = 0.0;
+		this->SourceSideOutletTemp = 0.0;
 
 	}
 
@@ -801,7 +884,7 @@ namespace HeatPumpWaterToWaterSimple {
 		}
 		// Now look for this particular pipe in the list
 		for ( auto & t_gshp : GSHP ) {
-			if ( t_gshp.WWHPPlantTypeOfNum == objectType && t_gshp.name == objectName ) {
+			if ( t_gshp.WWHPPlantTypeOfNum == objectType && t_gshp.Name == objectName ) {
 				return &t_gshp;
 			}
 		}

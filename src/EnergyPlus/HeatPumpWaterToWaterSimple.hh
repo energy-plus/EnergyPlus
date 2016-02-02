@@ -167,6 +167,21 @@ namespace HeatPumpWaterToWaterSimple {
 		int LoadBranchNum; // load side plant loop branch index
 		int LoadCompNum; // load side plant loop component index
 		int CondMassFlowIndex; // index for criteria in PullCompInterconnectTrigger
+		bool MyEnvrnFlag;
+		bool MyPlanScanFlag;
+		// Report Variables
+		Real64 Power; // Power Consumption [W]
+		Real64 Energy; // Energy Consumption [J]
+		Real64 QLoad; // Load Side Heat Transfer Rate [W]
+		Real64 QLoadEnergy; // Load Side Heat Transfer [J]
+		Real64 QSource; // Source Side Heat Transfer Rate [W]
+		Real64 QSourceEnergy; // Source Side Heat Transfer [J]
+		Real64 LoadSideMassFlowRate; // Load side volumetric flow rate m3/s
+		Real64 LoadSideInletTemp; // Load Side outlet temperature °C
+		Real64 LoadSideOutletTemp; // Load Side outlet temperature °C
+		Real64 SourceSideMassFlowRate; // Source side volumetric flow rate m3/s
+		Real64 SourceSideInletTemp; // Source Side outlet temperature °C
+		Real64 SourceSideOutletTemp; // Source Side outlet temperature °C
 
 		// Default Constructor
 		GshpSpecs() :
@@ -225,10 +240,25 @@ namespace HeatPumpWaterToWaterSimple {
 			LoadLoopSideNum( 0 ),
 			LoadBranchNum( 0 ),
 			LoadCompNum( 0 ),
-			CondMassFlowIndex( 0 )
+			CondMassFlowIndex( 0 ),
+			MyEnvrnFlag(true),
+			MyPlanScanFlag(true),
+			Power( 0.0 ),
+			Energy( 0.0 ),
+			QLoad( 0.0 ),
+			QLoadEnergy( 0.0 ),
+			QSource( 0.0 ),
+			QSourceEnergy( 0.0 ),
+			LoadSideMassFlowRate( 0.0 ),
+			LoadSideInletTemp( 0.0 ),
+			LoadSideOutletTemp( 0.0 ),
+			SourceSideMassFlowRate( 0.0 ),
+			SourceSideInletTemp( 0.0 ),
+			SourceSideOutletTemp( 0.0 )
 		{}
 
-		bool simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip ) override;
+		//bool simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip ) override;
+		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration ) override;
 
 		static
 		PlantComponent * factory( int objectType, std::string objectName );
@@ -238,12 +268,27 @@ namespace HeatPumpWaterToWaterSimple {
 
 		void
 		InitWatertoWaterHP(
-			int const GSHPTypeNum, // Type of GSHP
-			std::string const & GSHPName, // User Specified Name of GSHP
-			int const GSHPNum, // GSHP Number
-			bool const FirstHVACIteration,
-			Real64 const MyLoad // Demand Load
+			//int const GSHPTypeNum, // Type of GSHP
+			//std::string const & GSHPName, // User Specified Name of GSHP
+			//int const GSHPNum, // GSHP Number
+			bool const FirstHVACIteration
+			//Real64 const MyLoad // Demand Load
 		);
+
+		//void
+		//SimHPWatertoWaterSimple(
+		//	std::string const & GSHPType, // Type of GSHP
+		//	int const GSHPTypeNum, // Type of GSHP in Plant equipment
+		//	std::string const & GSHPName, // User Specified Name of GSHP
+		//	int & GSHPNum, // Index of Equipment
+		//	bool const FirstHVACIteration,
+		//	bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
+		//	Real64 const MyLoad, // Loop demand component will meet
+		//	Real64 & MaxCap, // Maximum operating capacity of GSHP [W]
+		//	Real64 & MinCap, // Minimum operating capacity of GSHP [W]
+		//	Real64 & OptCap, // Optimal operating capacity of GSHP [W]
+		//	int const LoopNum // The calling loop number
+		//);
 
 		void
 		CalcWatertoWaterHPCooling(
