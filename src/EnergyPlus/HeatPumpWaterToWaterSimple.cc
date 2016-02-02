@@ -161,7 +161,7 @@ namespace HeatPumpWaterToWaterSimple {
 
 	// MODULE SUBROUTINES:
 
-	void GshpSpecs::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration )
+	void GshpSpecs::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad )
 	{
 	//	// SUBROUTINE INFORMATION:
 	//	//       AUTHOR         Kenneth Tang
@@ -275,8 +275,8 @@ namespace HeatPumpWaterToWaterSimple {
 		//int const GSHPTypeNum, // Type of GSHP
 		//std::string const & EP_UNUSED( GSHPName ), // User Specified Name of GSHP
 		//int const GSHPNum, // GSHP Number
-		bool const EP_UNUSED( FirstHVACIteration )
-		//Real64 const MyLoad // Demand Load
+		bool const EP_UNUSED( FirstHVACIteration ),
+		Real64 const MyLoad // Demand Load
 	)
 	{
 
@@ -401,10 +401,10 @@ namespace HeatPumpWaterToWaterSimple {
 
 		if ( CurrentSimTime > 0.0 ) OneTimeFlag = true;
 
-		if ( MyLoad > 0.0 && GSHPTypeNum == TypeOf_HPWaterEFHeating ) {
+		if ( MyLoad > 0.0 && this->WWHPPlantTypeOfNum == TypeOf_HPWaterEFHeating ) {
 			this->MustRun = true;
 			this->IsOn = true;
-		} else if ( MyLoad < 0.0 && GSHPTypeNum == TypeOf_HPWaterEFCooling ) {
+		} else if ( MyLoad < 0.0 && this->WWHPPlantTypeOfNum == TypeOf_HPWaterEFCooling ) {
 			this->MustRun = true;
 			this->IsOn = true;
 		} else {

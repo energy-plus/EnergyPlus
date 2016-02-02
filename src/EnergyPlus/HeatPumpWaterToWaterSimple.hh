@@ -258,7 +258,7 @@ namespace HeatPumpWaterToWaterSimple {
 		{}
 
 		//bool simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip ) override;
-		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration ) override;
+		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
 
 		static
 		PlantComponent * factory( int objectType, std::string objectName );
@@ -271,8 +271,8 @@ namespace HeatPumpWaterToWaterSimple {
 			//int const GSHPTypeNum, // Type of GSHP
 			//std::string const & GSHPName, // User Specified Name of GSHP
 			//int const GSHPNum, // GSHP Number
-			bool const FirstHVACIteration
-			//Real64 const MyLoad // Demand Load
+			bool const FirstHVACIteration,
+			Real64 const MyLoad // Demand Load
 		);
 
 		//void
