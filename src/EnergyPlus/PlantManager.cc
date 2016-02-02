@@ -1325,6 +1325,7 @@ namespace PlantManager {
 							this_comp.TypeOf_Num = TypeOf_WaterSource;
 							this_comp.GeneralEquipType = GenEquipTypes_PlantComponent;
 							this_comp.CurOpSchemeType = UncontrolledOpSchemeType;
+							this_comp.compPtr = PipeHeatTransfer::PipeHTData::factory(TypeOf_PipeExterior, CompNames(CompNum));
 						} else if ( SameString( this_comp_type, "GroundHeatExchanger:HorizontalTrench" ) ) {
 							this_comp.TypeOf_Num = TypeOf_GrndHtExchgHorizTrench;
 							this_comp.GeneralEquipType = GenEquipTypes_Pipe;

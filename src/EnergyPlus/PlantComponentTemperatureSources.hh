@@ -89,7 +89,7 @@ namespace PlantComponentTemperatureSources {
 
 	// Types
 
-	struct WaterSourceSpecs
+	struct WaterSourceSpecs : public PlantComponent
 	{
 		// Members
 		std::string Name; // user identifier
