@@ -81,6 +81,7 @@ namespace HeatPumpWaterToWaterSimple {
 	extern std::string const HPEqFitCoolingUC;
 
 	extern bool GetGshpSpecsFlag;
+	extern int NumGSHPs; // Number of GSHPs specified in input
 
 	// DERIVED TYPE DEFINITIONS
 
@@ -89,7 +90,6 @@ namespace HeatPumpWaterToWaterSimple {
 	// Output Variables Type definition
 
 	// MODULE VARIABLE DECLARATIONS:
-	extern int NumGSHPs; // Number of GSHPs specified in input
 
 	// SUBROUTINE SPECIFICATIONS FOR MODULE
 
@@ -340,7 +340,6 @@ namespace HeatPumpWaterToWaterSimple {
 
 	// Object Data
 	extern Array1D< GshpSpecs > GSHP;
-	extern Array1D< ReportVars > GSHPReport;
 
 	// Functions
 	void
@@ -348,48 +347,6 @@ namespace HeatPumpWaterToWaterSimple {
 
 	void
 	clear_state();
-
-
-	// slated for removal
-
-	void
-	SimHPWatertoWaterSimple(
-		std::string const & GSHPType, // Type of GSHP
-		int const GSHPTypeNum, // Type of GSHP in Plant equipment
-		std::string const & GSHPName, // User Specified Name of GSHP
-		int & GSHPNum, // Index of Equipment
-		bool const FirstHVACIteration,
-		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-		Real64 const MyLoad, // Loop demand component will meet
-		Real64 & MaxCap, // Maximum operating capacity of GSHP [W]
-		Real64 & MinCap, // Minimum operating capacity of GSHP [W]
-		Real64 & OptCap, // Optimal operating capacity of GSHP [W]
-		int const LoopNum // The calling loop number
-	);
-
-	void
-	InitWatertoWaterHP(
-		int const GSHPTypeNum, // Type of GSHP
-		std::string const & GSHPName, // User Specified Name of GSHP
-		int const GSHPNum, // GSHP Number
-		bool const FirstHVACIteration,
-		Real64 const MyLoad // Demand Load
-	);
-
-	void
-	CalcWatertoWaterHPCooling(
-		int const GSHPNum, // GSHP Number
-		Real64 const MyLoad // Operating Load
-	);
-
-	void
-	CalcWatertoWaterHPHeating(
-		int const GSHPNum, // GSHP Number
-		Real64 const MyLoad // Operating Load
-	);
-
-	void
-	UpdateGSHPRecords( int const GSHPNum ); // GSHP number
 
 } // HeatPumpWaterToWaterSimple
 
