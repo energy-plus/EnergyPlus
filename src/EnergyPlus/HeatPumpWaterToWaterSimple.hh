@@ -65,6 +65,7 @@
 // EnergyPlus Headers
 #include <EnergyPlus.hh>
 #include <DataGlobals.hh>
+#include <PlantComponent.hh>
 
 namespace EnergyPlus {
 
@@ -78,6 +79,8 @@ namespace HeatPumpWaterToWaterSimple {
 	extern std::string const HPEqFitHeatingUC;
 	extern std::string const HPEqFitCooling;
 	extern std::string const HPEqFitCoolingUC;
+
+	extern bool GetGshpSpecsFlag;
 
 	// DERIVED TYPE DEFINITIONS
 
@@ -102,7 +105,7 @@ namespace HeatPumpWaterToWaterSimple {
 
 	// Types
 
-	struct GshpSpecs
+	struct GshpSpecs : public PlantComponent
 	{
 		// Members
 		std::string Name; // user identifier
@@ -225,6 +228,38 @@ namespace HeatPumpWaterToWaterSimple {
 			CondMassFlowIndex( 0 )
 		{}
 
+		bool simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, bool const InitLoopEquip ) override;
+
+		static
+		PlantComponent * factory( int objectType, std::string objectName );
+
+		void
+		clear_state();
+
+		void
+		InitWatertoWaterHP(
+			int const GSHPTypeNum, // Type of GSHP
+			std::string const & GSHPName, // User Specified Name of GSHP
+			int const GSHPNum, // GSHP Number
+			bool const FirstHVACIteration,
+			Real64 const MyLoad // Demand Load
+		);
+
+		void
+		CalcWatertoWaterHPCooling(
+			int const GSHPNum, // GSHP Number
+			Real64 const MyLoad // Operating Load
+		);
+
+		void
+		CalcWatertoWaterHPHeating(
+			int const GSHPNum, // GSHP Number
+			Real64 const MyLoad // Operating Load
+		);
+
+		void
+		UpdateGSHPRecords( int const GSHPNum ); // GSHP number
+
 	};
 
 	struct ReportVars
@@ -267,7 +302,13 @@ namespace HeatPumpWaterToWaterSimple {
 
 	// Functions
 	void
+	GetWatertoWaterHPInput();
+
+	void
 	clear_state();
+
+
+	// slated for removal
 
 	void
 	SimHPWatertoWaterSimple(
@@ -283,9 +324,6 @@ namespace HeatPumpWaterToWaterSimple {
 		Real64 & OptCap, // Optimal operating capacity of GSHP [W]
 		int const LoopNum // The calling loop number
 	);
-
-	void
-	GetWatertoWaterHPInput();
 
 	void
 	InitWatertoWaterHP(
