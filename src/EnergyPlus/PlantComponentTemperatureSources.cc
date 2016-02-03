@@ -166,9 +166,10 @@ namespace PlantComponentTemperatureSources {
 		return nullptr;
 	}
 
-	void WaterSourceSpecs::getDesignCapacities(Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad) {
+	void WaterSourceSpecs::getDesignCapacities(const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) {
 		using DataGlobals::BigNumber;
 		// MJW - Not sure if this is needed:  this->InitWaterSource(MyLoad);
+		this->Location = calledFromLocation;
 		this->SizeWaterSource();
 		MaxLoad = BigNumber;
 		MinLoad = 0.0;
