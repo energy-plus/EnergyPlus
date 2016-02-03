@@ -247,7 +247,7 @@ namespace PlantLoopEquip {
 		using PhotovoltaicThermalCollectors::CalledFromPlantLoopEquipMgr;
 		using PlantPipingSystemsManager::SimPipingSystemCircuit;
 		using UserDefinedComponents::SimUserDefinedPlantComponent;
-		using HVACVariableRefrigerantFlow::SimVRFCondenserPlant;
+//		using HVACVariableRefrigerantFlow::SimVRFCondenserPlant;
 		using PlantComponentTemperatureSources::SimWaterSource;
 		using PlantCentralGSHP::SimCentralGroundSourceHeatPump;
 
@@ -521,13 +521,15 @@ namespace PlantLoopEquip {
 
 			} else if ( EquipTypeNum == TypeOf_HeatPumpVRF ) {
 
-				SimVRFCondenserPlant( sim_component.TypeOf, EquipTypeNum, sim_component.Name, EquipNum, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
+//				SimVRFCondenserPlant( sim_component.TypeOf, EquipTypeNum, sim_component.Name, EquipNum, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum ); //DSU
+				sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, CurLoad );
+
+//				if( InitLoopEquip ) {
+//					sim_component.MaxLoad = MaxLoad;
+//					sim_component.MinLoad = MinLoad;
+//					sim_component.OptLoad = OptLoad;
+//					sim_component.CompNum = EquipNum;
+//				}
 
 			} else {
 				ShowSevereError( "SimPlantEquip: Invalid Heat Pump Type=" + sim_component.TypeOf );

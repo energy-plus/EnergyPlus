@@ -93,6 +93,8 @@
 #include <HVACVariableRefrigerantFlow.hh>
 #include <OutputReportPredefined.hh>
 #include <PlantManager.hh>
+#include <PlantComponent.hh>
+#include <PlantLocation.hh>
 #include <Psychrometrics.hh>
 #include <ScheduleManager.hh>
 #include <SizingManager.hh>
@@ -1068,7 +1070,7 @@ namespace EnergyPlus {
 
 		SimulateVRF( VRFTU( VRFTUNum ).Name, CurZoneNum, FirstHVACIteration, SysOutputProvided, LatOutputProvided, ZoneEquipList( CurZoneEqNum ).EquipIndex( EquipPtr ) );
 
-		ASSERT_EQ( 1, NumVRFCond );
+		ASSERT_EQ( 1, nsvNumVRFCond );
 		ASSERT_EQ( ZoneInletAirNode, ZoneEquipConfig( VRFTU( VRFTUNum ).ZoneNum ).InletNode( 1 ) ); // only 1 inlet node specified above in ZoneHVAC:EquipmentConnections
 		ASSERT_EQ( 1.0, VRF( VRFCond ).CoolingCombinationRatio );
 		ASSERT_EQ( 10749.071979211991, VRF( VRFCond ).CoolingCapacity );
@@ -2604,7 +2606,8 @@ namespace EnergyPlus {
 		// call air-side VRF
 		SimulateVRF( VRFTU( VRFTUNum ).Name, CurZoneNum, FirstHVACIteration, SysOutputProvided, LatOutputProvided, ZoneEquipList( CurZoneEqNum ).EquipIndex( EquipPtr ) );
 		// call plant-side VRF
-		SimVRFCondenserPlant( SimPlantEquipTypes( VRF( VRFCond ).VRFPlantTypeOfNum ), VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).Name, VRFCond, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum );
+//		SimVRFCondenserPlant( SimPlantEquipTypes( VRF( VRFCond ).VRFPlantTypeOfNum ), VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).Name, VRFCond, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum );
+//		VRFCondenserEquipment::simulate( PlantLocation & calledFromLocation, FirstHVACIteration, CurLoad );
 
 		DataZoneEnergyDemands::ZoneSysEnergyDemand( CurZoneNum ).RemainingOutputRequired = -1000.0; // set cooling load
 		DataZoneEnergyDemands::ZoneSysEnergyDemand( CurZoneNum ).RemainingOutputReqToCoolSP = -1000.0;

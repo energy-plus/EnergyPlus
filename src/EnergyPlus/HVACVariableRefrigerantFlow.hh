@@ -67,8 +67,12 @@
 // EnergyPlus Headers
 #include <EnergyPlus.hh>
 #include <DataGlobals.hh>
+#include <PlantComponent.hh>
 
 namespace EnergyPlus {
+
+	// Forward Declarations
+	struct PlantLocation;
 
 namespace HVACVariableRefrigerantFlow {
 
@@ -145,35 +149,35 @@ namespace HVACVariableRefrigerantFlow {
 	extern Array1D_bool MyVRFFlag; // used for sizing VRF inputs one time
 	extern Array1D_bool MyVRFCondFlag; // used to reset timer counter
 	extern Array1D_bool MyZoneEqFlag; // used to set up zone equipment availability managers
-	extern int NumVRFCond; // total number of VRF condensers (All VRF Algorithm Types)
-	extern int NumVRFCond_SysCurve; // total number of VRF condensers with VRF Algorithm Type 1 
-	extern int NumVRFCond_FluidTCtrl; // total number of VRF condensers with VRF Algorithm Type 2 
-	extern int NumVRFTU; // total number of VRF terminal units
-	extern int NumVRFTULists; // The number of VRF TU lists
-	extern Real64 CompOnMassFlow; // Supply air mass flow rate w/ compressor ON
-	extern Real64 OACompOnMassFlow; // OA mass flow rate w/ compressor ON
-	extern Real64 CompOffMassFlow; // Supply air mass flow rate w/ compressor OFF
-	extern Real64 OACompOffMassFlow; // OA mass flow rate w/ compressor OFF
-	extern Real64 CompOnFlowRatio; // fan flow ratio when coil on
-	extern Real64 CompOffFlowRatio; // fan flow ratio when coil off
-	extern Real64 FanSpeedRatio; // ratio of air flow ratio passed to fan object
-	extern Array1D_bool HeatingLoad; // defines a heating load on VRFTerminalUnits
-	extern Array1D_bool CoolingLoad; // defines a cooling load on VRFTerminalUnits
-	extern Array1D_bool LastModeHeating; // defines last mode was heating mode
-	extern Array1D_bool LastModeCooling; // defines last mode was cooling mode
-	extern Array1D< Real64 > MaxCoolingCapacity; // maximum capacity of any terminal unit
-	extern Array1D< Real64 > MaxHeatingCapacity; // maximum capacity of any terminal unit
-	extern Array1D< Real64 > CoolCombinationRatio; // ratio of terminal unit capacity to VRF condenser capacity
-	extern Array1D< Real64 > HeatCombinationRatio; // ratio of terminal unit capacity to VRF condenser capacity
-	extern Real64 LoopDXCoolCoilRTF; // holds value of DX cooling coil RTF
-	extern Real64 LoopDXHeatCoilRTF; // holds value of DX heating coil RTF
-	extern Real64 CondenserWaterMassFlowRate; // VRF water-cooled condenser mass flow rate (kg/s)
-	extern Array1D_int NumCoolingLoads; // number of TU's requesting cooling
-	extern Array1D_int NumHeatingLoads; // number of TU's requesting heating
-	extern Array1D< Real64 > MaxDeltaT; // maximum zone temperature difference from setpoint
-	extern Array1D< Real64 > MinDeltaT; // minimum zone temperature difference from setpoint
-	extern Array1D< Real64 > SumCoolingLoads; // sum of cooling loads
-	extern Array1D< Real64 > SumHeatingLoads; // sum of heating loads
+	extern int nsvNumVRFCond; // total number of VRF condensers (All VRF Algorithm Types)
+	extern int nsvNumVRFCond_SysCurve; // total number of VRF condensers with VRF Algorithm Type 1 
+	extern int nsvNumVRFCond_FluidTCtrl; // total number of VRF condensers with VRF Algorithm Type 2 
+	extern int nsvNumVRFTU; // total number of VRF terminal units
+	extern int nsvNumVRFTULists; // The number of VRF TU lists
+	extern Real64 nsvCompOnMassFlow; // Supply air mass flow rate w/ compressor ON
+	extern Real64 nsvOACompOnMassFlow; // OA mass flow rate w/ compressor ON
+	extern Real64 nsvCompOffMassFlow; // Supply air mass flow rate w/ compressor OFF
+	extern Real64 nsvOACompOffMassFlow; // OA mass flow rate w/ compressor OFF
+	extern Real64 nsvCompOnFlowRatio; // fan flow ratio when coil on
+	extern Real64 nsvCompOffFlowRatio; // fan flow ratio when coil off
+	extern Real64 nsvFanSpeedRatio; // ratio of air flow ratio passed to fan object
+	extern Array1D_bool nsvHeatingLoad; // defines a heating load on VRFTerminalUnits
+	extern Array1D_bool nsvCoolingLoad; // defines a cooling load on VRFTerminalUnits
+	extern Array1D_bool nsvLastModeHeating; // defines last mode was heating mode
+	extern Array1D_bool nsvLastModeCooling; // defines last mode was cooling mode
+	extern Array1D< Real64 > nsvMaxCoolingCapacity; // maximum capacity of any terminal unit
+	extern Array1D< Real64 > nsvMaxHeatingCapacity; // maximum capacity of any terminal unit
+	extern Array1D< Real64 > nsvCoolCombinationRatio; // ratio of terminal unit capacity to VRF condenser capacity
+	extern Array1D< Real64 > nsvHeatCombinationRatio; // ratio of terminal unit capacity to VRF condenser capacity
+	extern Real64 nsvLoopDXCoolCoilRTF; // holds value of DX cooling coil RTF
+	extern Real64 nsvLoopDXHeatCoilRTF; // holds value of DX heating coil RTF
+	extern Real64 nsvCondenserWaterMassFlowRate; // VRF water-cooled condenser mass flow rate (kg/s)
+	extern Array1D_int nsvNumCoolingLoads; // number of TU's requesting cooling
+	extern Array1D_int nsvNumHeatingLoads; // number of TU's requesting heating
+	extern Array1D< Real64 > nsvMaxDeltaT; // maximum zone temperature difference from setpoint
+	extern Array1D< Real64 > nsvMinDeltaT; // minimum zone temperature difference from setpoint
+	extern Array1D< Real64 > nsvSumCoolingLoads; // sum of cooling loads
+	extern Array1D< Real64 > nsvSumHeatingLoads; // sum of heating loads
 
 	// Subroutine Specifications for the Module
 	// Driver/Manager Routines
@@ -191,7 +195,7 @@ namespace HVACVariableRefrigerantFlow {
 
 	// Types
 
-	struct VRFCondenserEquipment
+	struct VRFCondenserEquipment : PlantComponent
 	{
 		// Members
 		std::string Name; // Name of the VRF Terminal Unit
@@ -365,6 +369,7 @@ namespace HVACVariableRefrigerantFlow {
 		bool EMSOverrideHPOperatingMode;
 		Real64 EMSValueForHPOperatingMode;
 		int HPOperatingModeErrorIndex;
+		bool OneTimeInitVRFCond;
 		
 		//The following are for the Algorithm Type: VRF model based on physics, applicable for Fluid Temperature Control
 		std::string RefrigerantName; // Name of refrigerant, must match name in FluidName (see fluidpropertiesrefdata.idf)
@@ -573,6 +578,7 @@ namespace HVACVariableRefrigerantFlow {
 			EMSOverrideHPOperatingMode( false ),
 			EMSValueForHPOperatingMode( 0.0 ),
 			HPOperatingModeErrorIndex( 0 ),
+			OneTimeInitVRFCond( false ),
 			RatedEvapCapacity( 40000.0 ),
 			RatedCompPower( 14000.0 ),
 			CondensingTemp( 44.0 ),
@@ -613,6 +619,18 @@ namespace HVACVariableRefrigerantFlow {
 			RefPipInsCon( 0.0 ),
 			VRFOperationSimPath( 0.0 )
 		{}
+
+		public:
+			static PlantComponent * factory( int objectType, std::string objectName );
+
+		public:
+			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad );
+
+		public:
+			void getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
+
+		void
+			SizeVRFCondenser();
 
 	};
 
@@ -826,20 +844,20 @@ namespace HVACVariableRefrigerantFlow {
 		int & CompIndex
 	);
 
-	void
-	SimVRFCondenserPlant(
-		std::string const & VRFType, // Type of VRF
-		int const VRFTypeNum, // Type of VRF in Plant equipment
-		std::string const & VRFName, // User Specified Name of VRF
-		int & VRFNum, // Index of Equipment
-		bool const FirstHVACIteration, // Flag for first time through HVAC simulation
-		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-		Real64 const MyLoad, // Loop demand component will meet
-		Real64 & MaxCap, // Maximum operating capacity of GSHP [W]
-		Real64 & MinCap, // Minimum operating capacity of GSHP [W]
-		Real64 & OptCap, // Optimal operating capacity of GSHP [W]
-		int const LoopNum // The calling loop number
-	);
+//	void
+//	SimVRFCondenserPlant(
+//		std::string const & VRFType, // Type of VRF
+//		int const VRFTypeNum, // Type of VRF in Plant equipment
+//		std::string const & VRFName, // User Specified Name of VRF
+//		int & VRFNum, // Index of Equipment
+//		bool const FirstHVACIteration, // Flag for first time through HVAC simulation
+//		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
+//		Real64 const MyLoad, // Loop demand component will meet
+//		Real64 & MaxCap, // Maximum operating capacity of GSHP [W]
+//		Real64 & MinCap, // Minimum operating capacity of GSHP [W]
+//		Real64 & OptCap, // Optimal operating capacity of GSHP [W]
+//		int const LoopNum // The calling loop number
+//	);
 
 	void
 	CalcVRFCondenser(
@@ -882,9 +900,6 @@ namespace HVACVariableRefrigerantFlow {
 
 	void
 	SizeVRF( int const VRFTUNum );
-
-	void
-	SizeVRFCondenser( int const VRFCond );
 
 	// End Initialization Section of the Module
 	//******************************************************************************

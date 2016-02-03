@@ -14520,8 +14520,8 @@ Label50: ;
 		using General::TrimSigDigits;
 		using General::RoundSigDigits;
 		using General::CreateSysTimeIntervalString;
-		using HVACVariableRefrigerantFlow::OACompOnMassFlow;
-		using HVACVariableRefrigerantFlow::OACompOffMassFlow;
+		using HVACVariableRefrigerantFlow::nsvOACompOnMassFlow;
+		using HVACVariableRefrigerantFlow::nsvOACompOffMassFlow;
 		using namespace DataZoneEnergyDemands;
 		using namespace HVACVariableRefrigerantFlow;
 
@@ -14723,9 +14723,9 @@ Label50: ;
 			TotCap = DXCoil( DXCoilNum ).RatedTotCap( Mode );
 			QCoilReq = -PartLoadRatio * TotCap;
 			if( PartLoadRatio == 0.0 ){
-				AirMassFlowMin = OACompOffMassFlow;
+				AirMassFlowMin = nsvOACompOffMassFlow;
 			} else {
-				AirMassFlowMin = OACompOnMassFlow;
+				AirMassFlowMin = nsvOACompOnMassFlow;
 			}
 
 			// Call ControlVRFIUCoil to calculate: (1) FanSpdRatio, (2) coil inlet/outlet conditions, and (3) SH/SC
@@ -14940,8 +14940,8 @@ Label50: ;
 		// Using/Aliasing
 		using CurveManager::CurveValue;
 		using General::RoundSigDigits;
-		using HVACVariableRefrigerantFlow::OACompOnMassFlow;
-		using HVACVariableRefrigerantFlow::OACompOffMassFlow;
+		using HVACVariableRefrigerantFlow::nsvOACompOnMassFlow;
+		using HVACVariableRefrigerantFlow::nsvOACompOffMassFlow;
 		using namespace DataZoneEnergyDemands;
 		using namespace HVACVariableRefrigerantFlow;
 
@@ -15040,9 +15040,9 @@ Label50: ;
 			TotCap = DXCoil( DXCoilNum ).RatedTotCap( Mode );
 			QCoilReq = PartLoadRatio * TotCap;
 			if( PartLoadRatio == 0.0 ){
-				AirMassFlowMin = OACompOffMassFlow;
+				AirMassFlowMin = nsvOACompOffMassFlow;
 			} else {
-				AirMassFlowMin = OACompOnMassFlow;
+				AirMassFlowMin = nsvOACompOnMassFlow;
 			}
 
 			// Call ControlVRFIUCoil to calculate: (1) FanSpdRatio, (2) coil inlet/outlet conditions, and (3) SH/SC
