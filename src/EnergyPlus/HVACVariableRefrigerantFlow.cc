@@ -455,19 +455,13 @@ namespace HVACVariableRefrigerantFlow {
 
 	void VRFCondenserEquipment::getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
 	{
-//			VRFNum = FindItemInList( VRFName, VRF );
-//			if( VRFNum != 0 ) { // if 0, fall through to next
-//					{ auto const SELECT_CASE_var( VRFTypeNum );
-//					if( SELECT_CASE_var == TypeOf_HeatPumpVRF ) {
-						MinLoad = 0.0;
-						MaxLoad = max( this->CoolingCapacity, this->HeatingCapacity ); // greater of cooling and heating capacity
-						OptLoad = max( this->CoolingCapacity, this->HeatingCapacity );
-//					} else {
-//						ShowFatalError( "SimVRFCondenserPlant: Module called with incorrect VRFType=" + VRFType );
-//					}}
-//				this->SizeVRFCondenser(); // need to call this somehow
-//				return;
-//			}
+
+		this->SizeVRFCondenser(); // need to call this somehow
+
+		MinLoad = 0.0;
+		MaxLoad = max( this->CoolingCapacity, this->HeatingCapacity ); // greater of cooling and heating capacity
+		OptLoad = max( this->CoolingCapacity, this->HeatingCapacity );
+
 	}
 
 //	void
