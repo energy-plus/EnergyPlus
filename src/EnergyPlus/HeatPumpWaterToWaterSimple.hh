@@ -271,6 +271,8 @@ namespace HeatPumpWaterToWaterSimple {
 			Real64 const MyLoad // Demand Load
 		);
 
+		void onInitLoopEquip() override;
+
 		//void
 		//SimHPWatertoWaterSimple(
 		//	std::string const & GSHPType, // Type of GSHP

@@ -81,6 +81,7 @@
 #include <FluidProperties.hh>
 #include <General.hh>
 #include <GroundHeatExchangers.hh>
+#include <HeatPumpWaterToWaterSimple.hh>
 #include <HVACInterfaceManager.hh>
 #include <InputProcessor.hh>
 #include <NodeInputManager.hh>
@@ -1140,6 +1141,7 @@ namespace PlantManager {
 							} else if ( LoopSideNum == SupplySide ) {
 								this_comp.CurOpSchemeType = UnknownStatusOpSchemeType;
 							}
+							this_comp.compPtr = HeatPumpWaterToWaterSimple::GshpSpecs::factory( TypeOf_HPWaterEFCooling, CompNames( CompNum ) );
 						} else if ( SameString( this_comp_type, "HeatPump:WatertoWater:EquationFit:Heating" ) ) {
 							this_comp.TypeOf_Num = TypeOf_HPWaterEFHeating;
 							this_comp.GeneralEquipType = GenEquipTypes_HeatPump;
@@ -1148,6 +1150,7 @@ namespace PlantManager {
 							} else if ( LoopSideNum == SupplySide ) {
 								this_comp.CurOpSchemeType = UnknownStatusOpSchemeType;
 							}
+							this_comp.compPtr = HeatPumpWaterToWaterSimple::GshpSpecs::factory( TypeOf_HPWaterEFHeating, CompNames( CompNum ) );
 						} else if ( SameString( this_comp_type, "HeatPump:WaterToWater:ParameterEstimation:Heating" ) ) {
 							this_comp.TypeOf_Num = TypeOf_HPWaterPEHeating;
 							this_comp.GeneralEquipType = GenEquipTypes_HeatPump;
