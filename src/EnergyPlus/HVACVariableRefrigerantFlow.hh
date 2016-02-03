@@ -195,7 +195,7 @@ namespace HVACVariableRefrigerantFlow {
 
 	// Types
 
-	struct VRFCondenserEquipment : PlantComponent
+	struct VRFCondenserEquipment : public PlantComponent
 	{
 		// Members
 		std::string Name; // Name of the VRF Terminal Unit
@@ -620,17 +620,13 @@ namespace HVACVariableRefrigerantFlow {
 			VRFOperationSimPath( 0.0 )
 		{}
 
-		public:
-			static PlantComponent * factory( int objectType, std::string objectName );
+		static PlantComponent * factory( int objectType, std::string objectName );
 
-		public:
-			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad );
+		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
 
-		public:
-			void getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
+		void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
 
-		void
-			SizeVRFCondenser();
+		void SizeVRFCondenser();
 
 	};
 

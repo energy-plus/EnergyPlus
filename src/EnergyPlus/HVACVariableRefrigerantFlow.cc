@@ -434,7 +434,7 @@ namespace HVACVariableRefrigerantFlow {
 		return nullptr;
 	}
 
-	void VRFCondenserEquipment::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const EP_UNUSED( CurLoad ) ) {
+	void VRFCondenserEquipment::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & EP_UNUSED( CurLoad ) ) {
 		if ( this->OneTimeInitVRFCond ) {
 			int FoundOnLoop = 0;
 			bool errFlag = false;
@@ -453,7 +453,7 @@ namespace HVACVariableRefrigerantFlow {
 
 	}
 
-	void VRFCondenserEquipment::getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
+	void VRFCondenserEquipment::getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
 	{
 
 		this->SizeVRFCondenser(); // need to call this somehow

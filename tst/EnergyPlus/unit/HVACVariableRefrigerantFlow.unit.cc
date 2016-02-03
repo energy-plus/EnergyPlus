@@ -2605,9 +2605,19 @@ namespace EnergyPlus {
 		PlantManager::InitLoopEquip = true;
 		// call air-side VRF
 		SimulateVRF( VRFTU( VRFTUNum ).Name, CurZoneNum, FirstHVACIteration, SysOutputProvided, LatOutputProvided, ZoneEquipList( CurZoneEqNum ).EquipIndex( EquipPtr ) );
-		// call plant-side VRF
-//		SimVRFCondenserPlant( SimPlantEquipTypes( VRF( VRFCond ).VRFPlantTypeOfNum ), VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).Name, VRFCond, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum );
-//		VRFCondenserEquipment::simulate( PlantLocation & calledFromLocation, FirstHVACIteration, CurLoad );
+
+
+		// old simulate call prior to E+ hacking meeting
+		//	SimVRFCondenserPlant( SimPlantEquipTypes( VRF( VRFCond ).VRFPlantTypeOfNum ), VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).Name, VRFCond, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, LoopNum );
+
+		PlantComponent * compPtr;
+		PlantLocation dummyLoc;
+
+		compPtr = VRFCondenserEquipment::factory( VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).Name );
+		compPtr->onInitLoopEquip( dummyLoc );
+		compPtr->getDesignCapacities( dummyLoc, MaxLoad, MinLoad, OptLoad );
+		// simulate VRF condenser
+		compPtr->simulate( dummyLoc, FirstHVACIteration, CurLoad );
 
 		DataZoneEnergyDemands::ZoneSysEnergyDemand( CurZoneNum ).RemainingOutputRequired = -1000.0; // set cooling load
 		DataZoneEnergyDemands::ZoneSysEnergyDemand( CurZoneNum ).RemainingOutputReqToCoolSP = -1000.0;
