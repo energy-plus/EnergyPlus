@@ -220,13 +220,13 @@ namespace FluidCoolers {
 		return nullptr;
 	}
 
-	void FluidCooler::onInitLoopEquip()
+	void FluidCooler::onInitLoopEquip( PlantLocation const & EP_UNUSED( calledFromLocation ) )
 	{
 		this->init();
 		this->size();
 	}
 
-	void FluidCooler::getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
+	void FluidCooler::getDesignCapacities( PlantLocation const & EP_UNUSED( calledFromLocation ), Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
 	{
 		MinLoad = 0.0;
 		MaxLoad = this->FluidCoolerNominalCapacity;
@@ -234,7 +234,7 @@ namespace FluidCoolers {
 	}
 
 	void FluidCooler::simulate(
-			const PlantLocation & EP_UNUSED( calledFromLocation ),
+			PlantLocation const & EP_UNUSED( calledFromLocation ),
 			bool const EP_UNUSED( FirstHVACIteration ),
 			Real64 const CurLoad
 	)
@@ -391,7 +391,7 @@ namespace FluidCoolers {
 				}
 			}
 
-			ErrorsFound = ErrorsFound || TestFluidCoolerSingleSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+			ErrorsFound = ErrorsFound || FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 
 		} // End Single-Speed fluid cooler Loop
 
@@ -468,7 +468,7 @@ namespace FluidCoolers {
 				}
 			}
 
-			ErrorsFound = ErrorsFound || TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+			ErrorsFound = ErrorsFound || FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 		}
 
 		if ( ErrorsFound ) {
@@ -498,12 +498,12 @@ namespace FluidCoolers {
 	}
 
 	bool
-	TestFluidCoolerSingleSpeedInputForDesign(
+	FluidCooler::verifySingleSpeedDesignInputs(
+		FluidCooler & singleSpeedFluidCooler,
 		std::string const & cCurrentModuleObject,
-		Array1D<std::string> const &  AlphArray,
+		Array1D<std::string> const & AlphArray,
 		Array1D<std::string> const & cNumericFieldNames,
-		Array1D<std::string> const & cAlphaFieldNames,
-		int const &	FluidCoolerNum
+		Array1D<std::string> const & cAlphaFieldNames
 	)
 	{
 		// FUNCTION INFORMATION:
@@ -539,59 +539,59 @@ namespace FluidCoolers {
 
 		//   Design entering water temperature, design entering air temperature and design entering air
 		//   wetbulb temperature must be specified for the both the performance input methods
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp <= 0.0 ) {
+		if ( singleSpeedFluidCooler.DesignEnteringWaterTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 3 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp <= 0.0 ) {
+		if ( singleSpeedFluidCooler.DesignEnteringAirTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 4 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp <= 0.0 ) {
+		if ( singleSpeedFluidCooler.DesignEnteringAirWetBulbTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 5 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp <= SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp ) {
+		if ( singleSpeedFluidCooler.DesignEnteringWaterTemp <= singleSpeedFluidCooler.DesignEnteringAirTemp ) {
 			ShowSevereError( cCurrentModuleObject + "= \"" + AlphArray( 1 ) + "\"," + cNumericFieldNames( 3 ) + " must be greater than " + cNumericFieldNames( 4 ) + '.' );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp <= SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp ) {
+		if ( singleSpeedFluidCooler.DesignEnteringAirTemp <= singleSpeedFluidCooler.DesignEnteringAirWetBulbTemp ) {
 			ShowSevereError( cCurrentModuleObject + "= \"" + AlphArray( 1 ) + "\"," + cNumericFieldNames( 4 ) + " must be greater than " + cNumericFieldNames( 5 ) + '.' );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate <= 0.0 && SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate != AutoSize ) {
+		if ( singleSpeedFluidCooler.HighSpeedAirFlowRate <= 0.0 && singleSpeedFluidCooler.HighSpeedAirFlowRate != AutoSize ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 7 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate <= 0.0 && !SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized ) {
+		if ( singleSpeedFluidCooler.DesignWaterFlowRate <= 0.0 && !singleSpeedFluidCooler.DesignWaterFlowRateWasAutoSized ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 6 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower <= 0.0 && SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower != AutoSize ) {
+		if ( singleSpeedFluidCooler.HighSpeedFanPower <= 0.0 && singleSpeedFluidCooler.HighSpeedFanPower != AutoSize ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 8 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
 
 		//   Check various inputs for both the performance input methods
 		if ( SameString( AlphArray( 4 ), "UFactorTimesAreaAndDesignWaterFlowRate" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = FluidCoolers::PIM::UFactor;
-			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA <= 0.0 && SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA != AutoSize ) {
+			singleSpeedFluidCooler.PerformanceInputMethod_Num = FluidCoolers::PIM::UFactor;
+			if ( singleSpeedFluidCooler.HighSpeedFluidCoolerUA <= 0.0 && singleSpeedFluidCooler.HighSpeedFluidCoolerUA != AutoSize ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 1 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
 		}
 		else if ( SameString( AlphArray( 4 ), "NominalCapacity" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = FluidCoolers::PIM::NominalCapacity;
-			if ( SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity <= 0.0 ) {
+			singleSpeedFluidCooler.PerformanceInputMethod_Num = FluidCoolers::PIM::NominalCapacity;
+			if ( singleSpeedFluidCooler.FluidCoolerNominalCapacity <= 0.0 ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 2 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA != 0.0 ) {
-				if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA > 0.0 ) {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal fluid cooler capacity and design fluid cooler UA have been specified." );
+			if ( singleSpeedFluidCooler.HighSpeedFluidCoolerUA != 0.0 ) {
+				if ( singleSpeedFluidCooler.HighSpeedFluidCoolerUA > 0.0 ) {
+					ShowSevereError( cCurrentModuleObject + "= \"" + singleSpeedFluidCooler.Name + "\". Nominal fluid cooler capacity and design fluid cooler UA have been specified." );
 				}
 				else {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal fluid cooler capacity has been specified and design fluid cooler UA is being autosized." );
+					ShowSevereError( cCurrentModuleObject + "= \"" + singleSpeedFluidCooler.Name + "\". Nominal fluid cooler capacity has been specified and design fluid cooler UA is being autosized." );
 				}
 				ShowContinueError( "Design fluid cooler UA field must be left blank when nominal fluid cooler capacity performance input method is used." );
 				ErrorsFound = true;
@@ -606,12 +606,12 @@ namespace FluidCoolers {
 	}
 
 	bool
-	TestFluidCoolerTwoSpeedInputForDesign(
+	FluidCooler::verifyTwoSpeedDesignInputs(
+		FluidCooler & twoSpeedFluidCooler,
 		std::string const & cCurrentModuleObject,
-		Array1D<std::string> const &  AlphArray,
+		Array1D<std::string> const & AlphArray,
 		Array1D<std::string> const & cNumericFieldNames,
-		Array1D<std::string> const & cAlphaFieldNames,
-		int const &	FluidCoolerNum
+		Array1D<std::string> const & cAlphaFieldNames
 	)
 	{
 		// FUNCTION INFORMATION:
@@ -647,103 +647,103 @@ namespace FluidCoolers {
 
 		//   Design entering water temperature, design entering air temperature and design entering air
 		//   wetbulb temperature must be specified for the both the performance input methods
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp <= 0.0 ) {
+		if ( twoSpeedFluidCooler.DesignEnteringWaterTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 7 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp <= 0.0 ) {
+		if ( twoSpeedFluidCooler.DesignEnteringAirTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 8 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp <= 0.0 ) {
+		if ( twoSpeedFluidCooler.DesignEnteringAirWetBulbTemp <= 0.0 ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 9 ) + "\", entered value <= 0.0, but must be > 0 " );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp <= SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp ) {
+		if ( twoSpeedFluidCooler.DesignEnteringWaterTemp <= twoSpeedFluidCooler.DesignEnteringAirTemp ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", " + cNumericFieldNames( 7 ) + " must be greater than " + cNumericFieldNames( 8 ) + '.' );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp <= SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp ) {
+		if ( twoSpeedFluidCooler.DesignEnteringAirTemp <= twoSpeedFluidCooler.DesignEnteringAirWetBulbTemp ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", " + cNumericFieldNames( 8 ) + " must be greater than " + cNumericFieldNames( 9 ) + '.' );
 			ErrorsFound = true;
 		}
 
 		//   Check various inputs for both the performance input methods
-		if ( SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized ) {
+		if ( twoSpeedFluidCooler.DesignWaterFlowRate <= 0.0 && ! twoSpeedFluidCooler.DesignWaterFlowRateWasAutoSized ) {
 			ShowSevereError( cCurrentModuleObject + "= \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 10 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + "= \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRateWasAutoSized ) {
+		if ( twoSpeedFluidCooler.HighSpeedAirFlowRate <= 0.0 && ! twoSpeedFluidCooler.HighSpeedAirFlowRateWasAutoSized ) {
 			ShowSevereError( cCurrentModuleObject + "= \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 11 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + "= \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRate <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRateWasAutoSized ) {
+		if ( twoSpeedFluidCooler.LowSpeedAirFlowRate <= 0.0 && ! twoSpeedFluidCooler.LowSpeedAirFlowRateWasAutoSized ) {
 			ShowSevereError( cCurrentModuleObject + "= \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 13 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + "= \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
 		//   High speed air flow rate must be greater than low speed air flow rate.
 		//   Can't tell yet if autosized, check later in InitFluidCooler.
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate <= SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRate && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRateWasAutoSized ) {
-			ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Fluid cooler air flow rate at low fan speed must be less than the air flow rate at high fan speed." );
+		if ( twoSpeedFluidCooler.HighSpeedAirFlowRate <= twoSpeedFluidCooler.LowSpeedAirFlowRate && ! twoSpeedFluidCooler.HighSpeedAirFlowRateWasAutoSized ) {
+			ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Fluid cooler air flow rate at low fan speed must be less than the air flow rate at high fan speed." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPowerWasAutoSized ) {
+		if ( twoSpeedFluidCooler.HighSpeedFanPower <= 0.0 && ! twoSpeedFluidCooler.HighSpeedFanPowerWasAutoSized ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 12 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPower <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPowerWasAutoSized ) {
+		if ( twoSpeedFluidCooler.LowSpeedFanPower <= 0.0 && ! twoSpeedFluidCooler.LowSpeedFanPowerWasAutoSized ) {
 			ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 15 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 			ErrorsFound = true;
 		}
-		if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower <= SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPower && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPowerWasAutoSized ) {
-			ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Fluid cooler low speed fan power must be less than high speed fan power." );
+		if ( twoSpeedFluidCooler.HighSpeedFanPower <= twoSpeedFluidCooler.LowSpeedFanPower && ! twoSpeedFluidCooler.HighSpeedFanPowerWasAutoSized ) {
+			ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Fluid cooler low speed fan power must be less than high speed fan power." );
 			ErrorsFound = true;
 		}
 
 		if ( SameString( AlphArray( 4 ), "UFactorTimesAreaAndDesignWaterFlowRate" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::UFactor;
-			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized ) {
+			twoSpeedFluidCooler.PerformanceInputMethod_Num = PIM::UFactor;
+			if ( twoSpeedFluidCooler.HighSpeedFluidCoolerUA <= 0.0 && ! twoSpeedFluidCooler.HighSpeedFluidCoolerUAWasAutoSized ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 1 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUAWasAutoSized ) {
+			if ( twoSpeedFluidCooler.LowSpeedFluidCoolerUA <= 0.0 && ! twoSpeedFluidCooler.LowSpeedFluidCoolerUAWasAutoSized ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 2 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA <= SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA && ! SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized ) {
-				ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Fluid cooler UA at low fan speed must be less than the fluid cooler UA at high fan speed." );
+			if ( twoSpeedFluidCooler.HighSpeedFluidCoolerUA <= twoSpeedFluidCooler.LowSpeedFluidCoolerUA && ! twoSpeedFluidCooler.HighSpeedFluidCoolerUAWasAutoSized ) {
+				ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Fluid cooler UA at low fan speed must be less than the fluid cooler UA at high fan speed." );
 				ErrorsFound = true;
 			}
 		} else if ( SameString( AlphArray( 4 ), "NominalCapacity" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::NominalCapacity;
-			if ( SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity <= 0.0 ) {
+			twoSpeedFluidCooler.PerformanceInputMethod_Num = PIM::NominalCapacity;
+			if ( twoSpeedFluidCooler.FluidCoolerNominalCapacity <= 0.0 ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 4 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + "= \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerLowSpeedNomCap <= 0.0 && ! SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerLowSpeedNomCapWasAutoSized ) {
+			if ( twoSpeedFluidCooler.FluidCoolerLowSpeedNomCap <= 0.0 && ! twoSpeedFluidCooler.FluidCoolerLowSpeedNomCapWasAutoSized ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 5 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + "= \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA != 0.0 ) {
-				if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA > 0.0 ) {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal capacity input method and fluid cooler UA at high fan speed have been specified." );
+			if ( twoSpeedFluidCooler.HighSpeedFluidCoolerUA != 0.0 ) {
+				if ( twoSpeedFluidCooler.HighSpeedFluidCoolerUA > 0.0 ) {
+					ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Nominal capacity input method and fluid cooler UA at high fan speed have been specified." );
 				} else {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal capacity input method has been specified and fluid cooler UA at high fan speed is being autosized." );
+					ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Nominal capacity input method has been specified and fluid cooler UA at high fan speed is being autosized." );
 				}
 				ShowContinueError( "Fluid cooler UA at high fan speed must be left blank when nominal fluid cooler capacity performance input method is used." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA != 0.0 ) {
-				if ( SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA > 0.0 ) {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal capacity input method and fluid cooler UA at low fan speed have been specified." );
+			if ( twoSpeedFluidCooler.LowSpeedFluidCoolerUA != 0.0 ) {
+				if ( twoSpeedFluidCooler.LowSpeedFluidCoolerUA > 0.0 ) {
+					ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Nominal capacity input method and fluid cooler UA at low fan speed have been specified." );
 				} else {
-					ShowSevereError( cCurrentModuleObject + "= \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Nominal capacity input method has been specified and fluid cooler UA at low fan speed is being autosized." );
+					ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler.Name + "\". Nominal capacity input method has been specified and fluid cooler UA at low fan speed is being autosized." );
 				}
 				ShowContinueError( "Fluid cooler UA at low fan speed must be left blank when nominal fluid cooler capacity performance input method is used." );
 				ErrorsFound = true;
 			}
-			if ( SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerLowSpeedNomCap >= SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity ) {
-				ShowSevereError( cCurrentModuleObject + " = \"" + SimpleFluidCoolers( FluidCoolerNum ).Name + "\". Low-speed nominal capacity must be less than the high-speed nominal capacity." );
+			if ( twoSpeedFluidCooler.FluidCoolerLowSpeedNomCap >= twoSpeedFluidCooler.FluidCoolerNominalCapacity ) {
+				ShowSevereError( cCurrentModuleObject + " = \"" + twoSpeedFluidCooler.Name + "\". Low-speed nominal capacity must be less than the high-speed nominal capacity." );
 				ErrorsFound = true;
 			}
 		} else { // Fluid cooler performance input method is not specified as a valid "choice"
@@ -753,13 +753,6 @@ namespace FluidCoolers {
 		}
 		return ErrorsFound;
 	}
-
-
-	// End of Get Input subroutines for the CondenserLoopFluidCoolers Module
-	//******************************************************************************
-
-	// Beginning Initialization Section for the CondenserLoopFluidCoolers Module
-	//******************************************************************************
 
 	void
 	FluidCooler::init()

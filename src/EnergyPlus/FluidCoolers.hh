@@ -105,9 +105,25 @@ namespace FluidCoolers {
 
 		virtual void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
 
-		virtual void getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) override;
+		virtual void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) override;
 
-		virtual void onInitLoopEquip() override;
+		virtual void onInitLoopEquip( const PlantLocation & calledFromLocation ) override;
+
+		static bool verifySingleSpeedDesignInputs(
+			FluidCooler & singleSpeedFluidCooler,
+			std::string const & cCurrentModuleObject,
+			Array1D<std::string> const & AlphArray,
+			Array1D<std::string> const & cNumericFieldNames,
+			Array1D<std::string> const & cAlphaFieldNames
+		);
+
+		static bool verifyTwoSpeedDesignInputs(
+			FluidCooler & twoSpeedFluidCooler,
+			std::string const & cCurrentModuleObject,
+			Array1D<std::string> const & AlphArray,
+			Array1D<std::string> const & cNumericFieldNames,
+			Array1D<std::string> const & cAlphaFieldNames
+		);
 
 	private:
 
@@ -208,25 +224,6 @@ namespace FluidCoolers {
 		//////////////////////////
 
 	};
-
-	// Functions
-	bool
-	TestFluidCoolerSingleSpeedInputForDesign(
-		std::string const & cCurrentModuleObject,
-		Array1D<std::string> const & AlphArray,
-		Array1D<std::string> const & cNumericFieldNames,
-		Array1D<std::string> const & cAlphaFieldNames,
-		int const &	FluidCoolerNum
-		);
-
-	bool
-	TestFluidCoolerTwoSpeedInputForDesign(
-		std::string const & cCurrentModuleObject,
-		Array1D<std::string> const & AlphArray,
-		Array1D<std::string> const & cNumericFieldNames,
-		Array1D<std::string> const & cAlphaFieldNames,
-		int const &	FluidCoolerNum
-	);
 
 } // FluidCoolers
 

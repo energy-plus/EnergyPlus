@@ -121,22 +121,22 @@ TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test1 )
 	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = 0;
 	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA = 0;
 	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = 50;
-	bool testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	bool testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = -10;
-	testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_TRUE( testResult ); // error message triggered
 
 	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = 50;
 	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCap = AutoSize;
 	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCapWasAutoSized = true;
-	testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCap = 0; // this should trigger the original error condition
 	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCapWasAutoSized = false;
-	testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_TRUE( testResult ); // error message triggered
 
 	SimpleFluidCoolers.deallocate();
@@ -185,13 +185,13 @@ TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test2 ) {
 	AlphArray( 4 ) = "UFactorTimesAreaAndDesignWaterFlowRate";
 	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = AutoSize;
 	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized = false;
-	bool testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	bool testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_TRUE( testResult ); // error message triggered
 
 	ErrrorsFound = false;
 	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = AutoSize;
 	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized = true;
-	testResult = TestFluidCoolerTwoSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers.deallocate();
@@ -239,22 +239,22 @@ TEST_F( EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test3 )
 	AlphArray( 4 ) = "UFactorTimesAreaAndDesignWaterFlowRate";
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 1;
-	bool testResult = TestFluidCoolerSingleSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	bool testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 0;
-	testResult = TestFluidCoolerSingleSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = false;
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 1;
-	testResult = TestFluidCoolerSingleSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_FALSE( testResult ); // no error message triggered
 
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = false;
 	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 0;
-	testResult = TestFluidCoolerSingleSpeedInputForDesign( cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames, FluidCoolerNum );
+	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
 	EXPECT_TRUE( testResult ); // error message triggered
 
 }
