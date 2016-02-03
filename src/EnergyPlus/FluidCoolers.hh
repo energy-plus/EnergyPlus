@@ -79,66 +79,71 @@ namespace FluidCoolers {
 	extern std::string const cFluidCooler_SingleSpeed;
 	extern std::string const cFluidCooler_TwoSpeed;
 
-	enum PIM : int {
-		NominalCapacity = 1,
+	enum class PIM : int {
+		None = 0,
+		NominalCapacity,
 		UFactor
 	};
 
-	enum FluidCoolerEnum : int {
-		SingleSpeed = 1,
+	enum class FluidCoolerEnum : int {
+		None = 0,
+		SingleSpeed,
 		TwoSpeed
 	};
 
-//	extern int const PIM_NominalCapacity;
-//	extern int const PIM_UFactor;
-//
-//	extern int const FluidCooler_SingleSpeed;
-//	extern int const FluidCooler_TwoSpeed;
+	// Object Data
+	extern Array1D< class FluidCooler > SimpleFluidCoolers; // dimension to number of machines
 
-	// DERIVED TYPE DEFINITIONS
-
-	// MODULE VARIABLE DECLARATIONS:
-	extern int NumSimpleFluidCoolers; // Number of similar fluid coolers
-
-	// The following block of variables are used to carry model results for a fluid cooler instance
-	// across sim, update, and report routines.  Simulation manager must be careful
-	// in models with multiple fluid coolers.
-
-//	extern Real64 InletWaterTemp; // CW temperature at fluid cooler inlet
-//	extern Real64 OutletWaterTemp; // CW temperature at fluid cooler outlet
-//	extern int WaterInletNode; // Node number at fluid cooler inlet
-//	extern int WaterOutletNode; // Node number at fluid cooler outlet
-//	extern Real64 WaterMassFlowRate; // WaterMassFlowRate through fluid cooler
-	//DSU this is plant level stuff now  :: FluidCoolerMassFlowRateMax     = 0.0    ! Max Hardware Mass Flow Rate
-	//DSU this is plant level stuff now  :: FluidCoolerMassFlowRateMin     = 0.0    ! Min Hardware Mass Flow Rate
-	//DSU this is plant level stuff now  :: LoopMassFlowRateMaxAvail = 0.0    ! Max Loop Mass Flow Rate available
-	//DSU this is plant level stuff now  :: LoopMassFlowRateMinAvail = 0.0    ! Min Loop Mass Flow Rate available
-//	extern Real64 Qactual; // Fluid cooler heat transfer
-//	extern Real64 FanPower; // Fluid cooler fan power used
-
-//	extern Array1D_bool CheckEquipName;
-
-	// SUBROUTINE SPECIFICATIONS FOR MODULE CondenserLoopFluidCoolers
-
-	// Driver/Manager Routines
-
-	// Get Input routines for module
-
-	// Initialization routines for module
-	// also, calculates UA based on nominal capacity input(s)
-
-	// Update routines to check convergence and update nodes
-
-	// Types
-
-	struct FluidCooler : public PlantComponent
+	class FluidCooler : public PlantComponent
 	{
+
+	public:
+		// Default Constructor
+		FluidCooler();
+
+		static PlantComponent * factory( int objectType, std::string objectName );
+
+		virtual void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
+
+		virtual void getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) override;
+
+		virtual void onInitLoopEquip() override;
+
+	private:
+
+		static void getFluidCoolerInput();
+
+		void init();
+
+		void size();
+
+		void update();
+
+		void report( bool const RunFlag );
+
+		void singleSpeedFluidCooler();
+
+		void twoSpeedFluidCooler();
+
+		void simSimpleFluidCooler(
+				Real64 const WaterMassFlowRate,
+				Real64 const AirFlowRate,
+				Real64 const UAdesign,
+				Real64 & OutletWaterTemp
+		);
+
+		Real64 simpleFluidCoolerUAResidual(
+				Real64 const UA, // UA of fluid cooler
+				Array1< Real64 > const & Par // par(1) = design fluid cooler load [W]
+		);
+
+	public:
 		// Members
 		std::string Name; // User identifier
 		std::string FluidCoolerType; // Type of fluid cooler
-		int FluidCoolerType_Num;
+		FluidCoolerEnum FluidCoolerType_Num;
 		int PlantType_Num;
-		int PerformanceInputMethod_Num;
+		PIM PerformanceInputMethod_Num;
 		bool Available; // need an array of logicals--load identifiers of available equipment
 		bool ON; // Simulate the machine at it's operating part load ratio
 		Real64 DesignWaterFlowRate; // Design water flow rate through the fluid cooler [m3/s]
@@ -202,94 +207,7 @@ namespace FluidCoolers {
 		Real64 FanEnergy; // Fluid cooler fan energy consumption (J)
 		//////////////////////////
 
-		// Default Constructor
-		FluidCooler() :
-			FluidCoolerType_Num( 0 ),
-			PerformanceInputMethod_Num( 0 ),
-			Available( true ),
-			ON( true ),
-			DesignWaterFlowRate( 0.0 ),
-			DesignWaterFlowRateWasAutoSized( false ),
-			DesWaterMassFlowRate( 0.0 ),
-			HighSpeedAirFlowRate( 0.0 ),
-			HighSpeedAirFlowRateWasAutoSized( false ),
-			HighSpeedFanPower( 0.0 ),
-			HighSpeedFanPowerWasAutoSized( false ),
-			HighSpeedFluidCoolerUA( 0.0 ),
-			HighSpeedFluidCoolerUAWasAutoSized( false ),
-			LowSpeedAirFlowRate( 0.0 ),
-			LowSpeedAirFlowRateWasAutoSized( false ),
-			LowSpeedAirFlowRateSizingFactor( 0.0 ),
-			LowSpeedFanPower( 0.0 ),
-			LowSpeedFanPowerWasAutoSized( false ),
-			LowSpeedFanPowerSizingFactor( 0.0 ),
-			LowSpeedFluidCoolerUA( 0.0 ),
-			LowSpeedFluidCoolerUAWasAutoSized( false ),
-			LowSpeedFluidCoolerUASizingFactor( 0.0 ),
-			DesignEnteringWaterTemp( 0.0 ),
-			DesignLeavingWaterTemp( 0.0 ),
-			DesignEnteringAirTemp( 0.0 ),
-			DesignEnteringAirWetBulbTemp( 0.0 ),
-			FluidCoolerMassFlowRateMultiplier( 0.0 ),
-			FluidCoolerNominalCapacity( 0.0 ),
-			FluidCoolerLowSpeedNomCap( 0.0 ),
-			FluidCoolerLowSpeedNomCapWasAutoSized( false ),
-			FluidCoolerLowSpeedNomCapSizingFactor( 0.0 ),
-			WaterInletNodeNum( 0 ),
-			WaterOutletNodeNum( 0 ),
-			OutdoorAirInletNodeNum( 0 ),
-			HighMassFlowErrorCount( 0 ),
-			HighMassFlowErrorIndex( 0 ),
-			OutletWaterTempErrorCount( 0 ),
-			OutletWaterTempErrorIndex( 0 ),
-			SmallWaterMassFlowErrorCount( 0 ),
-			SmallWaterMassFlowErrorIndex( 0 ),
-			WMFRLessThanMinAvailErrCount( 0 ),
-			WMFRLessThanMinAvailErrIndex( 0 ),
-			WMFRGreaterThanMaxAvailErrCount( 0 ),
-			WMFRGreaterThanMaxAvailErrIndex( 0 ),
-		 	envrnFlag( true ),
-		 	oneTimeFlag( true )
-		{}
-
-	public:
-		static PlantComponent * factory( int objectType, std::string objectName );
-
-		virtual void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
-
-		virtual void getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) override;
-
-		void init();
-
-		void size();
-
-		void update();
-
-		void report( bool const RunFlag );
-
-	private:
-		void singleSpeedFluidCooler();
-
-		void twoSpeedFluidCooler();
-
-		void simSimpleFluidCooler(
-				Real64 const WaterMassFlowRate,
-				Real64 const AirFlowRate,
-				Real64 const UAdesign,
-				Real64 & OutletWaterTemp
-		);
-
-		Real64 simpleFluidCoolerUAResidual(
-				Real64 const UA, // UA of fluid cooler
-				Array1< Real64 > const & Par // par(1) = design fluid cooler load [W]
-		);
-
 	};
-
-	// Object Data
-	extern Array1D< FluidCooler > SimpleFluidCoolers; // dimension to number of machines
-//	extern Array1D< FluidCoolerInletConds > SimpleFluidCoolerInlet; // inlet conditions
-//	extern Array1D< ReportVars > SimpleFluidCoolerReport; // report variables
 
 	// Functions
 	bool
@@ -309,75 +227,6 @@ namespace FluidCoolers {
 		Array1D<std::string> const & cAlphaFieldNames,
 		int const &	FluidCoolerNum
 	);
-
-	// End CondenserLoopFluidCoolers Module Driver Subroutines
-	//******************************************************************************
-
-	// Beginning of CondenserLoopFluidCoolers Module Get Input subroutines
-	//******************************************************************************
-
-	void
-	GetFluidCoolerInput();
-
-	// End of Get Input subroutines for the CondenserLoopFluidCoolers Module
-	//******************************************************************************
-
-	// Beginning Initialization Section for the CondenserLoopFluidCoolers Module
-	//******************************************************************************
-
-//	void
-//	InitSimVars();
-
-//	void
-//	SizeFluidCooler( int const FluidCoolerNum );
-
-	// End Initialization Section for the CondenserLoopFluidCoolers Module
-	//******************************************************************************
-
-	// Beginning of the CondenserLoopFluidCoolers Module Simulation Subroutines
-	// *****************************************************************************
-
-//	void
-//	SingleSpeedFluidCooler( int & FluidCoolerNum );
-
-//	void
-//	TwoSpeedFluidCooler( int & FluidCoolerNum );
-
-//	void
-//	SimSimpleFluidCooler(
-//		int const FluidCoolerNum,
-//		Real64 const WaterMassFlowRate,
-//		Real64 const AirFlowRate,
-//		Real64 const UAdesign,
-//		Real64 & OutletWaterTemp
-//	);
-
-//	Real64
-//	SimpleFluidCoolerUAResidual(
-//		Real64 const UA, // UA of fluid cooler
-//		Array1< Real64 > const & Par // par(1) = design fluid cooler load [W]
-//	);
-
-	// End of the CondenserLoopFluidCoolers Module Simulation Subroutines
-	// *****************************************************************************
-
-	// Beginning of Record Keeping subroutines for the FluidCooler Module
-	// *****************************************************************************
-
-//	void
-//	UpdateFluidCooler( int const FluidCoolerNum );
-
-	// End of Record Keeping subroutines for the FluidCooler Module
-	// *****************************************************************************
-
-	// Beginning of Reporting subroutines for the FluidCooler Module
-	// *****************************************************************************
-
-//	void
-//	ReportFluidCooler(
-//		bool const RunFlag,
-//		int const FluidCoolerNum
-//	);
 
 } // FluidCoolers
 

@@ -144,45 +144,68 @@ namespace FluidCoolers {
 	using FluidProperties::GetSpecificHeatGlycol;
 	using General::TrimSigDigits;
 
-	// Data
-	// MODULE PARAMETER DEFINITIONS:
 	std::string const cFluidCooler_SingleSpeed( "FluidCooler:SingleSpeed" );
 	std::string const cFluidCooler_TwoSpeed( "FluidCooler:TwoSpeed" );
 
 	static std::string const BlankString;
 
-	// DERIVED TYPE DEFINITIONS
-
-	// MODULE VARIABLE DECLARATIONS:
-	int NumSimpleFluidCoolers( 0 ); // Number of similar fluid coolers
-
-	// SUBROUTINE SPECIFICATIONS FOR MODULE CondenserLoopFluidCoolers
-
-	// Driver/Manager Routines
-
-	// Get Input routines for module
-
-	// Initialization routines for module
-	// also, calculates UA based on nominal capacity input(s)
-
-	// Update routines to check convergence and update nodes
-
-	// Object Data
 	Array1D< FluidCooler > SimpleFluidCoolers; // dimension to number of machines
 
-	// MODULE SUBROUTINES:
-
-	// Beginning of CondenserLoopFluidCoolers Module Driver Subroutines
-	//*************************************************************************
-
-	// Functions
+	FluidCooler::FluidCooler() :
+			FluidCoolerType_Num( FluidCoolerEnum::None ),
+			PerformanceInputMethod_Num( PIM::None ),
+			Available( true ),
+			ON( true ),
+			DesignWaterFlowRate( 0.0 ),
+			DesignWaterFlowRateWasAutoSized( false ),
+			DesWaterMassFlowRate( 0.0 ),
+			HighSpeedAirFlowRate( 0.0 ),
+			HighSpeedAirFlowRateWasAutoSized( false ),
+			HighSpeedFanPower( 0.0 ),
+			HighSpeedFanPowerWasAutoSized( false ),
+			HighSpeedFluidCoolerUA( 0.0 ),
+			HighSpeedFluidCoolerUAWasAutoSized( false ),
+			LowSpeedAirFlowRate( 0.0 ),
+			LowSpeedAirFlowRateWasAutoSized( false ),
+			LowSpeedAirFlowRateSizingFactor( 0.0 ),
+			LowSpeedFanPower( 0.0 ),
+			LowSpeedFanPowerWasAutoSized( false ),
+			LowSpeedFanPowerSizingFactor( 0.0 ),
+			LowSpeedFluidCoolerUA( 0.0 ),
+			LowSpeedFluidCoolerUAWasAutoSized( false ),
+			LowSpeedFluidCoolerUASizingFactor( 0.0 ),
+			DesignEnteringWaterTemp( 0.0 ),
+			DesignLeavingWaterTemp( 0.0 ),
+			DesignEnteringAirTemp( 0.0 ),
+			DesignEnteringAirWetBulbTemp( 0.0 ),
+			FluidCoolerMassFlowRateMultiplier( 0.0 ),
+			FluidCoolerNominalCapacity( 0.0 ),
+			FluidCoolerLowSpeedNomCap( 0.0 ),
+			FluidCoolerLowSpeedNomCapWasAutoSized( false ),
+			FluidCoolerLowSpeedNomCapSizingFactor( 0.0 ),
+			WaterInletNodeNum( 0 ),
+			WaterOutletNodeNum( 0 ),
+			OutdoorAirInletNodeNum( 0 ),
+			HighMassFlowErrorCount( 0 ),
+			HighMassFlowErrorIndex( 0 ),
+			OutletWaterTempErrorCount( 0 ),
+			OutletWaterTempErrorIndex( 0 ),
+			SmallWaterMassFlowErrorCount( 0 ),
+			SmallWaterMassFlowErrorIndex( 0 ),
+			WMFRLessThanMinAvailErrCount( 0 ),
+			WMFRLessThanMinAvailErrIndex( 0 ),
+			WMFRGreaterThanMaxAvailErrCount( 0 ),
+			WMFRGreaterThanMaxAvailErrIndex( 0 ),
+		 	envrnFlag( true ),
+		 	oneTimeFlag( true )
+		{}
 
 	PlantComponent * FluidCooler::factory( int objectType, std::string objectName )
 	{
 		// Process the input data for pipes if it hasn't been done already
 		static bool GetFluidCoolerInputFlag = true;
 		if ( GetFluidCoolerInputFlag ) {
-			GetFluidCoolerInput();
+			FluidCooler::getFluidCoolerInput();
 			GetFluidCoolerInputFlag = false;
 		}
 		// Now look for this particular pipe in the list
@@ -197,10 +220,14 @@ namespace FluidCoolers {
 		return nullptr;
 	}
 
-	void FluidCooler::getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
+	void FluidCooler::onInitLoopEquip()
 	{
 		this->init();
 		this->size();
+	}
+
+	void FluidCooler::getDesignCapacities( Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
+	{
 		MinLoad = 0.0;
 		MaxLoad = this->FluidCoolerNominalCapacity;
 		OptLoad = this->FluidCoolerNominalCapacity;
@@ -236,7 +263,7 @@ namespace FluidCoolers {
 	//******************************************************************************
 
 	void
-	GetFluidCoolerInput()
+	FluidCooler::getFluidCoolerInput()
 	{
 
 		// SUBROUTINE INFORMATION:
@@ -289,12 +316,13 @@ namespace FluidCoolers {
 		int SingleSpeedFluidCoolerNumber; // Specific single-speed fluid cooler of interest
 		int NumTwoSpeedFluidCoolers; // Number of two-speed Fluid Coolers
 		int TwoSpeedFluidCoolerNumber; // Specific two-speed fluid cooler of interest
+		int NumSimpleFluidCoolers;
 		int NumAlphas; // Number of elements in the alpha array
 		int NumNums; // Number of elements in the numeric array
 		int IOStat; // IO Status when calling get input subroutine
 		bool IsNotOK; // Flag to verify name
 		bool IsBlank; // Flag for blank name
-		static bool ErrorsFound( false ); // Logical flag set .TRUE. if errors found while getting input data
+		bool ErrorsFound( false ); // Logical flag set .TRUE. if errors found while getting input data
 		Array1D< Real64 > NumArray( 16 ); // Numeric input data array
 		Array1D_string AlphArray( 5 ); // Character string input data array
 
@@ -546,14 +574,14 @@ namespace FluidCoolers {
 
 		//   Check various inputs for both the performance input methods
 		if ( SameString( AlphArray( 4 ), "UFactorTimesAreaAndDesignWaterFlowRate" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::UFactor;
+			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = FluidCoolers::PIM::UFactor;
 			if ( SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA <= 0.0 && SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA != AutoSize ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 1 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
 			}
 		}
 		else if ( SameString( AlphArray( 4 ), "NominalCapacity" ) ) {
-			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::NominalCapacity;
+			SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = FluidCoolers::PIM::NominalCapacity;
 			if ( SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity <= 0.0 ) {
 				ShowSevereError( cCurrentModuleObject + " = \"" + AlphArray( 1 ) + "\", invalid data for \"" + cNumericFieldNames( 2 ) + "\", entered value <= 0.0, but must be > 0 for " + cAlphaFieldNames( 4 ) + " = \"" + AlphArray( 4 ) + "\"." );
 				ErrorsFound = true;
@@ -1080,8 +1108,7 @@ namespace FluidCoolers {
 					this->AirWetBulb = this->DesignEnteringAirWetBulbTemp;
 					this->AirPress = StdBaroPress;
 					this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress, CalledFrom );
-					// SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ = ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
-					SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, std::bind( &FluidCooler::simpleFluidCoolerUAResidual, this, std::placeholders::_1, std::placeholders::_2 ), UA0, UA1, Par );
+					SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
 					if ( SolFla == -1 ) {
 						ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 						ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
@@ -1168,7 +1195,7 @@ namespace FluidCoolers {
 				this->AirWetBulb = this->DesignEnteringAirWetBulbTemp; // design inlet air wet-bulb temp
 				this->AirPress = StdBaroPress;
 				this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress );
-				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, std::bind( &FluidCooler::simpleFluidCoolerUAResidual, this, std::placeholders::_1, std::placeholders::_2 ), UA0, UA1, Par );
+				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
 				if ( SolFla == -1 ) {
 					ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 					ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
@@ -1294,7 +1321,7 @@ namespace FluidCoolers {
 				this->AirWetBulb = this->DesignEnteringAirWetBulbTemp; // design inlet air wet-bulb temp
 				this->AirPress = StdBaroPress;
 				this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress, CalledFrom );
-				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, std::bind( &FluidCooler::simpleFluidCoolerUAResidual, this, std::placeholders::_1, std::placeholders::_2 ), UA0, UA1, Par );
+				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
 				if ( SolFla == -1 ) {
 					ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 					ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
