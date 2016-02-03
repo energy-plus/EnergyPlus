@@ -1151,12 +1151,6 @@ namespace PlantLoopEquip {
 			} else if ( EquipTypeNum == TypeOf_WaterSource ) {
 
 				sim_component.compPtr->simulate(sim_component_location, FirstHVACIteration, CurLoad);
-//				if ( InitLoopEquip ) {
-//					sim_component.MaxLoad = MaxLoad;
-//					sim_component.MinLoad = MinLoad;
-//					sim_component.OptLoad = OptLoad;
-//					sim_component.CompNum = EquipNum;
-//				}
 
 			} else {
 				//        CALL ShowSevereError('SimPlantEquip: Invalid Component Equipment Type='//TRIM(EquipType))

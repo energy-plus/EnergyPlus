@@ -146,27 +146,13 @@ namespace PlantComponentTemperatureSources {
 		PlantComponent * factory( int objectType, std::string objectName );
 
 		void
-		simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad );
+		simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
 	
 		void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
 
-		void getSizingFactor(Real64 SizFac);
+		void getSizingFactor( Real64 SizFac );
 
-//	void
-//	SimWaterSource(
-//		std::string const & SourceName, // user-specified name for this component
-//		int const EquipFlowCtrl, // Flow control mode for the equipment
-//		int & CompIndex, // HX number pointer
-//		bool const RunFlag, // simulate HX when TRUE
-//		bool const FirstHVACIteration, // initialize variables when TRUE
-//		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-//		Real64 & MyLoad, // loop demand component will meet
-//		Real64 & MaxLoad,
-//		Real64 & MinLoad,
-//		Real64 & OptLoad,
-//		bool const GetSizingFactor, // TRUE when just the sizing factor is requested
-//		Real64 & SizingFactor // sizing factor
-//	);
+		void onInitLoopEquip(const PlantLocation & calledFromLocation);
 
 		void
 		InitWaterSource(

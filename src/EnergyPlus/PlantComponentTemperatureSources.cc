@@ -132,22 +132,6 @@ namespace PlantComponentTemperatureSources {
 
 	// Functions
 
-//	void
-//	SimWaterSource(
-//		std::string const & SourceName, // user-specified name for this component
-//		int const EquipFlowCtrl, // Flow control mode for the equipment
-//		int & CompIndex, // HX number pointer
-//		bool const RunFlag, // simulate HX when TRUE
-//		bool const FirstHVACIteration, // initialize variables when TRUE
-//		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-//		Real64 & MyLoad, // loop demand component will meet
-//		Real64 & MaxLoad,
-//		Real64 & MinLoad,
-//		Real64 & OptLoad,
-//		bool const GetSizingFactor, // TRUE when just the sizing factor is requested
-//		Real64 & SizingFactor // sizing factor
-//	)
-
 	PlantComponent * WaterSourceSpecs::factory(int EP_UNUSED( objectType ), std::string objectName) {
 		// Process the input data for temperature source if it hasn't been done already
 		if (GetInput) {
@@ -166,10 +150,13 @@ namespace PlantComponentTemperatureSources {
 		return nullptr;
 	}
 
-	void WaterSourceSpecs::getDesignCapacities(const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) {
+	void WaterSourceSpecs::onInitLoopEquip( const PlantLocation & EP_UNUSED(calledFromLocation) ) {
+		this->InitWaterSource( 0.0 );
+
+	}
+
+	void WaterSourceSpecs::getDesignCapacities(const PlantLocation & EP_UNUSED(calledFromLocation), Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) {
 		using DataGlobals::BigNumber;
-		// MJW - Not sure if this is needed:  this->InitWaterSource(MyLoad);
-		this->Location = calledFromLocation;
 		this->SizeWaterSource();
 		MaxLoad = BigNumber;
 		MinLoad = 0.0;
@@ -180,7 +167,7 @@ namespace PlantComponentTemperatureSources {
 		SizFac = this->SizFac;
 	}
 
-	void WaterSourceSpecs::simulate(const PlantLocation & EP_UNUSED(calledFromLocation), bool const FirstHVACIteration, Real64 const MyLoad) {
+	void WaterSourceSpecs::simulate(const PlantLocation & EP_UNUSED(calledFromLocation), bool const FirstHVACIteration, Real64 & MyLoad) {
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR         Edwin Lee
 		//       DATE WRITTEN   October 2012
@@ -189,11 +176,7 @@ namespace PlantComponentTemperatureSources {
 		//  gets the input for the models, initializes simulation variables, call
 		//  the appropriate model and sets up reporting variables.
 
-		// Using/Aliasing
-//		using InputProcessor::FindItemInList;
-
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-//		int SourceNum; // HX number pointer
 		bool RunFlag( false );
 
 		if (MyLoad > 0.0) RunFlag = true;
