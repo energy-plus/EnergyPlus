@@ -67,6 +67,7 @@
 #include <DataPlant.hh>
 #include <DataGlobals.hh>
 #include <PlantComponent.hh>
+#include <PlantLocation.hh>
 
 namespace EnergyPlus {
 
@@ -148,8 +149,12 @@ namespace PlantComponentTemperatureSources {
 		PlantComponent * factory( int objectType, std::string objectName );
 
 		void
-		simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration );
+		simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad );
 	
+		void getDesignCapacities(Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad);
+
+		void getSizingFactor(Real64 SizFac);
+
 //	void
 //	SimWaterSource(
 //		std::string const & SourceName, // user-specified name for this component
@@ -168,9 +173,7 @@ namespace PlantComponentTemperatureSources {
 
 		void
 		InitWaterSource(
-			bool const RunFlag, // TRUE when component operating
-			Real64 const MyLoad,
-			bool const FirstHVACIteration // initialize variables when TRUE
+			Real64 const MyLoad
 		);
 
 		void
@@ -179,8 +182,7 @@ namespace PlantComponentTemperatureSources {
 		void
 		CalcWaterSource(
 			Real64 const MyLoad,
-			bool const RunFlag,
-			int const EquipFlowCtrl // Flow control mode for the equipment
+			bool const RunFlag
 		);
 
 		void

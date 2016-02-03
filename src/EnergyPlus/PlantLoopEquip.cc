@@ -248,7 +248,7 @@ namespace PlantLoopEquip {
 		using PlantPipingSystemsManager::SimPipingSystemCircuit;
 		using UserDefinedComponents::SimUserDefinedPlantComponent;
 		using HVACVariableRefrigerantFlow::SimVRFCondenserPlant;
-		using PlantComponentTemperatureSources::SimWaterSource;
+//		using PlantComponentTemperatureSources::SimWaterSource;
 		using PlantCentralGSHP::SimCentralGroundSourceHeatPump;
 
 		// Locals
@@ -1147,13 +1147,13 @@ namespace PlantLoopEquip {
 
 			} else if ( EquipTypeNum == TypeOf_WaterSource ) {
 
-				SimWaterSource( sim_component.Name, EquipFlowCtrl, EquipNum, RunFlag, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
+				sim_component.compPtr->simulate(sim_component_location, FirstHVACIteration, CurLoad);
+//				if ( InitLoopEquip ) {
+//					sim_component.MaxLoad = MaxLoad;
+//					sim_component.MinLoad = MinLoad;
+//					sim_component.OptLoad = OptLoad;
+//					sim_component.CompNum = EquipNum;
+//				}
 
 			} else {
 				//        CALL ShowSevereError('SimPlantEquip: Invalid Component Equipment Type='//TRIM(EquipType))
