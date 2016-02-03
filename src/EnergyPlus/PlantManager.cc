@@ -78,6 +78,7 @@
 #include <DataPrecisionGlobals.hh>
 #include <DataSizing.hh>
 #include <EMSManager.hh>
+#include <FluidCoolers.hh>
 #include <FluidProperties.hh>
 #include <General.hh>
 #include <GroundHeatExchangers.hh>
@@ -1218,9 +1219,11 @@ namespace PlantManager {
 						} else if ( SameString( this_comp_type, "Fluidcooler:SingleSpeed" ) ) {
 							this_comp.TypeOf_Num = TypeOf_FluidCooler_SingleSpd;
 							this_comp.GeneralEquipType = GenEquipTypes_FluidCooler;
+							this_comp.compPtr = FluidCoolers::FluidCooler::factory( TypeOf_FluidCooler_SingleSpd, CompNames( CompNum ) );
 						} else if ( SameString( this_comp_type, "Fluidcooler:TwoSpeed" ) ) {
 							this_comp.TypeOf_Num = TypeOf_FluidCooler_TwoSpd;
 							this_comp.GeneralEquipType = GenEquipTypes_FluidCooler;
+							this_comp.compPtr = FluidCoolers::FluidCooler::factory( TypeOf_FluidCooler_TwoSpd, CompNames( CompNum ) );
 						} else if ( SameString( this_comp_type, "EvaporativeFluidcooler:SingleSpeed" ) ) {
 							this_comp.TypeOf_Num = TypeOf_EvapFluidCooler_SingleSpd;
 							this_comp.GeneralEquipType = GenEquipTypes_EvapFluidCooler;
