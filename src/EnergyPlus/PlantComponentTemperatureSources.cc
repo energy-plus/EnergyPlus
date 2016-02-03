@@ -111,7 +111,6 @@ namespace PlantComponentTemperatureSources {
 	using DataGlobals::DisplayExtraWarnings;
 	using DataHVACGlobals::SmallWaterVolFlow;
 	using DataPlant::TypeOf_WaterSource;
-//	using DataPlant::PlantLocation;
 	using General::TrimSigDigits;
 	using General::RoundSigDigits;
 

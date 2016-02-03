@@ -73,9 +73,6 @@ namespace EnergyPlus {
 
 namespace PlantComponentTemperatureSources {
 
-	// Using/Aliasing
-//	using DataPlant::PlantLocation;
-
 	// Data
 	//MODULE PARAMETER DEFINITIONS:
 	extern int const TempSpecType_Constant;
