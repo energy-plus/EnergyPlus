@@ -65,15 +65,9 @@
 
 // EnergyPlus Headers
 #include <EnergyPlus/FluidCoolers.hh>
-#include <EnergyPlus/DataSizing.hh>
 #include <EnergyPlus/DataPlant.hh>
-#include <EnergyPlus/UtilityRoutines.hh>
 
-
-using namespace EnergyPlus;
-using namespace DataGlobals;
-using namespace EnergyPlus::DataSizing;
-using namespace ObjexxFCL;
+namespace EnergyPlus {
 
 TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test1 )
 {
@@ -303,4 +297,6 @@ TEST_F( EnergyPlusFixture, SingleSpeedFluidCooler_Defect_5269 )
 
 	ASSERT_FALSE( process_idf( idf_objects ) );
 	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_SingleSpd, "FLUID COOLER" ) );
+}
+
 }

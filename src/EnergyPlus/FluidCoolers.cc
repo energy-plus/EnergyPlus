@@ -62,9 +62,7 @@
 
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
-#include <ObjexxFCL/Fmath.hh>
 #include <ObjexxFCL/gio.hh>
-#include <ObjexxFCL/string.functions.hh>
 
 // EnergyPlus Headers
 #include <FluidCoolers.hh>
@@ -76,7 +74,6 @@
 #include <DataIPShortCuts.hh>
 #include <DataLoopNode.hh>
 #include <DataPlant.hh>
-#include <DataPrecisionGlobals.hh>
 #include <DataSizing.hh>
 #include <FluidProperties.hh>
 #include <General.hh>
@@ -110,37 +107,13 @@ namespace EnergyPlus {
 	// REFERENCES:
 	// Based on cooling tower by Shirey, Raustad: Dec 2000; Shirey, Sept 2002
 
-	// OTHER NOTES:
-	// none
-
-	// USE STATEMENTS:
-	// Use statements for data only modules
-	// Using/Aliasing
-	using namespace DataPrecisionGlobals;
-	using DataGlobals::KelvinConv;
+	using DataHVACGlobals::TimeStepSys;
 	using DataGlobals::SecInHour;
-	using DataGlobals::WarmupFlag;
-	using DataGlobals::InitConvTemp;
-	using namespace DataHVACGlobals;
-	using namespace DataLoopNode;
-	using DataEnvironment::StdBaroPress;
-	using DataEnvironment::OutDryBulbTemp;
-	using DataEnvironment::OutHumRat;
-	using DataEnvironment::OutBaroPress;
-	using DataEnvironment::OutWetBulbTemp;
 	using DataPlant::PlantLoop;
-	using DataBranchAirLoopPlant::MassFlowTolerance;
-
-	// Use statements for access to subroutines in other modules
+	using DataLoopNode::Node;
 	using Psychrometrics::PsyWFnTdbTwbPb;
-	using Psychrometrics::PsyRhoAirFnPbTdbW;
-	using Psychrometrics::PsyHFnTdbRhPb;
-	using Psychrometrics::PsyCpAirFnWTdb;
-	using Psychrometrics::PsyTsatFnHPb;
-	using Psychrometrics::PsyWFnTdbH;
 	using FluidProperties::GetDensityGlycol;
 	using FluidProperties::GetSpecificHeatGlycol;
-	using General::TrimSigDigits;
 
 	std::vector< std::unique_ptr< FluidCooler > > FluidCooler::instances;
 	bool FluidCooler::GetInputFlag = true;
@@ -152,55 +125,6 @@ namespace EnergyPlus {
 		FluidCooler::instances.clear();
 		FluidCooler::GetInputFlag = true;
 	}
-
-	FluidCooler::FluidCooler() :
-			FluidCoolerType_Num( FluidCoolerEnum::None ),
-			PerformanceInputMethod_Num( PIM::None ),
-			// Available( true ),
-			// ON( true ),
-			DesignWaterFlowRate( 0.0 ),
-			DesignWaterFlowRateWasAutoSized( false ),
-			DesWaterMassFlowRate( 0.0 ),
-			HighSpeedAirFlowRate( 0.0 ),
-			HighSpeedAirFlowRateWasAutoSized( false ),
-			HighSpeedFanPower( 0.0 ),
-			HighSpeedFanPowerWasAutoSized( false ),
-			HighSpeedFluidCoolerUA( 0.0 ),
-			HighSpeedFluidCoolerUAWasAutoSized( false ),
-			LowSpeedAirFlowRate( 0.0 ),
-			LowSpeedAirFlowRateWasAutoSized( false ),
-			LowSpeedAirFlowRateSizingFactor( 0.0 ),
-			LowSpeedFanPower( 0.0 ),
-			LowSpeedFanPowerWasAutoSized( false ),
-			LowSpeedFanPowerSizingFactor( 0.0 ),
-			LowSpeedFluidCoolerUA( 0.0 ),
-			LowSpeedFluidCoolerUAWasAutoSized( false ),
-			LowSpeedFluidCoolerUASizingFactor( 0.0 ),
-			DesignEnteringWaterTemp( 0.0 ),
-			// DesignLeavingWaterTemp( 0.0 ),
-			DesignEnteringAirTemp( 0.0 ),
-			DesignEnteringAirWetBulbTemp( 0.0 ),
-			FluidCoolerMassFlowRateMultiplier( 0.0 ),
-			FluidCoolerNominalCapacity( 0.0 ),
-			FluidCoolerLowSpeedNomCap( 0.0 ),
-			FluidCoolerLowSpeedNomCapWasAutoSized( false ),
-			FluidCoolerLowSpeedNomCapSizingFactor( 0.0 ),
-			WaterInletNodeNum( 0 ),
-			WaterOutletNodeNum( 0 ),
-			OutdoorAirInletNodeNum( 0 ),
-			HighMassFlowErrorCount( 0 ),
-			HighMassFlowErrorIndex( 0 ),
-			OutletWaterTempErrorCount( 0 ),
-			OutletWaterTempErrorIndex( 0 ),
-			SmallWaterMassFlowErrorCount( 0 ),
-			SmallWaterMassFlowErrorIndex( 0 ),
-			// WMFRLessThanMinAvailErrCount( 0 ),
-			// WMFRLessThanMinAvailErrIndex( 0 ),
-			// WMFRGreaterThanMaxAvailErrCount( 0 ),
-			// WMFRGreaterThanMaxAvailErrIndex( 0 ),
-		 	envrnFlag( true ),
-		 	oneTimeFlag( true )
-		{}
 
 	PlantComponent * FluidCooler::factory( int objectType, std::string objectName )
 	{
@@ -356,8 +280,8 @@ namespace EnergyPlus {
 			singleSpeedFluidCooler->FluidCoolerType_Num = FluidCoolerEnum::SingleSpeed;
 			singleSpeedFluidCooler->PlantType_Num = DataPlant::TypeOf_FluidCooler_SingleSpd;
 			singleSpeedFluidCooler->FluidCoolerMassFlowRateMultiplier = 2.5;
-			singleSpeedFluidCooler->WaterInletNodeNum = GetOnlySingleNode( AlphArray( 2 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), NodeType_Water, NodeConnectionType_Inlet, 1, ObjectIsNotParent );
-			singleSpeedFluidCooler->WaterOutletNodeNum = GetOnlySingleNode( AlphArray( 3 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), NodeType_Water, NodeConnectionType_Outlet, 1, ObjectIsNotParent );
+			singleSpeedFluidCooler->WaterInletNodeNum = GetOnlySingleNode( AlphArray( 2 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), DataLoopNode::NodeType_Water, DataLoopNode::NodeConnectionType_Inlet, 1, DataLoopNode::ObjectIsNotParent );
+			singleSpeedFluidCooler->WaterOutletNodeNum = GetOnlySingleNode( AlphArray( 3 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), DataLoopNode::NodeType_Water, DataLoopNode::NodeConnectionType_Outlet, 1, DataLoopNode::ObjectIsNotParent );
 			TestCompSet( cCurrentModuleObject, AlphArray( 1 ), AlphArray( 2 ), AlphArray( 3 ), "Chilled Water Nodes" );
 			singleSpeedFluidCooler->HighSpeedFluidCoolerUA = NumArray( 1 );
 			singleSpeedFluidCooler->FluidCoolerNominalCapacity = NumArray( 2 );
@@ -381,7 +305,7 @@ namespace EnergyPlus {
 			if ( AlphArray( 5 ).empty() ) {
 				singleSpeedFluidCooler->OutdoorAirInletNodeNum = 0;
 			} else {
-				singleSpeedFluidCooler->OutdoorAirInletNodeNum = GetOnlySingleNode( AlphArray( 5 ), ErrorsFound, cCurrentModuleObject, singleSpeedFluidCooler->Name, NodeType_Air, NodeConnectionType_OutsideAirReference, 1, ObjectIsNotParent );
+				singleSpeedFluidCooler->OutdoorAirInletNodeNum = GetOnlySingleNode( AlphArray( 5 ), ErrorsFound, cCurrentModuleObject, singleSpeedFluidCooler->Name, DataLoopNode::NodeType_Air, DataLoopNode::NodeConnectionType_OutsideAirReference, 1, DataLoopNode::ObjectIsNotParent );
 				if ( ! CheckOutAirNodeNumber( singleSpeedFluidCooler->OutdoorAirInletNodeNum ) ) {
 					ShowSevereError( cCurrentModuleObject + "= \"" + singleSpeedFluidCooler->Name + "\" " + cAlphaFieldNames( 5 ) + "= \"" + AlphArray( 5 ) + "\" not valid." );
 					ShowContinueError( "...does not appear in an OutdoorAir:NodeList or as an OutdoorAir:Node." );
@@ -410,8 +334,8 @@ namespace EnergyPlus {
 			twoSpeedFluidCooler->FluidCoolerType_Num = FluidCoolerEnum::TwoSpeed;
 			twoSpeedFluidCooler->PlantType_Num = DataPlant::TypeOf_FluidCooler_TwoSpd;
 			twoSpeedFluidCooler->FluidCoolerMassFlowRateMultiplier = 2.5;
-			twoSpeedFluidCooler->WaterInletNodeNum = GetOnlySingleNode( AlphArray( 2 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), NodeType_Water, NodeConnectionType_Inlet, 1, ObjectIsNotParent );
-			twoSpeedFluidCooler->WaterOutletNodeNum = GetOnlySingleNode( AlphArray( 3 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), NodeType_Water, NodeConnectionType_Outlet, 1, ObjectIsNotParent );
+			twoSpeedFluidCooler->WaterInletNodeNum = GetOnlySingleNode( AlphArray( 2 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), DataLoopNode::NodeType_Water, DataLoopNode::NodeConnectionType_Inlet, 1, DataLoopNode::ObjectIsNotParent );
+			twoSpeedFluidCooler->WaterOutletNodeNum = GetOnlySingleNode( AlphArray( 3 ), ErrorsFound, cCurrentModuleObject, AlphArray( 1 ), DataLoopNode::NodeType_Water, DataLoopNode::NodeConnectionType_Outlet, 1, DataLoopNode::ObjectIsNotParent );
 			TestCompSet( cCurrentModuleObject, AlphArray( 1 ), AlphArray( 2 ), AlphArray( 3 ), "Chilled Water Nodes" );
 
 			twoSpeedFluidCooler->HighSpeedFluidCoolerUA = NumArray( 1 );
@@ -459,7 +383,7 @@ namespace EnergyPlus {
 			if ( AlphArray( 5 ).empty() ) {
 				twoSpeedFluidCooler->OutdoorAirInletNodeNum = 0;
 			} else {
-				twoSpeedFluidCooler->OutdoorAirInletNodeNum = GetOnlySingleNode( AlphArray( 5 ), ErrorsFound, cCurrentModuleObject, twoSpeedFluidCooler->Name, NodeType_Air, NodeConnectionType_OutsideAirReference, 1, ObjectIsNotParent );
+				twoSpeedFluidCooler->OutdoorAirInletNodeNum = GetOnlySingleNode( AlphArray( 5 ), ErrorsFound, cCurrentModuleObject, twoSpeedFluidCooler->Name, DataLoopNode::NodeType_Air, DataLoopNode::NodeConnectionType_OutsideAirReference, 1, DataLoopNode::ObjectIsNotParent );
 				if ( !CheckOutAirNodeNumber( twoSpeedFluidCooler->OutdoorAirInletNodeNum ) ) {
 					ShowSevereError( cCurrentModuleObject + "= \"" + twoSpeedFluidCooler->Name + "\" " + cAlphaFieldNames( 5 ) + "= \"" + AlphArray( 5 ) + "\" not valid." );
 					ShowContinueError( "...does not appear in an OutdoorAir:NodeList or as an OutdoorAir:Node." );
@@ -525,15 +449,6 @@ namespace EnergyPlus {
 		// Using/Aliasing
 		using DataSizing::AutoSize;
 		using InputProcessor::SameString;
-
-		// Locals
-		// FUNCTION ARGUMENT DEFINITIONS:
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// FUNCTION LOCAL VARIABLE DECLARATIONS:
 		bool ErrorsFound = false;
@@ -633,15 +548,6 @@ namespace EnergyPlus {
 		// Using/Aliasing
 		using DataSizing::AutoSize;
 		using InputProcessor::SameString;
-
-		// Locals
-		// FUNCTION ARGUMENT DEFINITIONS:
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// FUNCTION LOCAL VARIABLE DECLARATIONS:
 		bool ErrorsFound = false;
@@ -790,7 +696,7 @@ namespace EnergyPlus {
 		// Begin environment initializations
 		if ( this->envrnFlag && DataGlobals::BeginEnvrnFlag && DataPlant::PlantFirstSizesOkayToFinalize ) {
 
-			Real64 rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp,
+			Real64 rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp,
 																		 PlantLoop( this->location.loopNum ).FluidIndex, RoutineName );
 			this->DesWaterMassFlowRate = this->DesignWaterFlowRate * rho;
 			PlantUtilities::InitComponentNodes( 0.0, this->DesWaterMassFlowRate, this->WaterInletNodeNum,
@@ -818,10 +724,10 @@ namespace EnergyPlus {
 			this->AirPress = Node( this->OutdoorAirInletNodeNum ).Press;
 			this->AirWetBulb = Node( this->OutdoorAirInletNodeNum ).OutAirWetBulb;
 		} else {
-			this->AirTemp = OutDryBulbTemp;
-			this->AirHumRat = OutHumRat;
-			this->AirPress = OutBaroPress;
-			this->AirWetBulb = OutWetBulbTemp;
+			this->AirTemp = DataEnvironment::OutDryBulbTemp;
+			this->AirHumRat = DataEnvironment::OutHumRat;
+			this->AirPress = DataEnvironment::OutBaroPress;
+			this->AirWetBulb = DataEnvironment::OutWetBulbTemp;
 		}
 
 		WaterMassFlowRate = PlantUtilities::RegulateCondenserCompFlowReqOp(
@@ -867,19 +773,10 @@ namespace EnergyPlus {
 		using namespace OutputReportPredefined;
 		using InputProcessor::SameString;
 
-		// Locals
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-
 		// SUBROUTINE PARAMETER DEFINITIONS:
 		int const MaxIte( 500 ); // Maximum number of iterations
 		Real64 const Acc( 0.0001 ); // Accuracy of result
 		static std::string const CalledFrom( "SizeFluidCooler" );
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		int PltSizCondNum( 0 ); // Plant Sizing index for condenser loop
@@ -908,7 +805,7 @@ namespace EnergyPlus {
 
 		if ( this->DesignWaterFlowRateWasAutoSized ) {
 			if ( PltSizCondNum > 0 ) {
-				if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= SmallWaterVolFlow ) {
+				if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= DataHVACGlobals::SmallWaterVolFlow ) {
 					tmpDesignWaterFlowRate = PlantSizData( PltSizCondNum ).DesVolFlowRate;
 					if ( PlantFirstSizesOkayToFinalize ) this->DesignWaterFlowRate = tmpDesignWaterFlowRate;
 				} else {
@@ -946,7 +843,7 @@ namespace EnergyPlus {
 
 		if ( this->PerformanceInputMethod_Num == PIM::UFactor && this->HighSpeedFluidCoolerUAWasAutoSized ) {
 			if ( PltSizCondNum > 0 ) {
-				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, PlantSizData( PltSizCondNum ).ExitTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				DesFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * PlantSizData( PltSizCondNum ).DeltaT;
 				if ( PlantFirstSizesOkayToFinalize ) this->FluidCoolerNominalCapacity = DesFluidCoolerLoad;
@@ -965,7 +862,7 @@ namespace EnergyPlus {
 					tmpHighSpeedFanPower = 0.0105 * DesFluidCoolerLoad;
 					if ( PlantFirstSizesOkayToFinalize ) this->HighSpeedFanPower = tmpHighSpeedFanPower;
 				} else if ( PltSizCondNum > 0 ) {
-					if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= SmallWaterVolFlow ) {
+					if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= DataHVACGlobals::SmallWaterVolFlow ) {
 						// This conditional statement is to trap when the user specified Condenser/Fluid Cooler water design setpoint
 						// temperature is less than design inlet air dry bulb temperature
 						if ( PlantSizData( PltSizCondNum ).ExitTemp <= this->DesignEnteringAirTemp && PlantFirstSizesOkayToFinalize ) {
@@ -975,7 +872,7 @@ namespace EnergyPlus {
 							ShowContinueError( "If using HVACTemplate:Plant:ChilledWaterLoop, then check that input field Condenser Water Design Setpoint must be > design inlet air dry-bulb temp if autosizing the Fluid Cooler." );
 							ShowFatalError( "Review and revise design input values as appropriate." );
 						}
-						rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+						rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 						Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, PlantSizData( PltSizCondNum ).ExitTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 						DesFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * PlantSizData( PltSizCondNum ).DeltaT;
 						tmpHighSpeedFanPower = 0.0105 * DesFluidCoolerLoad;
@@ -1025,7 +922,7 @@ namespace EnergyPlus {
 					tmpHighSpeedAirFlowRate = DesFluidCoolerLoad / ( this->DesignEnteringWaterTemp - this->DesignEnteringAirTemp ) * 4.0;
 					if ( PlantFirstSizesOkayToFinalize ) this->HighSpeedAirFlowRate = tmpHighSpeedAirFlowRate;
 				} else if ( PltSizCondNum > 0 ) {
-					if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= SmallWaterVolFlow ) {
+					if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= DataHVACGlobals::SmallWaterVolFlow ) {
 						// This conditional statement is to trap when the user specified Condenser/Fluid Cooler water design setpoint
 						// temperature is less than design inlet air dry bulb temperature
 						if ( PlantSizData( PltSizCondNum ).ExitTemp <= this->DesignEnteringAirTemp && PlantFirstSizesOkayToFinalize ) {
@@ -1035,7 +932,7 @@ namespace EnergyPlus {
 							ShowContinueError( "If using HVACTemplate:Plant:ChilledWaterLoop, then check that input field Condenser Water Design Setpoint must be > design inlet air dry-bulb temp if autosizing the Fluid Cooler." );
 							ShowFatalError( "Review and revise design input values as appropriate." );
 						}
-						rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+						rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 						Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, PlantSizData( PltSizCondNum ).ExitTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 						DesFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * PlantSizData( PltSizCondNum ).DeltaT;
 						tmpHighSpeedAirFlowRate = DesFluidCoolerLoad / ( this->DesignEnteringWaterTemp - this->DesignEnteringAirTemp ) * 4.0;
@@ -1078,7 +975,7 @@ namespace EnergyPlus {
 
 		if ( this->HighSpeedFluidCoolerUAWasAutoSized ) {
 			if ( PltSizCondNum > 0 ) {
-				if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= SmallWaterVolFlow ) {
+				if ( PlantSizData( PltSizCondNum ).DesVolFlowRate >= DataHVACGlobals::SmallWaterVolFlow ) {
 					// This conditional statement is to trap when the user specified Condenser/Fluid Cooler water design setpoint
 					// temperature is less than design inlet air dry bulb temperature
 					if ( PlantSizData( PltSizCondNum ).ExitTemp <= this->DesignEnteringAirTemp && PlantFirstSizesOkayToFinalize ) {
@@ -1088,7 +985,7 @@ namespace EnergyPlus {
 						ShowContinueError( "If using HVACTemplate:Plant:ChilledWaterLoop, then check that input field Condenser Water Design Setpoint must be > design inlet air dry-bulb temp if autosizing the Fluid Cooler." );
 						ShowFatalError( "Review and revise design input values as appropriate." );
 					}
-					rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+					rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 					Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, PlantSizData( PltSizCondNum ).ExitTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 					DesFluidCoolerLoad = rho * Cp * tmpDesignWaterFlowRate * PlantSizData( PltSizCondNum ).DeltaT;
 					Par( 1 ) = DesFluidCoolerLoad;
@@ -1100,9 +997,9 @@ namespace EnergyPlus {
 					this->WaterTemp = PlantSizData( PltSizCondNum ).ExitTemp + PlantSizData( PltSizCondNum ).DeltaT;
 					this->AirTemp = this->DesignEnteringAirTemp;
 					this->AirWetBulb = this->DesignEnteringAirWetBulbTemp;
-					this->AirPress = StdBaroPress;
+					this->AirPress = DataEnvironment::StdBaroPress;
 					this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress, CalledFrom );
-					SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
+					SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const X, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( X, Par ); }, UA0, UA1, Par );
 					if ( SolFla == -1 ) {
 						ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 						ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
@@ -1174,8 +1071,8 @@ namespace EnergyPlus {
 		}
 
 		if ( this->PerformanceInputMethod_Num == PIM::NominalCapacity ) {
-			if ( this->DesignWaterFlowRate >= SmallWaterVolFlow ) {
-				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+			if ( this->DesignWaterFlowRate >= DataHVACGlobals::SmallWaterVolFlow ) {
+				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, this->DesignEnteringWaterTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				DesFluidCoolerLoad = this->FluidCoolerNominalCapacity;
 				Par( 1 ) = DesFluidCoolerLoad;
@@ -1187,9 +1084,9 @@ namespace EnergyPlus {
 				this->WaterTemp = this->DesignEnteringWaterTemp; // design inlet water temperature
 				this->AirTemp = this->DesignEnteringAirTemp; // design inlet air dry-bulb temp
 				this->AirWetBulb = this->DesignEnteringAirWetBulbTemp; // design inlet air wet-bulb temp
-				this->AirPress = StdBaroPress;
+				this->AirPress = DataEnvironment::StdBaroPress;
 				this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress );
-				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
+				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const X, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( X, Par ); }, UA0, UA1, Par );
 				if ( SolFla == -1 ) {
 					ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 					ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
@@ -1300,8 +1197,8 @@ namespace EnergyPlus {
 				}
 			}
 
-			if ( this->DesignWaterFlowRate >= SmallWaterVolFlow && this->FluidCoolerLowSpeedNomCap > 0.0 ) {
-				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
+			if ( this->DesignWaterFlowRate >= DataHVACGlobals::SmallWaterVolFlow && this->FluidCoolerLowSpeedNomCap > 0.0 ) {
+				rho = GetDensityGlycol( PlantLoop( this->location.loopNum ).FluidName, DataGlobals::InitConvTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				Cp = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, this->DesignEnteringWaterTemp, PlantLoop( this->location.loopNum ).FluidIndex, CalledFrom );
 				DesFluidCoolerLoad = this->FluidCoolerLowSpeedNomCap;
 				Par( 1 ) = DesFluidCoolerLoad;
@@ -1313,9 +1210,9 @@ namespace EnergyPlus {
 				this->WaterTemp = this->DesignEnteringWaterTemp; // design inlet water temperature
 				this->AirTemp = this->DesignEnteringAirTemp; // design inlet air dry-bulb temp
 				this->AirWetBulb = this->DesignEnteringAirWetBulbTemp; // design inlet air wet-bulb temp
-				this->AirPress = StdBaroPress;
+				this->AirPress = DataEnvironment::StdBaroPress;
 				this->AirHumRat = PsyWFnTdbTwbPb( this->AirTemp, this->AirWetBulb, this->AirPress, CalledFrom );
-				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const XTemp, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( XTemp, Par ); }, UA0, UA1, Par );
+				SolveRegulaFalsi( Acc, MaxIte, SolFla, UA, [ this ]( Real64 const X, Array1< Real64 > const & Par ) -> Real64 { return simpleFluidCoolerUAResidual( X, Par ); }, UA0, UA1, Par );
 				if ( SolFla == -1 ) {
 					ShowWarningError( "Iteration limit exceeded in calculating fluid cooler UA." );
 					ShowContinueError( "Autosizing of fluid cooler UA failed for fluid cooler = " + this->Name );
@@ -1440,18 +1337,8 @@ namespace EnergyPlus {
 		// ASHRAE HVAC1KIT: A Toolkit for Primary HVAC System Energy Calculation. 1999.
 		// Based on SingleSpeedTower subroutine by Dan Fisher ,Sept 1998.
 
-		// Locals
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-		//  LOGICAL, INTENT(IN)    :: RunFlag
-
 		// SUBROUTINE PARAMETER DEFINITIONS:
 		static std::string const RoutineName( "SingleSpeedFluidCooler" );
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		Real64 AirFlowRate;
@@ -1475,7 +1362,7 @@ namespace EnergyPlus {
 		}}
 
 		//   MassFlowTol is a parameter to indicate a no flow condition
-		if ( WaterMassFlowRate <= MassFlowTolerance ) return;
+		if ( WaterMassFlowRate <= DataBranchAirLoopPlant::MassFlowTolerance ) return;
 
 		if ( OutletWaterTemp < TempSetPoint ) { //already there don't need to run the cooler
 			return;
@@ -1559,20 +1446,8 @@ namespace EnergyPlus {
 		// ASHRAE HVAC1KIT: A Toolkit for Primary HVAC System Energy Calculation. 1999.
 		// Based on TwoSpeedTower by Dan Fisher ,Sept. 1998.
 
-		// USE STATEMENTS:
-
-		// Locals
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-		//  LOGICAL, INTENT(IN)    :: RunFlag
-
 		// SUBROUTINE PARAMETER DEFINITIONS:
 		static std::string const RoutineName( "TwoSpeedFluidCooler" );
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		Real64 AirFlowRate;
@@ -1602,7 +1477,7 @@ namespace EnergyPlus {
 		}}
 
 		// MassFlowTol is a parameter to indicate a no flow condition
-		if ( WaterMassFlowRate <= MassFlowTolerance || PlantLoop( LoopNum ).LoopSide( LoopSideNum ).FlowLock == 0 ) return;
+		if ( WaterMassFlowRate <= DataBranchAirLoopPlant::MassFlowTolerance || PlantLoop( LoopNum ).LoopSide( LoopSideNum ).FlowLock == 0 ) return;
 
 		// set local variable for fluid cooler
 		WaterMassFlowRate = Node( WaterInletNode ).MassFlowRate;
@@ -1676,26 +1551,12 @@ namespace EnergyPlus {
 		// METHODOLOGY EMPLOYED:
 		// See methodology for Single Speed or Two Speed Fluid Cooler model
 
-		// REFERENCES:
-		// na
-
-		// USE STATEMENTS:
-		//  USE FluidProperties, ONLY : GetSpecificHeatGlycol
-
 		// Locals
 		Real64 InletWaterTemp; // Water inlet temperature
 		Real64 Qactual( 0.0 ); // Actual heat transfer rate between fluid cooler water and air [W]
 
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-
 		// SUBROUTINE PARAMETER DEFINITIONS:
 		static std::string const RoutineName( "SimSimpleFluidCooler" );
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		Real64 MdotCpWater; // Water mass flow rate times the heat capacity [W/K]
@@ -1722,9 +1583,9 @@ namespace EnergyPlus {
 		if ( UAdesign == 0.0 ) return;
 
 		// set water and air properties
-		AirDensity = PsyRhoAirFnPbTdbW( this->AirPress, InletAirTemp, this->AirHumRat );
+		AirDensity = Psychrometrics::PsyRhoAirFnPbTdbW( this->AirPress, InletAirTemp, this->AirHumRat );
 		AirMassFlowRate = AirFlowRate * AirDensity;
-		CpAir = PsyCpAirFnWTdb( this->AirHumRat, InletAirTemp );
+		CpAir = Psychrometrics::PsyCpAirFnWTdb( this->AirHumRat, InletAirTemp );
 		CpWater = GetSpecificHeatGlycol( PlantLoop( this->location.loopNum ).FluidName, InletWaterTemp,
 																		 PlantLoop( this->location.loopNum ).FluidIndex, RoutineName );
 
@@ -1781,29 +1642,8 @@ namespace EnergyPlus {
 		// REFERENCES:
 		// Based on SimpleTowerUAResidual by Fred Buhl, May 2002
 
-		// USE STATEMENTS:
-		// na
-
 		// Return value
 		Real64 Residuum; // residual to be minimized to zero
-
-		// Argument array dimensioning
-
-		// Locals
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-		// par(2) = Fluid cooler number
-		// par(3) = design water mass flow rate [kg/s]
-		// par(4) = design air volume flow rate [m3/s]
-		// par(5) = water specific heat [J/(kg*C)]
-
-		// FUNCTION PARAMETER DEFINITIONS:
-		// na
-
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
 
 		// FUNCTION LOCAL VARIABLE DECLARATIONS:
 		Real64 OutWaterTemp; // outlet water temperature [C]
@@ -1814,12 +1654,6 @@ namespace EnergyPlus {
 		Residuum = ( Par( 1 ) - Output ) / Par( 1 );
 		return Residuum;
 	}
-
-	// End of the CondenserLoopFluidCoolers Module Simulation Subroutines
-	// *****************************************************************************
-
-	// Beginning of Record Keeping subroutines for the FluidCooler Module
-	// *****************************************************************************
 
 	void
 	FluidCooler::update()
@@ -1834,25 +1668,10 @@ namespace EnergyPlus {
 		// PURPOSE OF THIS SUBROUTINE:
 		// This subroutine is for passing results to the outlet water node.
 
-		// METHODOLOGY EMPLOYED:
-		// na
+		using General::TrimSigDigits;
 
-		// REFERENCES:
-		// na
-
-		// Locals
-		// SUBROUTINE ARGUMENT DEFINITIONS:
-
-		// SUBROUTINE PARAMETER DEFINITIONS:
 		static gio::Fmt LowTempFmt( "(' ',F6.2)" );
 
-		// INTERFACE BLOCK SPECIFICATIONS
-		// na
-
-		// DERIVED TYPE DEFINITIONS
-		// na
-
-		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		std::string CharErrOut;
 		std::string CharLowOutletTemp;
 		int LoopNum;
@@ -1865,7 +1684,7 @@ namespace EnergyPlus {
 
 		LoopNum = this->location.loopNum;
 		LoopSideNum = this->location.loopSideNum;
-		if ( PlantLoop( LoopNum ).LoopSide( LoopSideNum ).FlowLock == 0 || WarmupFlag ) return;
+		if ( PlantLoop( LoopNum ).LoopSide( LoopSideNum ).FlowLock == 0 || DataGlobals::WarmupFlag ) return;
 
 		//Check flow rate through fluid cooler and compare to design flow rate, show warning if greater than Design * Mulitplier
 		if ( Node( this->WaterOutletNodeNum ).MassFlowRate > this->DesWaterMassFlowRate * this->FluidCoolerMassFlowRateMultiplier ) {
@@ -1898,7 +1717,7 @@ namespace EnergyPlus {
 		}
 
 		// Check if water mass flow rate is small (e.g. no flow) and warn user
-		if ( WaterMassFlowRate > 0.0 && WaterMassFlowRate <= MassFlowTolerance ) {
+		if ( WaterMassFlowRate > 0.0 && WaterMassFlowRate <= DataBranchAirLoopPlant::MassFlowTolerance ) {
 			++this->SmallWaterMassFlowErrorCount;
 			if ( this->SmallWaterMassFlowErrorCount < 2 ) {
 				ShowWarningError( this->FluidCoolerType + " \"" + this->Name + "\"" );
@@ -1911,12 +1730,6 @@ namespace EnergyPlus {
 		}
 
 	}
-
-	// End of Record Keeping subroutines for the FluidCooler Module
-	// *****************************************************************************
-
-	// Beginning of Reporting subroutines for the FluidCooler Module
-	// *****************************************************************************
 
 	void
 	FluidCooler::report(
