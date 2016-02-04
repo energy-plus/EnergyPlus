@@ -131,15 +131,15 @@ namespace UserDefinedComponents {
 
 	// MODULE VARIABLE DECLARATIONS:
 
-	int zzzNumUserPlantComps( 0 );
-	int zzzNumUserCoils( 0 );
-	int zzzNumUserZoneAir( 0 );
-	int zzzNumUserAirTerminals( 0 );
+	int NumUserPlantComps( 0 );
+	int NumUserCoils( 0 );
+	int NumUserZoneAir( 0 );
+	int NumUserAirTerminals( 0 );
 
-	Array1D_bool zzzCheckUserCoilName;
-	Array1D_bool zzzCheckUserZoneAirName;
-	Array1D_bool zzzCheckUserAirTerminal;
-	bool zzzGetInput( true );
+	Array1D_bool CheckUserCoilName;
+	Array1D_bool CheckUserZoneAirName;
+	Array1D_bool CheckUserAirTerminal;
+	bool GetInput( true );
 
 	// SUBROUTINE SPECIFICATIONS FOR MODULE <module_name>:
 
@@ -153,9 +153,9 @@ namespace UserDefinedComponents {
 
 	PlantComponent * UserPlantComponentStruct::factory( int const EP_UNUSED(objectType),  std::string objectName ) {
 
-		if ( zzzGetInput ) {
+		if ( GetInput ) {
 			GetUserDefinedComponents();
-			zzzGetInput = false;
+			GetInput = false;
 		}
 		
 		// Now look for this particular UserPlantComponent in the list
@@ -280,9 +280,9 @@ namespace UserDefinedComponents {
 		Real64 EnthOutlet;
 		int CompNum;
 
-		if ( zzzGetInput ) {
+		if ( GetInput ) {
 			GetUserDefinedComponents();
-			zzzGetInput = false;
+			GetInput = false;
 		}
 
 		// Find the correct Equipment
@@ -294,14 +294,14 @@ namespace UserDefinedComponents {
 			CompIndex = CompNum;
 		} else {
 			CompNum = CompIndex;
-			if ( CompNum < 1 || CompNum > zzzNumUserCoils ) {
-				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( zzzNumUserCoils ) + ", Entered Unit name = " + EquipName );
+			if ( CompNum < 1 || CompNum > NumUserCoils ) {
+				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( NumUserCoils ) + ", Entered Unit name = " + EquipName );
 			}
-			if ( zzzCheckUserCoilName( CompNum ) ) {
+			if ( CheckUserCoilName( CompNum ) ) {
 				if ( EquipName != UserCoil( CompNum ).Name ) {
 					ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Unit name=" + EquipName + ", stored unit name for that index=" + UserCoil( CompNum ).Name );
 				}
-				zzzCheckUserCoilName( CompNum ) = false;
+				CheckUserCoilName( CompNum ) = false;
 			}
 		}
 
@@ -399,9 +399,9 @@ namespace UserDefinedComponents {
 		Real64 SpecHumOut;
 		Real64 SpecHumIn;
 
-		if ( zzzGetInput ) {
+		if ( GetInput ) {
 			GetUserDefinedComponents();
-			zzzGetInput = false;
+			GetInput = false;
 		}
 
 		// Find the correct Equipment
@@ -413,14 +413,14 @@ namespace UserDefinedComponents {
 			CompIndex = CompNum;
 		} else {
 			CompNum = CompIndex;
-			if ( CompNum < 1 || CompNum > zzzNumUserZoneAir ) {
-				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( zzzNumUserZoneAir ) + ", Entered Unit name = " + CompName );
+			if ( CompNum < 1 || CompNum > NumUserZoneAir ) {
+				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( NumUserZoneAir ) + ", Entered Unit name = " + CompName );
 			}
-			if ( zzzCheckUserZoneAirName( CompNum ) ) {
+			if ( CheckUserZoneAirName( CompNum ) ) {
 				if ( CompName != UserZoneAirHVAC( CompNum ).Name ) {
 					ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Unit name=" + CompName + ", stored unit name for that index=" + UserZoneAirHVAC( CompNum ).Name );
 				}
-				zzzCheckUserZoneAirName( CompNum ) = false;
+				CheckUserZoneAirName( CompNum ) = false;
 			}
 		}
 
@@ -511,9 +511,9 @@ namespace UserDefinedComponents {
 		int CompNum;
 		int Loop;
 
-		if ( zzzGetInput ) {
+		if ( GetInput ) {
 			GetUserDefinedComponents();
-			zzzGetInput = false;
+			GetInput = false;
 		}
 
 		// Find the correct Equipment
@@ -525,14 +525,14 @@ namespace UserDefinedComponents {
 			CompIndex = CompNum;
 		} else {
 			CompNum = CompIndex;
-			if ( CompNum < 1 || CompNum > zzzNumUserAirTerminals ) {
-				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( zzzNumUserAirTerminals ) + ", Entered Unit name = " + CompName );
+			if ( CompNum < 1 || CompNum > NumUserAirTerminals ) {
+				ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Number of units =" + TrimSigDigits( NumUserAirTerminals ) + ", Entered Unit name = " + CompName );
 			}
-			if ( zzzCheckUserAirTerminal( CompNum ) ) {
+			if ( CheckUserAirTerminal( CompNum ) ) {
 				if ( CompName != UserAirTerminal( CompNum ).Name ) {
 					ShowFatalError( "SimUserDefinedPlantComponent: Invalid CompIndex passed=" + TrimSigDigits( CompNum ) + ", Unit name=" + CompName + ", stored unit name for that index=" + UserAirTerminal( CompNum ).Name );
 				}
-				zzzCheckUserAirTerminal( CompNum ) = false;
+				CheckUserAirTerminal( CompNum ) = false;
 			}
 		}
 
@@ -662,10 +662,10 @@ namespace UserDefinedComponents {
 		//need to make sure GetEMSInput has run...
 
 		cCurrentModuleObject = "PlantComponent:UserDefined";
-		zzzNumUserPlantComps = GetNumObjectsFound( cCurrentModuleObject );
-		if ( zzzNumUserPlantComps > 0 ) {
-			UserPlantComp.allocate( zzzNumUserPlantComps );
-			for ( CompLoop = 1; CompLoop <= zzzNumUserPlantComps; ++CompLoop ) {
+		NumUserPlantComps = GetNumObjectsFound( cCurrentModuleObject );
+		if ( NumUserPlantComps > 0 ) {
+			UserPlantComp.allocate( NumUserPlantComps );
+			for ( CompLoop = 1; CompLoop <= NumUserPlantComps; ++CompLoop ) {
 				GetObjectItem( cCurrentModuleObject, CompLoop, cAlphaArgs, NumAlphas, rNumericArgs, NumNums, IOStat, lNumericFieldBlanks, lAlphaFieldBlanks, cAlphaFieldNames, cNumericFieldNames );
 				IsNotOK = false;
 				IsBlank = false;
@@ -840,18 +840,18 @@ namespace UserDefinedComponents {
 				}
 
 			}
-		} //zzzNumUserPlantComps > 0
+		} //NumUserPlantComps > 0
 
 		if ( ErrorsFound ) {
 			ShowFatalError( "GetUserDefinedComponents: Errors found in processing " + cCurrentModuleObject + " input." );
 		}
 
 		cCurrentModuleObject = "Coil:UserDefined";
-		zzzNumUserCoils = GetNumObjectsFound( cCurrentModuleObject );
-		if ( zzzNumUserCoils > 0 ) {
-			UserCoil.allocate( zzzNumUserCoils );
-			zzzCheckUserCoilName.dimension( zzzNumUserCoils, true );
-			for ( CompLoop = 1; CompLoop <= zzzNumUserCoils; ++CompLoop ) {
+		NumUserCoils = GetNumObjectsFound( cCurrentModuleObject );
+		if ( NumUserCoils > 0 ) {
+			UserCoil.allocate( NumUserCoils );
+			CheckUserCoilName.dimension( NumUserCoils, true );
+			for ( CompLoop = 1; CompLoop <= NumUserCoils; ++CompLoop ) {
 				GetObjectItem( cCurrentModuleObject, CompLoop, cAlphaArgs, NumAlphas, rNumericArgs, NumNums, IOStat, lNumericFieldBlanks, lAlphaFieldBlanks, cAlphaFieldNames, cNumericFieldNames );
 				IsNotOK = false;
 				IsBlank = false;
@@ -993,18 +993,18 @@ namespace UserDefinedComponents {
 				}
 			}
 
-		} //zzzNumUserCoils > 0
+		} //NumUserCoils > 0
 
 		if ( ErrorsFound ) {
 			ShowFatalError( "GetUserDefinedComponents: Errors found in processing " + cCurrentModuleObject + " input." );
 		}
 
 		cCurrentModuleObject = "ZoneHVAC:ForcedAir:UserDefined";
-		zzzNumUserZoneAir = GetNumObjectsFound( cCurrentModuleObject );
-		if ( zzzNumUserZoneAir > 0 ) {
-			UserZoneAirHVAC.allocate( zzzNumUserZoneAir );
-			zzzCheckUserZoneAirName.dimension( zzzNumUserZoneAir, true );
-			for ( CompLoop = 1; CompLoop <= zzzNumUserZoneAir; ++CompLoop ) {
+		NumUserZoneAir = GetNumObjectsFound( cCurrentModuleObject );
+		if ( NumUserZoneAir > 0 ) {
+			UserZoneAirHVAC.allocate( NumUserZoneAir );
+			CheckUserZoneAirName.dimension( NumUserZoneAir, true );
+			for ( CompLoop = 1; CompLoop <= NumUserZoneAir; ++CompLoop ) {
 				GetObjectItem( cCurrentModuleObject, CompLoop, cAlphaArgs, NumAlphas, rNumericArgs, NumNums, IOStat, lNumericFieldBlanks, lAlphaFieldBlanks, cAlphaFieldNames, cNumericFieldNames );
 				IsNotOK = false;
 				IsBlank = false;
@@ -1145,18 +1145,18 @@ namespace UserDefinedComponents {
 				}
 
 			}
-		} //zzzNumUserZoneAir > 0
+		} //NumUserZoneAir > 0
 
 		if ( ErrorsFound ) {
 			ShowFatalError( "GetUserDefinedComponents: Errors found in processing " + cCurrentModuleObject + " input." );
 		}
 
 		cCurrentModuleObject = "AirTerminal:SingleDuct:UserDefined";
-		zzzNumUserAirTerminals = GetNumObjectsFound( cCurrentModuleObject );
-		if ( zzzNumUserAirTerminals > 0 ) {
-			UserAirTerminal.allocate( zzzNumUserAirTerminals );
-			zzzCheckUserAirTerminal.dimension( zzzNumUserAirTerminals, true );
-			for ( CompLoop = 1; CompLoop <= zzzNumUserAirTerminals; ++CompLoop ) {
+		NumUserAirTerminals = GetNumObjectsFound( cCurrentModuleObject );
+		if ( NumUserAirTerminals > 0 ) {
+			UserAirTerminal.allocate( NumUserAirTerminals );
+			CheckUserAirTerminal.dimension( NumUserAirTerminals, true );
+			for ( CompLoop = 1; CompLoop <= NumUserAirTerminals; ++CompLoop ) {
 				GetObjectItem( cCurrentModuleObject, CompLoop, cAlphaArgs, NumAlphas, rNumericArgs, NumNums, IOStat, lNumericFieldBlanks, lAlphaFieldBlanks, cAlphaFieldNames, cNumericFieldNames );
 				IsNotOK = false;
 				IsBlank = false;
@@ -1319,7 +1319,7 @@ namespace UserDefinedComponents {
 				}
 
 			}
-		} //zzzNumUserZoneAir > 0
+		} //NumUserZoneAir > 0
 
 		if ( ErrorsFound ) {
 			ShowFatalError( "GetUserDefinedComponents: Errors found in processing " + cCurrentModuleObject + " input." );
@@ -1552,7 +1552,7 @@ namespace UserDefinedComponents {
 		int Loop;
 
 		if ( MyOneTimeFlag ) {
-			MyFlag.dimension( zzzNumUserCoils, true );
+			MyFlag.dimension( NumUserCoils, true );
 			MyOneTimeFlag = false;
 		}
 
@@ -1642,7 +1642,7 @@ namespace UserDefinedComponents {
 		int Loop;
 
 		if ( MyOneTimeFlag ) {
-			MyFlag.dimension( zzzNumUserZoneAir, true );
+			MyFlag.dimension( NumUserZoneAir, true );
 			MyOneTimeFlag = false;
 		}
 
@@ -1742,7 +1742,7 @@ namespace UserDefinedComponents {
 		int Loop;
 
 		if ( MyOneTimeFlag ) {
-			MyFlag.dimension( zzzNumUserAirTerminals, true );
+			MyFlag.dimension( NumUserAirTerminals, true );
 			MyOneTimeFlag = false;
 		}
 
@@ -2126,13 +2126,13 @@ namespace UserDefinedComponents {
 		// na
 
 		// Obtains and allocates TESCoil related parameters from input file
-		if ( zzzGetInput ) { // First time subroutine has been called, get input data
+		if ( GetInput ) { // First time subroutine has been called, get input data
 			GetUserDefinedComponents();
-			zzzGetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
+			GetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
 		}
 
-		if ( zzzNumUserCoils > 0 ) {
-			CoilIndex = FindItem( CoilName, UserCoil, zzzNumUserCoils );
+		if ( NumUserCoils > 0 ) {
+			CoilIndex = FindItem( CoilName, UserCoil, NumUserCoils );
 		} else {
 			CoilIndex = 0;
 		}
@@ -2188,13 +2188,13 @@ namespace UserDefinedComponents {
 		int CoilIndex;
 
 		// Obtains and allocates TESCoil related parameters from input file
-		if ( zzzGetInput ) { // First time subroutine has been called, get input data
+		if ( GetInput ) { // First time subroutine has been called, get input data
 			GetUserDefinedComponents();
-			zzzGetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
+			GetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
 		}
 
-		if ( zzzNumUserCoils > 0 ) {
-			CoilIndex = FindItem( CoilName, UserCoil, zzzNumUserCoils );
+		if ( NumUserCoils > 0 ) {
+			CoilIndex = FindItem( CoilName, UserCoil, NumUserCoils );
 		} else {
 			CoilIndex = 0;
 		}
@@ -2253,13 +2253,13 @@ namespace UserDefinedComponents {
 		int CoilIndex;
 
 		// Obtains and allocates TESCoil related parameters from input file
-		if ( zzzGetInput ) { // First time subroutine has been called, get input data
+		if ( GetInput ) { // First time subroutine has been called, get input data
 			GetUserDefinedComponents();
-			zzzGetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
+			GetInput = false; // Set logic flag to disallow getting the input data on future calls to this subroutine
 		}
 
-		if ( zzzNumUserCoils > 0 ) {
-			CoilIndex = FindItem( CoilName, UserCoil, zzzNumUserCoils );
+		if ( NumUserCoils > 0 ) {
+			CoilIndex = FindItem( CoilName, UserCoil, NumUserCoils );
 		} else {
 			CoilIndex = 0;
 		}
