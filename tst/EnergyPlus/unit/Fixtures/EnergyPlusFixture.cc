@@ -110,6 +110,7 @@
 #include <EnergyPlus/DirectAirManager.hh>
 #include <EnergyPlus/DXCoils.hh>
 #include <EnergyPlus/EMSManager.hh>
+#include <EnergyPlus/FluidCoolers.hh>
 #include <EnergyPlus/FluidProperties.hh>
 #include <EnergyPlus/FanCoilUnits.hh>
 #include <EnergyPlus/Fans.hh>
@@ -298,6 +299,7 @@ namespace EnergyPlus {
 		DXCoils::clear_state();
 		EMSManager::clear_state();
 		ExteriorEnergyUse::clear_state();
+		FluidCooler::clear_state();
 		FluidProperties::clear_state();
 		FanCoilUnits::clear_state();
 		Fans::clear_state();

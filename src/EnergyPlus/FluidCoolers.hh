@@ -59,6 +59,8 @@
 #ifndef FluidCoolers_hh_INCLUDED
 #define FluidCoolers_hh_INCLUDED
 
+#include <memory>
+
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array1D.hh>
 
@@ -70,64 +72,58 @@
 
 namespace EnergyPlus {
 
-namespace FluidCoolers {
-
-	// Using/Aliasing
-
-	// Data
-	// MODULE PARAMETER DEFINITIONS:
-	extern std::string const cFluidCooler_SingleSpeed;
-	extern std::string const cFluidCooler_TwoSpeed;
-
-	enum class PIM : int {
-		None = 0,
-		NominalCapacity,
-		UFactor
-	};
-
-	enum class FluidCoolerEnum : int {
-		None = 0,
-		SingleSpeed,
-		TwoSpeed
-	};
-
-	// Object Data
-	extern Array1D< class FluidCooler > SimpleFluidCoolers; // dimension to number of machines
-
 	class FluidCooler : public PlantComponent
 	{
 
 	public:
-		// Default Constructor
-		FluidCooler();
+
+		// // Copy Constructor
+		// FluidCooler( FluidCooler const & ) = default;
+
+		// // Move Constructor
+		// #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) || (_MSC_VER>=1900)
+		// 	FluidCooler( FluidCooler && ) = default;
+		// #endif
+
+		virtual ~FluidCooler() {};
 
 		static PlantComponent * factory( int objectType, std::string objectName );
 
-		virtual void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 const CurLoad ) override;
+		virtual void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad ) override;
 
 		virtual void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad ) override;
 
 		virtual void onInitLoopEquip( const PlantLocation & calledFromLocation ) override;
 
-		static bool verifySingleSpeedDesignInputs(
-			FluidCooler & singleSpeedFluidCooler,
-			std::string const & cCurrentModuleObject,
-			Array1D<std::string> const & AlphArray,
-			Array1D<std::string> const & cNumericFieldNames,
-			Array1D<std::string> const & cAlphaFieldNames
-		);
+		static void clear_state();
 
-		static bool verifyTwoSpeedDesignInputs(
-			FluidCooler & twoSpeedFluidCooler,
-			std::string const & cCurrentModuleObject,
-			Array1D<std::string> const & AlphArray,
-			Array1D<std::string> const & cNumericFieldNames,
-			Array1D<std::string> const & cAlphaFieldNames
-		);
+		enum class PIM : int {
+			None = 0,
+			NominalCapacity,
+			UFactor
+		};
+
+		enum class FluidCoolerEnum : int {
+			None = 0,
+			SingleSpeed,
+			TwoSpeed
+		};
 
 	private:
 
-		static void getFluidCoolerInput();
+		FluidCooler();
+
+		// // Copy Assignment
+		// FluidCooler &
+		// operator =( FluidCooler const & ) = default;
+
+		// // Move Assignment
+		// #if !defined(_MSC_VER) || defined(__INTEL_COMPILER) || (_MSC_VER>=1900)
+		// 	FluidCooler &
+		// 	operator =( FluidCooler && ) = default;
+		// #endif
+
+		static void getInput();
 
 		void init();
 
@@ -153,15 +149,37 @@ namespace FluidCoolers {
 				Array1< Real64 > const & Par // par(1) = design fluid cooler load [W]
 		);
 
-	public:
+		static bool verifySingleSpeedDesignInputs(
+			std::unique_ptr< FluidCooler > & singleSpeedFluidCooler,
+			std::string const & cCurrentModuleObject,
+			Array1D<std::string> const & AlphArray,
+			Array1D<std::string> const & cNumericFieldNames,
+			Array1D<std::string> const & cAlphaFieldNames
+		);
+
+		static bool verifyTwoSpeedDesignInputs(
+			std::unique_ptr< FluidCooler > & twoSpeedFluidCooler,
+			std::string const & cCurrentModuleObject,
+			Array1D<std::string> const & AlphArray,
+			Array1D<std::string> const & cNumericFieldNames,
+			Array1D<std::string> const & cAlphaFieldNames
+		);
+
 		// Members
+		static std::vector< std::unique_ptr< FluidCooler > > instances;
+		static bool GetInputFlag;
+		static std::string const cFluidCooler_SingleSpeed;
+		static std::string const cFluidCooler_TwoSpeed;
+
+	public:
 		std::string Name; // User identifier
+	private:
 		std::string FluidCoolerType; // Type of fluid cooler
 		FluidCoolerEnum FluidCoolerType_Num;
 		int PlantType_Num;
 		PIM PerformanceInputMethod_Num;
-		bool Available; // need an array of logicals--load identifiers of available equipment
-		bool ON; // Simulate the machine at it's operating part load ratio
+		// bool Available; // need an array of logicals--load identifiers of available equipment
+		// bool ON; // Simulate the machine at it's operating part load ratio
 		Real64 DesignWaterFlowRate; // Design water flow rate through the fluid cooler [m3/s]
 		bool DesignWaterFlowRateWasAutoSized; // true if design water rate was autosize on input
 		Real64 DesWaterMassFlowRate; // Design water flow rate through the fluid cooler [kg/s]
@@ -181,7 +199,7 @@ namespace FluidCoolers {
 		bool LowSpeedFluidCoolerUAWasAutoSized; //true if low speed UA set to autosize on input
 		Real64 LowSpeedFluidCoolerUASizingFactor; // sizing factor for low speed UA []
 		Real64 DesignEnteringWaterTemp; // Entering water temperature at design conditions
-		Real64 DesignLeavingWaterTemp; // Entering water temperature at design conditions
+		// Real64 DesignLeavingWaterTemp; // Entering water temperature at design conditions
 		Real64 DesignEnteringAirTemp; // Entering water temperature at design conditions
 		Real64 DesignEnteringAirWetBulbTemp; // Entering water temperature at design condition
 		Real64 FluidCoolerMassFlowRateMultiplier; // Maximum fluid cooler flow rate is this multiplier * design flow rate
@@ -198,10 +216,10 @@ namespace FluidCoolers {
 		int OutletWaterTempErrorIndex; // Index for outlet water temperature recurring error message
 		int SmallWaterMassFlowErrorCount; // Counter when water mass flow rate is very small
 		int SmallWaterMassFlowErrorIndex; // Index for very small water mass flow rate recurring error message
-		int WMFRLessThanMinAvailErrCount; // Counter when water mass flow rate is less than minimum available
-		int WMFRLessThanMinAvailErrIndex; // Index for water mass flow rate less than minavail recurring message
-		int WMFRGreaterThanMaxAvailErrCount; // Counter when water mass flow rate is greater than minimum available
-		int WMFRGreaterThanMaxAvailErrIndex; // Index for water mass flow rate > minavail recurring message
+		// int WMFRLessThanMinAvailErrCount; // Counter when water mass flow rate is less than minimum available
+		// int WMFRLessThanMinAvailErrIndex; // Index for water mass flow rate less than minavail recurring message
+		// int WMFRGreaterThanMaxAvailErrCount; // Counter when water mass flow rate is greater than minimum available
+		// int WMFRGreaterThanMaxAvailErrIndex; // Index for water mass flow rate > minavail recurring message
 		PlantLocation location; // connection location structure
 		bool envrnFlag;
 		bool oneTimeFlag;
@@ -224,8 +242,6 @@ namespace FluidCoolers {
 		//////////////////////////
 
 	};
-
-} // FluidCoolers
 
 } // EnergyPlus
 

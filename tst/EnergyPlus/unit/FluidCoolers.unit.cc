@@ -65,196 +65,242 @@
 
 // EnergyPlus Headers
 #include <EnergyPlus/FluidCoolers.hh>
-#include <DataSizing.hh>
+#include <EnergyPlus/DataSizing.hh>
+#include <EnergyPlus/DataPlant.hh>
 #include <EnergyPlus/UtilityRoutines.hh>
 
 
 using namespace EnergyPlus;
-using namespace EnergyPlus::FluidCoolers;
 using namespace DataGlobals;
 using namespace EnergyPlus::DataSizing;
 using namespace ObjexxFCL;
 
 TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test1 )
 {
+	std::string const idf_objects = 
+		R"(FluidCooler:TwoSpeed,
+		Big FluidCooler,         !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		NominalCapacity,         !- Performance Input Method
+		,                        !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		28601.,                  !- Low Speed Nominal Capacity {W}
+		,                        !- Low Speed Nominal Capacity Sizing Factor
+		50,                      !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor)";
 
-	using DataSizing::AutoSize;
-	int StringArraySize = 20;
-	Array1D_string cNumericFieldNames;
-	cNumericFieldNames.allocate( StringArraySize );
-	Array1D_string cAlphaFieldNames;
-	cAlphaFieldNames.allocate( StringArraySize );
-	Array1D_string AlphArray;
-	AlphArray.allocate( StringArraySize );
-	for ( int i = 1; i <= StringArraySize; ++i ) {
-		cAlphaFieldNames( i ) = "AlphaField";
-		cNumericFieldNames( i ) = "NumerField";
-		AlphArray( i ) = "FieldValues";
-	}
-	std::string const cCurrentModuleObject( "FluidCooler:TwoSpeed" );
-	int FluidCoolerNum( 1 );
-	SimpleFluidCoolers.allocate( FluidCoolerNum );
-
-	SimpleFluidCoolers( FluidCoolerNum ).Name = "Test";
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerMassFlowRateMultiplier = 2.5;
-	SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::NominalCapacity;
-	SimpleFluidCoolers( FluidCoolerNum ).WaterInletNodeNum = 1;
-	SimpleFluidCoolers( FluidCoolerNum ).WaterOutletNodeNum = 1;
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity = 50000;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp = 52;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp = 35;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp = 25;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPowerWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPower = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPowerWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerLowSpeedNomCap = 30000;
-
-
-	AlphArray( 4 ) = "NominalCapacity";
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = 0;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA = 0;
-	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = 50;
-	bool testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
-
-	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = -10;
-	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_TRUE( testResult ); // error message triggered
-
-	SimpleFluidCoolers( 1 ).DesignEnteringWaterTemp = 50;
-	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCap = AutoSize;
-	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCapWasAutoSized = true;
-	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
-
-	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCap = 0; // this should trigger the original error condition
-	SimpleFluidCoolers( 1 ).FluidCoolerLowSpeedNomCapWasAutoSized = false;
-	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_TRUE( testResult ); // error message triggered
-
-	SimpleFluidCoolers.deallocate();
+	ASSERT_FALSE( process_idf( idf_objects ) );
+	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
 }
 
-TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test2 ) {
-
-	using DataSizing::AutoSize;
-	int StringArraySize = 20;
-	Array1D_string cNumericFieldNames;
-	cNumericFieldNames.allocate( StringArraySize );
-	Array1D_string cAlphaFieldNames;
-	cAlphaFieldNames.allocate( StringArraySize );
-	Array1D_string AlphArray;
-	AlphArray.allocate( StringArraySize );
-	for ( int i = 1; i <= StringArraySize; ++i ) {
-		cAlphaFieldNames( i ) = "AlphaField";
-		cNumericFieldNames( i ) = "NumerField";
-		AlphArray( i ) = "FieldValues";
-	}
-	std::string const cCurrentModuleObject( "FluidCooler:TwoSpeed" );
-	int FluidCoolerNum( 1 );
-	bool ErrrorsFound( false );
-	SimpleFluidCoolers.allocate( FluidCoolerNum );
-
-	SimpleFluidCoolers( FluidCoolerNum ).Name = "Test";
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerMassFlowRateMultiplier = 1.0;
-	SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::UFactor;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp = 52;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp = 35;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp = 25;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPowerWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedAirFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPower = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFanPowerWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerLowSpeedNomCap = 30000;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUA = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).LowSpeedFluidCoolerUAWasAutoSized = true;
-
-	AlphArray( 4 ) = "UFactorTimesAreaAndDesignWaterFlowRate";
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized = false;
-	bool testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_TRUE( testResult ); // error message triggered
-
-	ErrrorsFound = false;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized = true;
-	testResult = FluidCooler::verifyTwoSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
-
-	SimpleFluidCoolers.deallocate();
-	cNumericFieldNames.deallocate();
-	cAlphaFieldNames.deallocate();
-	AlphArray.deallocate();
-}
-
-
-TEST_F( EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test3 )
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test2 )
 {
-	using DataSizing::AutoSize;
-	int StringArraySize = 20;
-	Array1D_string cNumericFieldNames;
-	cNumericFieldNames.allocate( StringArraySize );
-	Array1D_string cAlphaFieldNames;
-	cAlphaFieldNames.allocate( StringArraySize );
-	Array1D_string AlphArray;
-	AlphArray.allocate( StringArraySize );
-	for ( int i = 1; i <= StringArraySize; ++i ) {
-		cAlphaFieldNames( i ) = "AlphaField";
-		cNumericFieldNames( i ) = "NumerField";
-		AlphArray( i ) = "FieldValues";
-	}
-	std::string const cCurrentModuleObject( "FluidCooler:SingleSpeed" );
-	int FluidCoolerNum( 1 );
-	SimpleFluidCoolers.allocate( FluidCoolerNum );
+	std::string const idf_objects = 
+		R"(FluidCooler:TwoSpeed,
+		Big FluidCooler,        !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		NominalCapacity,         !- Performance Input Method
+		,                        !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		28601.,                  !- Low Speed Nominal Capacity {W}
+		,                        !- Low Speed Nominal Capacity Sizing Factor
+		-10,                     !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor)";
 
-	SimpleFluidCoolers( FluidCoolerNum ).Name = "Test";
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerMassFlowRateMultiplier = 2.5;
-	SimpleFluidCoolers( FluidCoolerNum ).PerformanceInputMethod_Num = PIM::UFactor;
-	SimpleFluidCoolers( FluidCoolerNum ).WaterInletNodeNum = 1;
-	SimpleFluidCoolers( FluidCoolerNum ).WaterOutletNodeNum = 1;
-	SimpleFluidCoolers( FluidCoolerNum ).FluidCoolerNominalCapacity = 50000;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringWaterTemp = 52;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirTemp = 35;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignEnteringAirWetBulbTemp = 25;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRate = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedAirFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPower = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFanPowerWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUA = AutoSize;
-	SimpleFluidCoolers( FluidCoolerNum ).HighSpeedFluidCoolerUAWasAutoSized = true;
+	EXPECT_TRUE( process_idf( idf_objects, false ) );
+	EXPECT_ANY_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
 
-	AlphArray( 4 ) = "UFactorTimesAreaAndDesignWaterFlowRate";
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 1;
-	bool testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test3 )
+{
+	std::string const idf_objects = 
+		R"(FluidCooler:TwoSpeed,
+		Big FluidCooler,       !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		NominalCapacity,         !- Performance Input Method
+		,                        !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		autocalculate,           !- Low Speed Nominal Capacity {W}
+		,                        !- Low Speed Nominal Capacity Sizing Factor
+		50,                      !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor)";
 
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = true;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 0;
-	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
+	ASSERT_FALSE( process_idf( idf_objects ) );
+	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
 
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = false;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 1;
-	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_FALSE( testResult ); // no error message triggered
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test4 )
+{
+	std::string const idf_objects = 
+		R"(FluidCooler:TwoSpeed,
+		Big FluidCooler,       !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		NominalCapacity,         !- Performance Input Method
+		,                        !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		0,                       !- Low Speed Nominal Capacity {W}
+		,                        !- Low Speed Nominal Capacity Sizing Factor
+		50,                      !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor)";
 
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRateWasAutoSized = false;
-	SimpleFluidCoolers( FluidCoolerNum ).DesignWaterFlowRate = 0;
-	testResult = FluidCooler::verifySingleSpeedDesignInputs( SimpleFluidCoolers( FluidCoolerNum ), cCurrentModuleObject, AlphArray, cNumericFieldNames, cAlphaFieldNames );
-	EXPECT_TRUE( testResult ); // error message triggered
+	EXPECT_TRUE( process_idf( idf_objects, false ) );
+	EXPECT_ANY_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
 
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test5 )
+{
+	std::string const idf_objects = 
+		R"(FluidCooler:TwoSpeed,
+		Big FluidCooler,       !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		UFactorTimesAreaAndDesignWaterFlowRate,         !- Performance Input Method
+		Autosize,                !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		28601.,                  !- Low Speed Nominal Capacity {W}
+		1.0,                     !- Low Speed Nominal Capacity Sizing Factor
+		50,                      !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor)";
+
+	EXPECT_FALSE( process_idf( idf_objects ) );
+	EXPECT_ANY_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
+
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test6 )
+{
+	std::string const idf_objects = 
+	R"(
+		FluidCooler:TwoSpeed,
+		Big FluidCooler,         !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		NominalCapacity,         !- Performance Input Method
+		,                        !- High Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		autocalculate,           !- Low Speed Nominal Capacity {W}
+		0.5,                     !- Low Speed Nominal Capacity Sizing Factor
+		51.67,                   !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor
+	)";
+
+	ASSERT_FALSE( process_idf( idf_objects ) );
+	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
+
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test7 )
+{
+	std::string const idf_objects = 
+	R"(
+		FluidCooler:TwoSpeed,
+		Big FluidCooler,         !- Name
+		Condenser FluidCooler Inlet Node,  !- Water Inlet Node Name
+		Condenser FluidCooler Outlet Node,  !- Water Outlet Node Name
+		UFactorTimesAreaAndDesignWaterFlowRate,  !- Performance Input Method
+		autosize,                !- High Fan Speed U-factor Times Area Value {W/K}
+		autosize,                !- Low Fan Speed U-factor Times Area Value {W/K}
+		,                        !- Low Fan Speed U-Factor Times Area Sizing Factor
+		58601.,                  !- High Speed Nominal Capacity {W}
+		28601.,                  !- Low Speed Nominal Capacity {W}
+		,                        !- Low Speed Nominal Capacity Sizing Factor
+		51.67,                   !- Design Entering Water Temperature {C}
+		35,                      !- Design Entering Air Temperature {C}
+		25.6,                    !- Design Entering Air Wet-bulb Temperature {C}
+		Autosize,                !- Design Water Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Air Flow Rate {m3/s}
+		Autosize,                !- High Fan Speed Fan Power {W}
+		autocalculate,           !- Low Fan Speed Air Flow Rate {m3/s}
+		,                        !- Low Fan Speed Air Flow Rate Sizing Factor
+		autocalculate,           !- Low Fan Speed Fan Power {W}
+		;                        !- Low Fan Speed Fan Power Sizing Factor
+	)";
+
+	ASSERT_FALSE( process_idf( idf_objects ) );
+	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
+}
+
+TEST_F( EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test1 )
+{
+	std::string const idf_objects = 
+	R"(
+		FluidCooler:SingleSpeed,
+		Fluid Cooler,            !- Name
+		Fluid Cooler Water Inlet Node,  !- Water Inlet Node Name
+		Fluid Cooler Water Outlet Node,  !- Water Outlet Node Name
+		UFactorTimesAreaAndDesignWaterFlowRate,  !- Performance Input Method
+		autosize,                !- Design Air Flow Rate U-factor Times Area Value {W/K}
+		,                        !- Nominal Capacity {W}
+		52.000000,               !- Design Entering Water Temperature {C}
+		24.000000,               !- Design Entering Air Temperature {C}
+		16.000000,               !- Design Entering Air Wetbulb Temperature {C}
+		autosize,                !- Design Water Flow Rate {m3/s}
+		autosize,                !- Design Air Flow Rate {m3/s}
+		autosize;                !- Design Air Flow Rate Fan Power {W}
+	)";
+
+	ASSERT_FALSE( process_idf( idf_objects ) );
+	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_SingleSpd, "FLUID COOLER" ) );
 }
