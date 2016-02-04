@@ -220,7 +220,7 @@ TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test5 )
 	EXPECT_ANY_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
 }
 
-TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test6 )
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCooler_Defect_4694 )
 {
 	std::string const idf_objects = 
 	R"(
@@ -251,7 +251,7 @@ TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test6 )
 	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
 }
 
-TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test7 )
+TEST_F( EnergyPlusFixture, TwoSpeedFluidCooler_Defect_4895 )
 {
 	std::string const idf_objects = 
 	R"(
@@ -282,7 +282,7 @@ TEST_F( EnergyPlusFixture, TwoSpeedFluidCoolerInput_Test7 )
 	EXPECT_NO_THROW( FluidCooler::factory( DataPlant::TypeOf_FluidCooler_TwoSpd, "BIG FLUIDCOOLER" ) );
 }
 
-TEST_F( EnergyPlusFixture, SingleSpeedFluidCoolerInput_Test1 )
+TEST_F( EnergyPlusFixture, SingleSpeedFluidCooler_Defect_5269 )
 {
 	std::string const idf_objects = 
 	R"(
