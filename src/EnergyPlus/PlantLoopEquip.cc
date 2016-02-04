@@ -682,16 +682,6 @@ namespace PlantLoopEquip {
 			if ( EquipTypeNum == TypeOf_Boiler_Simple ) {
 				sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, CurLoad );
 				//SimBoiler( sim_component.TypeOf, sim_component.Name, EquipFlowCtrl, EquipNum, RunFlag, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
-				if ( GetCompSizFac ) {
-					sim_component.SizFac = SizingFac;
-				}
-
 			} else if ( EquipTypeNum == TypeOf_Boiler_Steam ) {
 				SimSteamBoiler( sim_component.TypeOf, sim_component.Name, EquipFlowCtrl, EquipNum, RunFlag, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
 				if ( InitLoopEquip ) {

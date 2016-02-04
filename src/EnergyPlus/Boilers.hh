@@ -104,12 +104,12 @@ namespace Boilers {
 
 	// MODULE VARIABLE DECLARATIONS:
 	extern int NumBoilers; // Number of boilers
-	extern Real64 FuelUsed; // W - Boiler fuel used
-	extern Real64 ParasiticElecPower; // W - Parasitic electrical power (e.g. forced draft fan)
-	extern Real64 BoilerLoad; // W - Boiler Load
+	extern Real64 nsvFuelUsed; // W - Boiler fuel used
+	extern Real64 nsvParasiticElecPower; // W - Parasitic electrical power (e.g. forced draft fan)
+	extern Real64 nsvBoilerLoad; // W - Boiler Load
 	extern Real64 BoilerMassFlowRate; // kg/s - Boiler mass flow rate
-	extern Real64 BoilerOutletTemp; // W - Boiler outlet temperature
-	extern Real64 BoilerPLR; // Boiler operating part-load ratio
+	extern Real64 nsvBoilerOutletTemp; // W - Boiler outlet temperature
+	extern Real64 nsvBoilerPLR; // Boiler operating part-load ratio
 
 	extern Array1D_bool CheckEquipName;
 
@@ -209,6 +209,8 @@ namespace Boilers {
 			CalculatedEffIndex( 0 ),
 			IsThisSized( false ),
 			BoilerLoad( 0.0 ),
+			MyEnvrnFlag( true ),
+			MyFlag( true ),
 			BoilerEnergy( 0.0 ),
 			FuelUsed( 0.0 ),
 			FuelConsumed( 0.0 ),
@@ -224,13 +226,13 @@ namespace Boilers {
 		public:
 			static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
 
-			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
+			void simulate( const PlantLocation & calledFromLocation, bool const EP_UNUSED(FirstHVACIteration), Real64 & CurLoad );
 			
 			void getDesignCapacities( const PlantLocation & EP_UNUSED(calledFromLocation), Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
 			
 			void getSizingFactor( Real64 & SizFac );
 			 
-			void onInitLoopEquip( const PlantLocation & calledFromLocation ); 
+			void onInitLoopEquip( const PlantLocation & EP_UNUSED(calledFromLocation) ); 
 			
 			void InitBoiler();
 			
