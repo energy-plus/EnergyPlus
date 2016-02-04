@@ -148,6 +148,7 @@ namespace HVACVariableRefrigerantFlow {
 	extern Array1D_bool MyBeginTimeStepFlag; // Flag to sense beginning of time step
 	extern Array1D_bool MyVRFFlag; // used for sizing VRF inputs one time
 	extern Array1D_bool MyVRFCondFlag; // used to reset timer counter
+	extern Array1D_bool MyVRFPlantFlag; // used to call ScanPlantLoopsForObject
 	extern Array1D_bool MyZoneEqFlag; // used to set up zone equipment availability managers
 	extern int nsvNumVRFCond; // total number of VRF condensers (All VRF Algorithm Types)
 	extern int nsvNumVRFCond_SysCurve; // total number of VRF condensers with VRF Algorithm Type 1 

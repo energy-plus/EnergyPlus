@@ -214,6 +214,7 @@ namespace HVACVariableRefrigerantFlow {
 	Array1D_bool MyBeginTimeStepFlag; // Flag to sense beginning of time step
 	Array1D_bool MyVRFFlag; // used for sizing VRF inputs one time
 	Array1D_bool MyVRFCondFlag; // used to reset timer counter
+	Array1D_bool MyVRFPlantFlag; // used to call ScanPlantLoopsForObject
 	Array1D_bool MyZoneEqFlag; // used to set up zone equipment availability managers
 	int nsvNumVRFCond( 0 ); // total number of VRF condensers (All VRF Algorithm Types)
 	int nsvNumVRFCond_SysCurve( 0 ); // total number of VRF condensers with VRF Algorithm Type 1
@@ -2247,19 +2248,6 @@ namespace HVACVariableRefrigerantFlow {
 			} else {
 			}
 
-			if ( VRF( VRFNum ).CondenserType == WaterCooled ) {
-
-				//scan for loop connection data
-				errFlag = false;
-				ScanPlantLoopsForObject( VRF( VRFNum ).Name, VRF( VRFNum ).VRFPlantTypeOfNum, VRF( VRFNum ).SourceLoopNum, VRF( VRFNum ).SourceLoopSideNum, VRF( VRFNum ).SourceBranchNum, VRF( VRFNum ).SourceCompNum, _, _, _, VRF( VRFNum ).CondenserNodeNum, _, errFlag );
-
-				if ( errFlag ) {
-					ShowSevereError( "GetVRFInput: Error scanning for plant loop data" );
-					ErrorsFound = true;
-				}
-
-			}
-
 		}
 
 		// Read all VRF condenser objects: Algorithm Type 2_physics based model (FluidTCtrl)_Aug. 2015, zrp
@@ -3533,6 +3521,7 @@ namespace HVACVariableRefrigerantFlow {
 		bool EnableSystem; // use to turn on secondary operating mode if OA temp limits exceeded
 		Real64 rho; // density of water (kg/m3)
 		Real64 OutsideDryBulbTemp; // Outdoor air temperature at external node height
+		bool errFlag;
 
 		// FLOW:
 
@@ -3555,6 +3544,7 @@ namespace HVACVariableRefrigerantFlow {
 			nsvNumHeatingLoads.allocate( nsvNumVRFCond );
 			nsvSumHeatingLoads.allocate( nsvNumVRFCond );
 			MyVRFCondFlag.allocate( nsvNumVRFCond );
+			MyVRFPlantFlag.allocate( nsvNumVRFCond );
 			MyEnvrnFlag = true;
 			MySizeFlag = true;
 			MyVRFFlag = true;
@@ -3571,6 +3561,7 @@ namespace HVACVariableRefrigerantFlow {
 
 			MyOneTimeFlag = false;
 			MyVRFCondFlag = true;
+			MyVRFPlantFlag = true;
 
 		} // IF (MyOneTimeFlag) THEN
 
@@ -3658,6 +3649,24 @@ namespace HVACVariableRefrigerantFlow {
 				MySizeFlag( VRFTUNum ) = false;
 			} // IF ( .NOT. SysSizingCalc) THEN
 		} // IF (MySizeFlag(VRFTUNum)) THEN
+
+		if ( MyVRFPlantFlag( VRFCond ) ) {
+
+			if ( VRF( VRFCond ).CondenserType == WaterCooled  && allocated( PlantLoop ) ) {
+
+				//scan for loop connection data
+				errFlag = false;
+				ScanPlantLoopsForObject( VRF( VRFCond ).Name, VRF( VRFCond ).VRFPlantTypeOfNum, VRF( VRFCond ).SourceLoopNum, VRF( VRFCond ).SourceLoopSideNum, VRF( VRFCond ).SourceBranchNum, VRF( VRFCond ).SourceCompNum, _, _, _, VRF( VRFCond ).CondenserNodeNum, _, errFlag );
+
+				if( errFlag ) {
+					ShowFatalError( "GetVRFInput: Error scanning for plant loop data" );
+				}
+
+				MyVRFPlantFlag( VRFCond ) = false;
+
+			}
+
+		}
 
 		// Do the Begin Environment initializations
 		if ( BeginEnvrnFlag && MyEnvrnFlag( VRFTUNum ) ) {
@@ -9318,6 +9327,7 @@ namespace HVACVariableRefrigerantFlow {
 		MyBeginTimeStepFlag.deallocate();
 		MyVRFFlag.deallocate();
 		MyVRFCondFlag.deallocate();
+		MyVRFPlantFlag.deallocate();
 		MyZoneEqFlag.deallocate();
 	}
 

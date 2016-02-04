@@ -2566,7 +2566,6 @@ namespace EnergyPlus {
 
 		DataZoneEquipment::GetZoneEquipmentData(); // read equipment list and connections
 
-		BranchInputManager::ManageBranchInput();
 			// Get plant loop data
 		PlantManager::GetPlantLoopData();
 		PlantManager::GetPlantInput();

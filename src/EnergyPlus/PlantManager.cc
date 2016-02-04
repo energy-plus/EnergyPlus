@@ -82,6 +82,7 @@
 #include <General.hh>
 #include <GroundHeatExchangers.hh>
 #include <HVACInterfaceManager.hh>
+#include <HVACVariableRefrigerantFlow.hh>
 #include <InputProcessor.hh>
 #include <NodeInputManager.hh>
 #include <OutputProcessor.hh>
@@ -1173,7 +1174,8 @@ namespace PlantManager {
 						} else if ( SameString( this_comp_type, "AirConditioner:VariableRefrigerantFlow" ) ) {
 							this_comp.TypeOf_Num = TypeOf_HeatPumpVRF;
 							this_comp.GeneralEquipType = GenEquipTypes_HeatPump;
-							if ( LoopSideNum == DemandSide ) {
+							this_comp.compPtr = HVACVariableRefrigerantFlow::VRFCondenserEquipment::factory( TypeOf_HeatPumpVRF, CompNames( CompNum ) );
+							if( LoopSideNum == DemandSide ) {
 								this_comp.CurOpSchemeType = DemandOpSchemeType;
 							} else if ( LoopSideNum == SupplySide ) {
 								this_comp.CurOpSchemeType = UnknownStatusOpSchemeType;
