@@ -208,9 +208,9 @@ namespace Boilers {
 			CalculatedEffError( 0 ),
 			CalculatedEffIndex( 0 ),
 			IsThisSized( false ),
-			BoilerLoad( 0.0 ),
 			MyEnvrnFlag( true ),
 			MyFlag( true ),
+			BoilerLoad( 0.0 ),
 			BoilerEnergy( 0.0 ),
 			FuelUsed( 0.0 ),
 			FuelConsumed( 0.0 ),
@@ -221,25 +221,25 @@ namespace Boilers {
 			ParasiticElecConsumption( 0.0 ),
 			BoilerPLR( 0.0 )
 		{}
-		
-		
+
+
 		public:
 			static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
 
 			void simulate( const PlantLocation & calledFromLocation, bool const EP_UNUSED(FirstHVACIteration), Real64 & CurLoad );
-			
+
 			void getDesignCapacities( const PlantLocation & EP_UNUSED(calledFromLocation), Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
-			
+
 			void getSizingFactor( Real64 & SizFac );
-			 
-			void onInitLoopEquip( const PlantLocation & EP_UNUSED(calledFromLocation) ); 
-			
+
+			void onInitLoopEquip( const PlantLocation & EP_UNUSED(calledFromLocation) );
+
 			void InitBoiler();
-			
+
 			void SizeBoiler();
-			
+
 			void CalcBoilerModel( Real64 const CurLoad, bool const RunFlag, int const EquipFlowCtrl );
-			
+
 			void UpdateBoilerRecords( Real64 const CurLoad, bool const RunFlag );
 	};
 
