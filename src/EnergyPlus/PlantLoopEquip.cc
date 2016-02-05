@@ -226,7 +226,6 @@ namespace PlantLoopEquip {
 		using PlantHeatExchangerFluidToFluid::SimFluidHeatExchanger;
 		using CondenserLoopTowers::SimTowers;
 		using FluidCoolers::SimFluidCoolers;
-		using EvaporativeFluidCoolers::SimEvapFluidCoolers;
 		using BoilerSteam::SimSteamBoiler;
 		using IceThermalStorage::SimIceStorage;
 		using FuelCellElectricGenerator::SimFuelCellPlantHeatRecovery;
@@ -632,39 +631,9 @@ namespace PlantLoopEquip {
 				ShowFatalError( "Previous condition causes termination." );
 			}
 
-		} else if ( GeneralEquipType == GenEquipTypes_EvapFluidCooler ) {
-
 			//EvapFluidCoolers
-			if ( EquipTypeNum == TypeOf_EvapFluidCooler_SingleSpd ) {
-
-				SimEvapFluidCoolers( sim_component.TypeOf, sim_component.Name, EquipNum, RunFlag, InitLoopEquip, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
-
-			} else if ( EquipTypeNum == TypeOf_EvapFluidCooler_TwoSpd ) {
-
-				SimEvapFluidCoolers( sim_component.TypeOf, sim_component.Name, EquipNum, RunFlag, InitLoopEquip, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
-			} else {
-				ShowSevereError( "SimPlantEquip: Invalid EvapFluidCooler Type=" + sim_component.TypeOf );
-				ShowContinueError( "Occurs in Plant Loop=" + PlantLoop( LoopNum ).Name );
-				ShowFatalError( "Preceding condition causes termination." );
-			}
-
-			if ( InitLoopEquip && EquipNum == 0 ) {
-				ShowSevereError( "InitLoop did not set Equipment Index for Fluid Cooler=" + sim_component.TypeOf );
-				ShowContinueError( "..Fluid Cooler Name=" + sim_component.Name + ", in Plant Loop=" + PlantLoop( LoopNum ).Name );
-				ShowFatalError( "Previous condition causes termination." );
-			}
+		} else if ( GeneralEquipType == GenEquipTypes_EvapFluidCooler ) {
+			sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, CurLoad );
 
 			//BOILERS
 		} else if ( GeneralEquipType == GenEquipTypes_Boiler ) {
