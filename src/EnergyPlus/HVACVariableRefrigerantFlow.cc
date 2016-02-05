@@ -430,12 +430,12 @@ namespace HVACVariableRefrigerantFlow {
 			}
 		}
 		// If we didn't find it, fatal
-		ShowFatalError( "LocalPipeDataFactory: Error getting inputs for pipe named: " + objectName );
+		ShowFatalError( "SimVRFCondenserPlant: Error getting inputs for VRF condenser named: " + objectName );
 		// Shut up the compiler
 		return nullptr;
 	}
 
-	void VRFCondenserEquipment::simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & EP_UNUSED( CurLoad ) ) {
+	void VRFCondenserEquipment::simulate( const PlantLocation & EP_UNUSED( calledFromLocation ), bool const FirstHVACIteration, Real64 & EP_UNUSED( CurLoad ) ) {
 		if ( this->OneTimeInitVRFCond ) {
 			int FoundOnLoop = 0;
 			bool errFlag = false;
@@ -453,106 +453,16 @@ namespace HVACVariableRefrigerantFlow {
 
 	}
 
-	void VRFCondenserEquipment::getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
+	void VRFCondenserEquipment::getDesignCapacities( const PlantLocation & EP_UNUSED( calledFromLocation ), Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad )
 	{
 
-		this->SizeVRFCondenser(); // need to call this somehow
+		this->SizeVRFCondenser();
 
 		MinLoad = 0.0;
 		MaxLoad = max( this->CoolingCapacity, this->HeatingCapacity ); // greater of cooling and heating capacity
 		OptLoad = max( this->CoolingCapacity, this->HeatingCapacity );
 
 	}
-
-//	void
-//	SimVRFCondenserPlant(
-//		std::string const & VRFType, // Type of VRF
-//		int const VRFTypeNum, // Type ofser Specified Name of VRF
-//		int & VRFNum, // Index of Equipment
-//		bool const FirstHVACIteration, // Flag for first time through HVAC simulation
-//		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-//		Real64 const EP_UNUSED( MyLoad ), // Loop demand component will meet
-//		Real64 & MaxCap, // Maximum opera VRF in Plant equipment
-//		std::string const & VRFName, // Uting capacity of GSHP [W]
-//		Real64 & MinCap, // Minimum operating capacity of GSHP [W]
-//		Real64 & OptCap, // Optimal operating capacity of GSHP [W]
-//		int const LoopNum // The calling loop number
-//	)
-//	{
-//		// SUBROUTINE INFORMATION:
-//		//       AUTHOR         Richard Raustad
-//		//       DATE WRITTEN   May 2012
-//		//       MODIFIED
-//		//       RE-ENGINEERED  na
-//
-//		// PURPOSE OF THIS SUBROUTINE:
-//		// This subroutine manages water-source VRF condenser
-//
-//		// METHODOLOGY EMPLOYED:
-//
-//		// REFERENCES:
-//
-//		// Using/Aliasing
-//		using InputProcessor::FindItemInList;
-//		using PlantUtilities::UpdateChillerComponentCondenserSide;
-//		using namespace DataEnvironment;
-//		using General::TrimSigDigits;
-//
-//		// Locals
-//		// SUBROUTINE ARGUMENT DEFINITIONS:
-//
-//		// SUBROUTINE PARAMETER DEFINITIONS:
-//		// na
-//
-//		// INTERFACE BLOCK SPECIFICATIONS
-//		// na
-//
-//		// DERIVED TYPE DEFINITIONS
-//		// na
-//
-//		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-//		// na
-//
-//		//Get input from VRF
-//		if ( GetVRFInputFlag ) { //First time subroutine has been entered
-//			GetVRFInput();
-//			GetVRFInputFlag = false;
-//		}
-//
-//		if ( InitLoopEquip ) {
-//			VRFNum = FindItemInList( VRFName, VRF );
-//			if ( VRFNum != 0 ) { // if 0, fall through to next
-//				{ auto const SELECT_CASE_var( VRFTypeNum );
-//				if ( SELECT_CASE_var == TypeOf_HeatPumpVRF ) {
-//					MinCap = 0.0;
-//					MaxCap = max( VRF( VRFNum ).CoolingCapacity, VRF( VRFNum ).HeatingCapacity ); // greater of cooling and heating capacity
-//					OptCap = max( VRF( VRFNum ).CoolingCapacity, VRF( VRFNum ).HeatingCapacity ); // connects to single loop, need to switch between cooling/heating capacity?
-//				} else {
-//					ShowFatalError( "SimVRFCondenserPlant: Module called with incorrect VRFType=" + VRFType );
-//				}}
-//				SizeVRFCondenser( VRFNum );
-//				return;
-//			}
-//		}
-//
-//		// Calculate Demand on heat pump
-//		{ auto const SELECT_CASE_var( VRFTypeNum );
-//		if ( SELECT_CASE_var == TypeOf_HeatPumpVRF ) {
-//			if ( VRFNum != 0 ) {
-//				if ( LoopNum == VRF( VRFNum ).SourceLoopNum ) { // condenser loop
-//					UpdateChillerComponentCondenserSide( VRF( VRFNum ).SourceLoopNum, VRF( VRFNum ).SourceLoopSideNum, TypeOf_HeatPumpVRF, VRF( VRFNum ).CondenserNodeNum, VRF( VRFNum ).CondenserOutletNodeNum, VRF( VRFNum ).QCondenser, VRF( VRFNum ).CondenserInletTemp, VRF( VRFNum ).CondenserSideOutletTemp, VRF( VRFNum ).WaterCondenserMassFlow, FirstHVACIteration );
-//
-//				} else {
-//					ShowFatalError( "SimVRFCondenserPlant:: Invalid loop connection " + cVRFTypes( VRF_HeatPump ) + ", Requested Unit=" + VRFName );
-//				}
-//			} else {
-//				ShowFatalError( "SimVRFCondenserPlant:: Invalid " + cVRFTypes( VRF_HeatPump ) + ", Requested Unit=" + VRFName );
-//			}
-//		} else {
-//			ShowFatalError( "SimVRFCondenserPlant: Module called with incorrect VRFType=" + VRFType );
-//		}}
-//
-//	}
 
 	void
 	CalcVRFCondenser(
