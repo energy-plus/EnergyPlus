@@ -439,7 +439,6 @@ namespace HVACVariableRefrigerantFlow {
 		if ( this->OneTimeInitVRFCond ) {
 			int FoundOnLoop = 0;
 			bool errFlag = false;
-//			DataPlant::ScanPlantLoopsForObject( this->Name, this->TypeOf, this->LoopNum, this->LoopSide, this->BranchIndex, this->CompIndex, _, _, FoundOnLoop, _, _, errFlag );
 			DataPlant::ScanPlantLoopsForObject( this->Name, this->VRFPlantTypeOfNum, this->SourceLoopNum, this->SourceLoopSideNum, this->SourceBranchNum, this->SourceCompNum, _, _, FoundOnLoop, this->CondenserNodeNum, _, errFlag );
 			if( FoundOnLoop == 0 ) {
 				ShowFatalError( "SimVRFCondenserPlant: VRF=\"" + this->Name + "\" not found on a Plant Loop." );
@@ -1370,7 +1369,6 @@ namespace HVACVariableRefrigerantFlow {
 		using OutAirNodeManager::CheckOutAirNodeNumber;
 		using WaterManager::SetupTankDemandComponent;
 		using WaterManager::SetupTankSupplyComponent;
-		using DataZoneEquipment::ZoneEquipConfig;
 		using DataSizing::AutoSize;
 		using DataSizing::ZoneHVACSizing;
 
@@ -1420,16 +1418,14 @@ namespace HVACVariableRefrigerantFlow {
 		Real64 FanVolFlowRate; // Fan Max Flow Rate from Fan object (for comparisons to validity)
 		int FanInletNodeNum; // Used in TU configuration setup
 		int FanOutletNodeNum; // Used in TU configuration setup
-		Array1D_int OANodeNums( 4 ); // Node numbers of OA mixer (OA, EA, RA, MA)
 		int CCoilInletNodeNum; // Used in TU configuration setup
 		int CCoilOutletNodeNum; // Used in TU configuration setup
 		int HCoilInletNodeNum; // Used in TU configuration setup
 		int HCoilOutletNodeNum; // Used in TU configuration setup
+		Array1D_int OANodeNums( 4 ); // Node numbers of OA mixer (OA, EA, RA, MA)
 		int ZoneTerminalUnitListNum; // Used to find connection between VRFTU, TUList and VRF condenser
 		int NumCond; // loop counter
 		int NumList; // loop counter
-		bool ZoneNodeNotFound; // used in error checking
-		int CtrlZone; // index to loop counter
 		int NodeNum; // index to loop counter
 		// Followings for VRF FluidTCtrl Only
 		int NumCompSpd; // XP_loop counter
@@ -3125,51 +3121,6 @@ namespace HVACVariableRefrigerantFlow {
 			// Set up component set for OA mixer - use OA node and Mixed air node
 			if ( VRFTU( VRFTUNum ).OAMixerUsed ) SetUpCompSets( cCurrentModuleObject, VRFTU( VRFTUNum ).Name, "UNDEFINED", VRFTU( VRFTUNum ).OAMixerName, NodeID( OANodeNums( 1 ) ), NodeID( OANodeNums( 4 ) ) );
 
-			// TU inlet node must be the same as a zone exhaust node and the OA Mixer return node
-			// check that TU inlet node is a zone exhaust node.
-			ZoneNodeNotFound = true;
-			for ( CtrlZone = 1; CtrlZone <= NumOfZones; ++CtrlZone ) {
-				if ( ! ZoneEquipConfig( CtrlZone ).IsControlled ) continue;
-				for ( NodeNum = 1; NodeNum <= ZoneEquipConfig( CtrlZone ).NumExhaustNodes; ++NodeNum ) {
-					if ( VRFTU( VRFTUNum ).VRFTUInletNodeNum == ZoneEquipConfig( CtrlZone ).ExhaustNode( NodeNum ) ) {
-						ZoneNodeNotFound = false;
-						break;
-					}
-				}
-			}
-			if ( ZoneNodeNotFound ) {
-				ShowSevereError( cCurrentModuleObject + " \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air inlet node name must be the same as a zone exhaust node name." );
-				ShowContinueError( "... Zone exhaust node name is specified in ZoneHVAC:EquipmentConnections object." );
-				ShowContinueError( "... Zone terminal unit inlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUInletNodeNum ) );
-				ErrorsFound = true;
-			}
-			// check OA Mixer return node
-			if ( VRFTU( VRFTUNum ).OAMixerUsed ) {
-				if ( VRFTU( VRFTUNum ).VRFTUInletNodeNum != OANodeNums( 3 ) ) {
-					ShowSevereError( cCurrentModuleObject + " \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air inlet node name must be the same as the OutdoorAir:Mixer return air node name." );
-					ShowContinueError( "... Zone terminal unit air inlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUInletNodeNum ) );
-					ShowContinueError( "... OutdoorAir:Mixer return air node name = " + NodeID( OANodeNums( 3 ) ) );
-					ErrorsFound = true;
-				}
-			}
-			// check that TU outlet node is a zone inlet node.
-			ZoneNodeNotFound = true;
-			for ( CtrlZone = 1; CtrlZone <= NumOfZones; ++CtrlZone ) {
-				if ( ! ZoneEquipConfig( CtrlZone ).IsControlled ) continue;
-				for ( NodeNum = 1; NodeNum <= ZoneEquipConfig( CtrlZone ).NumInletNodes; ++NodeNum ) {
-					if ( VRFTU( VRFTUNum ).VRFTUOutletNodeNum == ZoneEquipConfig( CtrlZone ).InletNode( NodeNum ) ) {
-						ZoneNodeNotFound = false;
-						break;
-					}
-				}
-			}
-			if ( ZoneNodeNotFound ) {
-				ShowSevereError( cCurrentModuleObject + " \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air outlet node name must be the same as a zone inlet node name." );
-				ShowContinueError( "... Zone inlet node name is specified in ZoneHVAC:EquipmentConnections object." );
-				ShowContinueError( "... Zone terminal unit outlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUOutletNodeNum ) );
-				ErrorsFound = true;
-			}
-
 			// check fan inlet and outlet nodes
 			if ( VRFTU( VRFTUNum ).FanPlace == BlowThru ) {
 				if ( VRFTU( VRFTUNum ).OAMixerUsed ) {
@@ -3473,6 +3424,7 @@ namespace HVACVariableRefrigerantFlow {
 		using DataHeatBalFanSys::ZT;
 		using DataHeatBalFanSys::ZoneThermostatSetPointHi;
 		using DataHeatBalFanSys::ZoneThermostatSetPointLo;
+		using DataZoneEquipment::ZoneEquipConfig;
 		using InputProcessor::SameString;
 		using ScheduleManager::GetCurrentScheduleValue;
 		using DataEnvironment::StdRhoAir;
@@ -3521,7 +3473,10 @@ namespace HVACVariableRefrigerantFlow {
 		bool EnableSystem; // use to turn on secondary operating mode if OA temp limits exceeded
 		Real64 rho; // density of water (kg/m3)
 		Real64 OutsideDryBulbTemp; // Outdoor air temperature at external node height
-		bool errFlag;
+		bool errFlag; // true when errors found
+		bool ZoneNodeNotFound; // used in error checking
+		int CtrlZone; // index to loop counter
+		int NodeNum; // index to loop counter
 
 		// FLOW:
 
@@ -3638,6 +3593,7 @@ namespace HVACVariableRefrigerantFlow {
 					ShowSevereError( "InitVRF: VRF Terminal Unit = [" + cVRFTUTypes( VRFTU( TUIndex ).VRFTUType_Num ) + ',' + VRFTU( TUIndex ).Name + "] is not on any ZoneHVAC:EquipmentList.  It will not be simulated." );
 					ShowContinueError( "...The VRF AC System associated with this terminal unit may also not be simulated." );
 				}
+
 			} // IF(ZoneEquipInputsFilled) THEN
 		} // IF(ZoneEquipmentListNotChecked)THEN
 
@@ -3647,6 +3603,52 @@ namespace HVACVariableRefrigerantFlow {
 				SizeVRF( VRFTUNum );
 				TerminalUnitList( TUListIndex ).TerminalUnitNotSizedYet( IndexToTUInTUList ) = false;
 				MySizeFlag( VRFTUNum ) = false;
+
+				// TU inlet node must be the same as a zone exhaust node and the OA Mixer return node
+				// check that TU inlet node is a zone exhaust node.
+				ZoneNodeNotFound = true;
+				for ( CtrlZone = 1; CtrlZone <= NumOfZones; ++CtrlZone ) {
+					if ( ! ZoneEquipConfig( CtrlZone ).IsControlled ) continue;
+					for ( NodeNum = 1; NodeNum <= ZoneEquipConfig( CtrlZone ).NumExhaustNodes; ++NodeNum ) {
+						if ( VRFTU( VRFTUNum ).VRFTUInletNodeNum == ZoneEquipConfig( CtrlZone ).ExhaustNode( NodeNum ) ) {
+							ZoneNodeNotFound = false;
+							break;
+						}
+					}
+				}
+				if ( ZoneNodeNotFound ) {
+					ShowSevereError( "ZoneHVAC:TerminalUnit:VariableRefrigerantFlow \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air inlet node name must be the same as a zone exhaust node name." );
+					ShowContinueError( "... Zone exhaust node name is specified in ZoneHVAC:EquipmentConnections object." );
+					ShowContinueError( "... Zone terminal unit inlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUInletNodeNum ) );
+					errFlag = true;
+				}
+				// check OA Mixer return node
+				if ( VRFTU( VRFTUNum ).OAMixerUsed ) {
+					if ( VRFTU( VRFTUNum ).VRFTUInletNodeNum != VRFTU( VRFTUNum ).VRFTUOAMixerRetNodeNum ) {
+						ShowSevereError( "ZoneHVAC:TerminalUnit:VariableRefrigerantFlow \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air inlet node name must be the same as the OutdoorAir:Mixer return air node name." );
+						ShowContinueError( "... Zone terminal unit air inlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUInletNodeNum ) );
+						ShowContinueError( "... OutdoorAir:Mixer return air node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUOAMixerRetNodeNum ) );
+						errFlag = true;
+					}
+				}
+				// check that TU outlet node is a zone inlet node.
+				ZoneNodeNotFound = true;
+				for ( CtrlZone = 1; CtrlZone <= NumOfZones; ++CtrlZone ) {
+					if ( ! ZoneEquipConfig( CtrlZone ).IsControlled ) continue;
+					for ( NodeNum = 1; NodeNum <= ZoneEquipConfig( CtrlZone ).NumInletNodes; ++NodeNum ) {
+						if ( VRFTU( VRFTUNum ).VRFTUOutletNodeNum == ZoneEquipConfig( CtrlZone ).InletNode( NodeNum ) ) {
+							ZoneNodeNotFound = false;
+							break;
+						}
+					}
+				}
+				if ( ZoneNodeNotFound ) {
+					ShowSevereError( "ZoneHVAC:TerminalUnit:VariableRefrigerantFlow \"" + VRFTU( VRFTUNum ).Name + "\" Zone terminal unit air outlet node name must be the same as a zone inlet node name." );
+					ShowContinueError( "... Zone inlet node name is specified in ZoneHVAC:EquipmentConnections object." );
+					ShowContinueError( "... Zone terminal unit outlet node name = " + NodeID( VRFTU( VRFTUNum ).VRFTUOutletNodeNum ) );
+					errFlag = true;
+				}
+
 			} // IF ( .NOT. SysSizingCalc) THEN
 		} // IF (MySizeFlag(VRFTUNum)) THEN
 
