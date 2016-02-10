@@ -694,15 +694,6 @@ namespace PlantLoopEquip {
 			} else if ( EquipTypeNum == TypeOf_Boiler_Steam ) {
 				sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, CurLoad );
 				//SimSteamBoiler( sim_component.TypeOf, sim_component.Name, EquipFlowCtrl, EquipNum, RunFlag, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac ); //DSU
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
-				if ( GetCompSizFac ) {
-					sim_component.SizFac = SizingFac;
-				}
 
 			} else {
 				ShowSevereError( "SimPlantEquip: Invalid Boiler Type=" + sim_component.TypeOf );
