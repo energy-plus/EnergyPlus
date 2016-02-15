@@ -406,6 +406,9 @@ namespace UserDefinedComponents {
 	GetUserDefinedComponents();
 
 	void
+	GetUserDefinedPlantComponents();
+
+	void
 	InitCoilUserDefined( int const CompNum );
 
 	void

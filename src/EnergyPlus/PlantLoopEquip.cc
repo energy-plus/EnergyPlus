@@ -1142,12 +1142,13 @@ namespace PlantLoopEquip {
 
 				sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, InitLoopEquip );
 				//SimUserDefinedPlantComponent( LoopNum, LoopSideNum, sim_component.TypeOf, sim_component.Name, EquipNum, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad );
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
+				// The following is now handled by PlantComponent::getDesignCapacities
+				// if ( InitLoopEquip ) {
+				// 	sim_component.MaxLoad = MaxLoad;
+				// 	sim_component.MinLoad = MinLoad;
+				// 	sim_component.OptLoad = OptLoad;
+				// 	sim_component.CompNum = EquipNum;
+				// }
 
 			} else if ( EquipTypeNum == TypeOf_WaterSource ) {
 
