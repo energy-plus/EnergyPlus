@@ -84,6 +84,8 @@
 #include <NodeInputManager.hh>
 #include <OutputProcessor.hh>
 #include <OutputReportPredefined.hh>
+#include <PlantComponent.hh>
+#include <PlantLocation.hh>
 #include <PlantUtilities.hh>
 #include <Psychrometrics.hh>
 #include <ReportSizingManager.hh>
@@ -167,6 +169,35 @@ namespace PlantCentralGSHP {
 
 	// Functions
 
+	PlantComponent * WrapperSpecs::factory( int const EP_UNUSED(objectType), std::string objectName ) {
+
+		// Get user input values
+		if ( GetInputWrapper ) {
+			GetWrapperInput();
+			GetInputWrapper = false;
+		}
+		
+		
+		// Now look for this particular component in the list
+		for ( auto & WrapperItem : Wrapper ) {
+			if ( WrapperItem.Name == objectName ) {
+				return &WrapperItem;
+			}
+		}
+		// If we didn't find it, fatal
+		ShowFatalError( "WrapperSpecs::factory : Error getting inputs for Boiler named: " + objectName );
+		// Shut up the compiler
+		return nullptr;
+	}
+	
+	void
+	WrapperSpecs::simulate( 
+		const PlantLocation & calledFromLocation, 
+		bool const FirstHVACIteration, 
+		Real64 & CurLoad )
+	{
+	}
+ 
 	void
 	SimCentralGroundSourceHeatPump(
 		std::string const & WrapperName, // User specified name of wrapper
@@ -205,12 +236,6 @@ namespace PlantCentralGSHP {
 		int NumChillerHeater; // Chiller heater number pointer
 		int LoopSide; // Plant loop side
 		Real64 SimulLoadRatio; // Cooling/heating ratio to determine a load domination
-
-		// Get user input values
-		if ( GetInputWrapper ) {
-			GetWrapperInput();
-			GetInputWrapper = false;
-		}
 
 		// Find the correct wrapper
 		if ( CompIndex == 0 ) {

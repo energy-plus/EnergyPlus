@@ -65,9 +65,13 @@
 // EnergyPlus Headers
 #include <EnergyPlus.hh>
 #include <DataGlobals.hh>
+#include <PlantComponent.hh>
 
 namespace EnergyPlus {
-
+	
+// Forward Declarations
+	struct PlantLocation;
+ 
 // Contents:
 // CentralHeatPumpSystem (CGSHP) System
 // ChillerHeaterPerformance:Electric:EIR
@@ -418,7 +422,7 @@ namespace PlantCentralGSHP {
 		{}
 	};
 
-	struct WrapperSpecs // This will be used for Wrapper Object. This object will decide the mode of Chiller
+	struct WrapperSpecs : public PlantComponent // This will be used for Wrapper Object. This object will decide the mode of Chiller
 	{
 		// Members
 		std::string Name; // User identifier
@@ -517,6 +521,11 @@ namespace PlantCentralGSHP {
 			HWVolFlowRate( 0.0 ),
 			GLHEVolFlowRate( 0.0 )
 		{}
+		
+		public:
+			static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
+			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
+
 	};
 
 	struct WrapperReportVars

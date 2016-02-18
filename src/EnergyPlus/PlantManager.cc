@@ -87,6 +87,7 @@
 #include <OutputProcessor.hh>
 #include <PipeHeatTransfer.hh>
 #include <Pipes.hh>
+#include <PlantCentralGSHP.hh>
 #include <PlantLoadProfile.hh>
 #include <PlantLoopEquip.hh>
 #include <PlantLoopSolver.hh>
@@ -1244,6 +1245,7 @@ namespace PlantManager {
 						} else if ( SameString( this_comp_type, "CentralHeatPumpSystem" ) ) {
 							this_comp.TypeOf_Num = TypeOf_CentralGroundSourceHeatPump;
 							this_comp.GeneralEquipType = GenEquipTypes_CentralHeatPumpSystem;
+							this_comp.compPtr = PlantCentralGSHP::WrapperSpecs::factory( TypeOf_Pipe, CompNames( CompNum ) );
 
 							//now deal with demand components of the ZoneHVAC type served by ControlCompOutput
 						} else if ( SameString( this_comp_type, "ZoneHVAC:Baseboard:RadiantConvective:Water" ) ) {
