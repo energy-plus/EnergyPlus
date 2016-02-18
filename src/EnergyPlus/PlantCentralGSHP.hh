@@ -526,6 +526,10 @@ namespace PlantCentralGSHP {
 			static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
 			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
 
+			void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
+			void getSizingFactor( Real64 & SizFac );
+			void onInitLoopEquip( const PlantLocation & calledFromLocation );
+			void SizeWrapper();
 	};
 
 	struct WrapperReportVars
@@ -624,12 +628,9 @@ namespace PlantCentralGSHP {
 		Real64 & MaxCap, // Maximum operating capacity of chiller [W]
 		Real64 & MinCap, // Minimum operating capacity of chiller [W]
 		Real64 & OptCap, // Optimal operating capacity of chiller [W]
-		bool const GetSizingFactor, // TRUE when just the sizing factor is requested
+		bool const GetSizingFac, // TRUE when just the sizing factor is requested
 		Real64 & SizingFactor // sizing factor
 	);
-
-	void
-	SizeWrapper( int const WrapperNum );
 
 	void
 	GetWrapperInput();
