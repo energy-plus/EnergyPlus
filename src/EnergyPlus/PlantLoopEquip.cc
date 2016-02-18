@@ -250,7 +250,7 @@ namespace PlantLoopEquip {
 		using UserDefinedComponents::SimUserDefinedPlantComponent;
 		using HVACVariableRefrigerantFlow::SimVRFCondenserPlant;
 		using PlantComponentTemperatureSources::SimWaterSource;
-		using PlantCentralGSHP::SimCentralGroundSourceHeatPump;
+		// using PlantCentralGSHP::SimCentralGroundSourceHeatPump;
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
 		int EquipNum; // Plant side component list equipment number
@@ -1146,17 +1146,19 @@ namespace PlantLoopEquip {
 
 			if ( EquipTypeNum == TypeOf_CentralGroundSourceHeatPump ) {
 
-				SimCentralGroundSourceHeatPump( sim_component.Name, EquipFlowCtrl, EquipNum, LoopNum, RunFlag, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac );
-				if ( InitLoopEquip ) {
-					sim_component.MaxLoad = MaxLoad;
-					sim_component.MinLoad = MinLoad;
-					sim_component.OptLoad = OptLoad;
-					sim_component.CompNum = EquipNum;
-				}
+				sim_component.compPtr->simulate( sim_component_location, FirstHVACIteration, CurLoad );
+				
+				// SimCentralGroundSourceHeatPump( sim_component.Name, EquipFlowCtrl, EquipNum, LoopNum, RunFlag, FirstHVACIteration, InitLoopEquip, CurLoad, MaxLoad, MinLoad, OptLoad, GetCompSizFac, SizingFac );
+				// if ( InitLoopEquip ) {
+				// 	sim_component.MaxLoad = MaxLoad;
+				// 	sim_component.MinLoad = MinLoad;
+				// 	sim_component.OptLoad = OptLoad;
+				// 	sim_component.CompNum = EquipNum;
+				// }
 
-				if ( GetCompSizFac ) {
-					sim_component.SizFac = SizingFac;
-				}
+				// if ( GetCompSizFac ) {
+				// 	sim_component.SizFac = SizingFac;
+				// }
 
 			} else {
 				ShowSevereError( "SimPlantEquip: Invalid Central Heat Pump System Type=" + sim_component.TypeOf );

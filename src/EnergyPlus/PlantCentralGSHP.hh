@@ -454,6 +454,8 @@ namespace PlantCentralGSHP {
 		bool HeatSetPointErrDone; // true if setpoint warning issued
 		bool CoolSetPointSetToLoop; // True if the setpoint is missing at the outlet node
 		bool HeatSetPointSetToLoop; // True if the setpoint is missing at the outlet node
+		bool MyWrapperFlag; // TRUE in order to set component location
+		bool MyWrapperEnvrnFlag; // TRUE when new environment is started
 		int ChillerHeaterNums; // Total number of chiller heater units
 		int CWLoopNum; // Chilled water plant loop index number
 		int CWLoopSideNum; // Chilled water plant loop side index
@@ -519,17 +521,19 @@ namespace PlantCentralGSHP {
 			SizingFactor( 1.0 ),
 			CHWVolFlowRate( 0.0 ),
 			HWVolFlowRate( 0.0 ),
-			GLHEVolFlowRate( 0.0 )
+			GLHEVolFlowRate( 0.0 ),
+			MyWrapperFlag( true ),
+			MyWrapperEnvrnFlag( true )
 		{}
 		
-		public:
-			static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
-			void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
-
-			void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
-			void getSizingFactor( Real64 & SizFac );
-			void onInitLoopEquip( const PlantLocation & calledFromLocation );
-			void SizeWrapper();
+	public:
+		static PlantComponent * factory( int const EP_UNUSED(objectType), std::string objectName );
+		void simulate( const PlantLocation & calledFromLocation, bool const FirstHVACIteration, Real64 & CurLoad );
+		void onInitLoopEquip( const PlantLocation & calledFromLocation );
+		void getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxLoad, Real64 & MinLoad, Real64 & OptLoad );
+		void getSizingFactor( Real64 & SizFac );
+		void SizeWrapper();
+		void InitWrapper( Real64 const MyLoad, int const LoopNum );
 	};
 
 	struct WrapperReportVars
@@ -616,36 +620,10 @@ namespace PlantCentralGSHP {
 	// Functions
 
 	void
-	SimCentralGroundSourceHeatPump(
-		std::string const & WrapperName, // User specified name of wrapper
-		int const EquipFlowCtrl, // Flow control mode for the equipment
-		int & CompIndex, // Chiller number pointer
-		int const LoopNum, // plant loop index pointer
-		bool const RunFlag, // Simulate chiller when TRUE
-		bool const FirstIteration, // Initialize variables when TRUE
-		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-		Real64 & MyLoad, // Loop demand component will meet [W]
-		Real64 & MaxCap, // Maximum operating capacity of chiller [W]
-		Real64 & MinCap, // Minimum operating capacity of chiller [W]
-		Real64 & OptCap, // Optimal operating capacity of chiller [W]
-		bool const GetSizingFac, // TRUE when just the sizing factor is requested
-		Real64 & SizingFactor // sizing factor
-	);
-
-	void
 	GetWrapperInput();
 
 	void
 	GetChillerHeaterInput();
-
-	void
-	InitWrapper(
-		int const WrapperNum, // Number of the current wrapper being simulated
-		bool const RunFlag, // TRUE when chiller operating
-		bool const FirstIteration, // Initialize variables when TRUE
-		Real64 const MyLoad, // Demand Load
-		int const LoopNum // Loop Number Index
-	);
 
 	void
 	CalcChillerModel(

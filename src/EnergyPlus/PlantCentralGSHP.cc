@@ -178,7 +178,6 @@ namespace PlantCentralGSHP {
 			GetInputWrapper = false;
 		}
 		
-		
 		// Now look for this particular component in the list
 		for ( auto & WrapperItem : Wrapper ) {
 			if ( WrapperItem.Name == objectName ) {
@@ -191,26 +190,12 @@ namespace PlantCentralGSHP {
 		return nullptr;
 	}
 	
-	void
-	WrapperSpecs::simulate( 
-		const PlantLocation & calledFromLocation, 
-		bool const FirstHVACIteration, 
-		Real64 & CurLoad )
-	{
-	}
- 
 	void 
 	WrapperSpecs::onInitLoopEquip( const PlantLocation & calledFromLocation )
 	{
-		//@@
-		int WrapperNum = InputProcessor::FindItemInList( this->Name, Wrapper );
+		this -> InitWrapper( 0.0, calledFromLocation.loopNum );
 		
-		int LoopNum; // plant loop index pointer
-		LoopNum = calledFromLocation.loopNum;
-		
-		InitWrapper( WrapperNum, true, true, 0.0, LoopNum );
-		
-		if ( LoopNum == this->CWLoopNum ) { // Chilled water loop
+		if ( calledFromLocation.loopNum == this->CWLoopNum ) { // Chilled water loop
 			this->SizeWrapper();
 		}
 
@@ -219,14 +204,11 @@ namespace PlantCentralGSHP {
 	void 
 	WrapperSpecs::getDesignCapacities( const PlantLocation & calledFromLocation, Real64 & MaxCap, Real64 & MinCap, Real64 & OptCap )
 	{
-		int LoopNum; // plant loop index pointer
-		
-		LoopNum = calledFromLocation.loopNum;
-		
 		MinCap = 0.0;
 		MaxCap = 0.0;
 		OptCap = 0.0;
-		if ( LoopNum == this->CWLoopNum ) { // Chilled water loop
+		
+		if ( calledFromLocation.loopNum == this->CWLoopNum ) { // Chilled water loop
 			if ( this->ControlMode == SmartMixing ) { // control mode is SmartMixing
 				for ( int NumChillerHeater = 1; NumChillerHeater <= this->ChillerHeaterNums; ++NumChillerHeater ) {
 					MaxCap += this->ChillerHeater( NumChillerHeater ).RefCapCooling * this->ChillerHeater( NumChillerHeater ).MaxPartLoadRatCooling;
@@ -236,7 +218,7 @@ namespace PlantCentralGSHP {
 					MinCap += this->ChillerHeater( NumChillerHeater ).RefCapCooling * this->ChillerHeater( NumChillerHeater ).MinPartLoadRatCooling;
 				}
 			}
-		} else if ( LoopNum == this->HWLoopNum ) { // Hot water loop
+		} else if ( calledFromLocation.loopNum == this->HWLoopNum ) { // Hot water loop
 			if ( this->ControlMode == SmartMixing ) { // control mode is SmartMixing
 				for ( int NumChillerHeater = 1; NumChillerHeater <= this->ChillerHeaterNums; ++NumChillerHeater ) {
 					MaxCap += this->ChillerHeater( NumChillerHeater ).RefCapClgHtg * this->ChillerHeater( NumChillerHeater ).MaxPartLoadRatClgHtg;
@@ -255,24 +237,27 @@ namespace PlantCentralGSHP {
 		SizFac = 1.0; // Always equal to one now. The conponent may have its own sizing factor
 	}
 	
-	
 	void
-	SimCentralGroundSourceHeatPump(
-		std::string const & WrapperName, // User specified name of wrapper
-		int const EquipFlowCtrl, // Flow control mode for the equipment
-		int & CompIndex, // Chiller number pointer
-		int const LoopNum, // plant loop index pointer
-		bool const RunFlag, // Simulate chiller when TRUE
-		bool const FirstIteration, // Initialize variables when TRUE
-		bool & InitLoopEquip, // If not zero, calculate the max load for operating conditions
-		Real64 & MyLoad, // Loop demand component will meet [W]
-		Real64 & MaxCap, // Maximum operating capacity of chiller [W]
-		Real64 & MinCap, // Minimum operating capacity of chiller [W]
-		Real64 & OptCap, // Optimal operating capacity of chiller [W]
-		bool const GetSizingFac, // TRUE when just the sizing factor is requested
-		Real64 & SizingFactor // sizing factor
-	)
+	WrapperSpecs::simulate( 
+		const PlantLocation & calledFromLocation, 
+		bool const FirstHVACIteration, 
+		Real64 & CurLoad )
 	{
+		// SUBROUTINE INFORMATION:
+		//       AUTHOR         Yunzhi Huang, PNNL
+		//       DATE WRITTEN   Feb 2013
+		//       MODIFIED       Nov. 2013, Daeho Kang, add component sizing table entries
+		//       MODIFIED       Feb. 2016, R. Zhang, Refactor plant component
+		//       RE-ENGINEERED  na
+
+		// PURPOSE OF THIS SUBROUTINE:
+		//  This subroutine manages the simulation of the wrapper.
+
+		// METHODOLOGY EMPLOYED:
+		//  na
+
+		// REFERENCES:
+		//  na
 
 		// Using/Aliasing
 		using InputProcessor::GetNumObjectsFound;
@@ -293,83 +278,32 @@ namespace PlantCentralGSHP {
 		int WrapperNum; // Wrapper number pointer
 		int NumChillerHeater; // Chiller heater number pointer
 		int LoopSide; // Plant loop side
+		int LoopNum; // plant loop index pointer
 		Real64 SimulLoadRatio; // Cooling/heating ratio to determine a load domination
-
-		// Find the correct wrapper
-		if ( CompIndex == 0 ) {
-			WrapperNum = FindItemInList( WrapperName, Wrapper );
-			if ( WrapperNum == 0 ) {
-				ShowFatalError( "SimCentralGroundSourceHeatPump: Specified Wrapper not one of Valid Wrappers=" + WrapperName );
-			}
-			CompIndex = WrapperNum;
-		} else {
-			WrapperNum = CompIndex;
-			if ( WrapperNum > NumWrappers || WrapperNum < 1 ) {
-				ShowFatalError( "SimCentralGroundSourceHeatPump:  Invalid CompIndex passed=" + TrimSigDigits( WrapperNum ) + ", Number of Units=" + TrimSigDigits( NumWrappers ) + ", Entered Unit name=" + WrapperName );
-			}
-			if ( CheckEquipName( WrapperNum ) ) {
-				if ( WrapperName != Wrapper( WrapperNum ).Name ) {
-					ShowFatalError( "SimCentralGroundSourceHeatPump:  Invalid CompIndex passed=" + TrimSigDigits( WrapperNum ) + ", Unit name=" + WrapperName + ", stored Unit Name for that index=" + Wrapper( WrapperNum ).Name );
-				}
-				CheckEquipName( WrapperNum ) = false;
-			}
-		}
-
-		/*
-		if ( InitLoopEquip ) { // Initializagion loop if not done
-			InitWrapper( WrapperNum, RunFlag, FirstIteration, MyLoad, LoopNum );
-			MinCap = 0.0;
-			MaxCap = 0.0;
-			OptCap = 0.0;
-			if ( LoopNum == Wrapper( WrapperNum ).CWLoopNum ) { // Chilled water loop
-				SizeWrapper( WrapperNum );
-				if ( Wrapper( WrapperNum ).ControlMode == SmartMixing ) { // control mode is SmartMixing
-					for ( NumChillerHeater = 1; NumChillerHeater <= Wrapper( WrapperNum ).ChillerHeaterNums; ++NumChillerHeater ) {
-						MaxCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapCooling * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).MaxPartLoadRatCooling;
-
-						OptCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapCooling * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).OptPartLoadRatCooling;
-
-						MinCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapCooling * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).MinPartLoadRatCooling;
-					}
-				}
-			} else if ( LoopNum == Wrapper( WrapperNum ).HWLoopNum ) { // Hot water loop
-				if ( Wrapper( WrapperNum ).ControlMode == SmartMixing ) { // control mode is SmartMixing
-					for ( NumChillerHeater = 1; NumChillerHeater <= Wrapper( WrapperNum ).ChillerHeaterNums; ++NumChillerHeater ) {
-						MaxCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapClgHtg * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).MaxPartLoadRatClgHtg;
-
-						OptCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapClgHtg * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).OptPartLoadRatClgHtg;
-
-						MinCap += Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).RefCapClgHtg * Wrapper( WrapperNum ).ChillerHeater( NumChillerHeater ).MinPartLoadRatClgHtg;
-					}
-				} // End of control mode determination
-			} // End of loop determination
-
-			if ( GetSizingFac ) {
-				SizingFactor = 1.0; // Always equal to one now. The conponent may have its own sizing factor
-			}
-
-			return;
-
-		} // End of initialization
-
-		*/
 		
+		// Not really used. Should be deleted later
+		int const EquipFlowCtrl = true; // Flow control mode for the equipment
+		bool const RunFlag = true; // Simulate chiller when TRUE
+
+		// Initialization
+		LoopNum = calledFromLocation.loopNum;
+		WrapperNum = InputProcessor::FindItemInList( this->Name, Wrapper );
 		
-		if ( LoopNum != Wrapper( WrapperNum ).GLHELoopNum ) {
+		if ( LoopNum != this->GLHELoopNum ) {
 
-			InitWrapper( WrapperNum, RunFlag, FirstIteration, MyLoad, LoopNum );
-			CalcWrapperModel( WrapperNum, MyLoad, RunFlag, FirstIteration, EquipFlowCtrl, LoopNum );
+			this->InitWrapper( CurLoad, LoopNum );
+			CalcWrapperModel( WrapperNum, CurLoad, RunFlag, FirstHVACIteration, EquipFlowCtrl, LoopNum );
 
-		} else if ( LoopNum == Wrapper( WrapperNum ).GLHELoopNum ) {
-			LoopSide = Wrapper( WrapperNum ).GLHELoopSideNum;
-			UpdateChillerComponentCondenserSide( LoopNum, LoopSide, TypeOf_CentralGroundSourceHeatPump, Wrapper( WrapperNum ).GLHEInletNodeNum, Wrapper( WrapperNum ).GLHEOutletNodeNum, WrapperReport( WrapperNum ).GLHERate, WrapperReport( WrapperNum ).GLHEInletTemp, WrapperReport( WrapperNum ).GLHEOutletTemp, WrapperReport( WrapperNum ).GLHEmdot, FirstIteration );
+		} else if ( LoopNum == this->GLHELoopNum ) {
+			LoopSide = this->GLHELoopSideNum;
+			UpdateChillerComponentCondenserSide( LoopNum, LoopSide, TypeOf_CentralGroundSourceHeatPump, this->GLHEInletNodeNum, this->GLHEOutletNodeNum, WrapperReport( WrapperNum ).GLHERate, WrapperReport( WrapperNum ).GLHEInletTemp, WrapperReport( WrapperNum ).GLHEOutletTemp, WrapperReport( WrapperNum ).GLHEmdot, FirstHVACIteration );
 
 			// Use the first chiller heater's evaporator capacity ratio to determine dominant load
 			SimulClgDominant = false;
 			SimulHtgDominant = false;
-			if ( Wrapper( WrapperNum ).WrapperCoolingLoad > 0 && Wrapper( WrapperNum ).WrapperHeatingLoad > 0 ) {
-				SimulLoadRatio = Wrapper( WrapperNum ).WrapperCoolingLoad / Wrapper( WrapperNum ).WrapperHeatingLoad;
-				if ( SimulLoadRatio > Wrapper( WrapperNum ).ChillerHeater( 1 ).ClgHtgToCoolingCapRatio ) {
+			if ( this->WrapperCoolingLoad > 0 && this->WrapperHeatingLoad > 0 ) {
+				SimulLoadRatio = this->WrapperCoolingLoad / this->WrapperHeatingLoad;
+				if ( SimulLoadRatio > this->ChillerHeater( 1 ).ClgHtgToCoolingCapRatio ) {
 					SimulClgDominant = true;
 					SimulHtgDominant = false;
 				} else {
@@ -377,11 +311,9 @@ namespace PlantCentralGSHP {
 					SimulClgDominant = false;
 				}
 			}
-
 		}
-
 	}
-
+ 
 	void
 	WrapperSpecs::SizeWrapper()
 	{
@@ -602,7 +534,7 @@ namespace PlantCentralGSHP {
 				}
 
 				// auto-size the condenser volume flow rate
-				// each individule chiller heater module is sized to be capable of supporting the total load on the wrapper
+				// each individual chiller heater module is sized to be capable of supporting the total load on the wrapper
 				if ( PltSizCondNum > 0 ) {
 					if ( PlantSizData( PltSizNum ).DesVolFlowRate >= SmallWaterVolFlow ) {
 						rho = GetDensityGlycol( PlantLoop( this->GLHELoopNum ).FluidName, InitConvTemp, PlantLoop( this->GLHELoopNum ).FluidIndex, RoutineName );
@@ -692,9 +624,7 @@ namespace PlantCentralGSHP {
 			RegisterPlantCompDesignFlow( this->GLHEInletNodeNum, TotalCondVolFlowRate );
 
 			return;
-
 		}
-
 	}
 
 	void
@@ -1345,18 +1275,15 @@ namespace PlantCentralGSHP {
 	}
 
 	void
-	InitWrapper(
-		int const WrapperNum, // Number of the current wrapper being simulated
-		bool const EP_UNUSED( RunFlag ), // TRUE when chiller operating
-		bool const EP_UNUSED( FirstIteration ), // Initialize variables when TRUE
+	WrapperSpecs::InitWrapper(
 		Real64 const MyLoad, // Demand Load
 		int const LoopNum // Loop Number Index
 	)
 	{
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR         Daeho Kang, PNNL
-		//       DATE WRITTEN   Feb 2013
-		//       MODIFIED       na
+		//       DATE WRITTEN   Feb. 2013
+		//       MODIFIED       Feb. 2016, R. Zhang, Refactor plant component
 		//       RE-ENGINEERED  na
 
 		// PURPOSE OF THIS SUBROUTINE:
@@ -1399,9 +1326,6 @@ namespace PlantCentralGSHP {
 		//  na
 
 		// SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-		static bool MyWrapperOneTimeFlag( true ); // Flag used to execute code only once
-		static Array1D_bool MyWrapperFlag; // TRUE in order to set component location
-		static Array1D_bool MyWrapperEnvrnFlag; // TRUE when new environment is started
 		int ChillerHeaterNum; // Chiller Heater index
 		bool errFlag; // Err flag
 		bool FatalError; // Fatal error indicator
@@ -1416,219 +1340,211 @@ namespace PlantCentralGSHP {
 		Real64 mdotHW; // Hot water mass flow rate
 		Real64 mdotGLHE; // Condenser water mass flow rate
 
-		// Do the one time initializations
-		if ( MyWrapperOneTimeFlag ) {
-			MyWrapperEnvrnFlag.allocate( NumWrappers );
-			MyWrapperFlag.allocate( NumWrappers );
-			MyWrapperEnvrnFlag = true;
-			MyWrapperFlag = true;
-			MyWrapperOneTimeFlag = false;
-		}
 
-		if ( MyWrapperFlag( WrapperNum ) ) {
+		if ( this->MyWrapperFlag ) {
 			// Locate the chillers on the plant loops for later usage
 			errFlag = false;
-			ScanPlantLoopsForObject( Wrapper( WrapperNum ).Name, TypeOf_CentralGroundSourceHeatPump, Wrapper( WrapperNum ).CWLoopNum, Wrapper( WrapperNum ).CWLoopSideNum, Wrapper( WrapperNum ).CWBranchNum, Wrapper( WrapperNum ).CWCompNum, _, _, _, Wrapper( WrapperNum ).CHWInletNodeNum, _, errFlag );
+			ScanPlantLoopsForObject( this->Name, TypeOf_CentralGroundSourceHeatPump, this->CWLoopNum, this->CWLoopSideNum, this->CWBranchNum, this->CWCompNum, _, _, _, this->CHWInletNodeNum, _, errFlag );
 
-			ScanPlantLoopsForObject( Wrapper( WrapperNum ).Name, TypeOf_CentralGroundSourceHeatPump, Wrapper( WrapperNum ).HWLoopNum, Wrapper( WrapperNum ).HWLoopSideNum, Wrapper( WrapperNum ).HWBranchNum, Wrapper( WrapperNum ).HWCompNum, _, _, _, Wrapper( WrapperNum ).HWInletNodeNum, _, errFlag );
+			ScanPlantLoopsForObject( this->Name, TypeOf_CentralGroundSourceHeatPump, this->HWLoopNum, this->HWLoopSideNum, this->HWBranchNum, this->HWCompNum, _, _, _, this->HWInletNodeNum, _, errFlag );
 
-			ScanPlantLoopsForObject( Wrapper( WrapperNum ).Name, TypeOf_CentralGroundSourceHeatPump, Wrapper( WrapperNum ).GLHELoopNum, Wrapper( WrapperNum ).GLHELoopSideNum, Wrapper( WrapperNum ).GLHEBranchNum, Wrapper( WrapperNum ).GLHECompNum, _, _, _, Wrapper( WrapperNum ).GLHEInletNodeNum, _, errFlag );
+			ScanPlantLoopsForObject( this->Name, TypeOf_CentralGroundSourceHeatPump, this->GLHELoopNum, this->GLHELoopSideNum, this->GLHEBranchNum, this->GLHECompNum, _, _, _, this->GLHEInletNodeNum, _, errFlag );
 
-			InterConnectTwoPlantLoopSides( Wrapper( WrapperNum ).CWLoopNum, Wrapper( WrapperNum ).CWLoopSideNum, Wrapper( WrapperNum ).GLHELoopNum, Wrapper( WrapperNum ).GLHELoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
+			InterConnectTwoPlantLoopSides( this->CWLoopNum, this->CWLoopSideNum, this->GLHELoopNum, this->GLHELoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
 
-			InterConnectTwoPlantLoopSides( Wrapper( WrapperNum ).HWLoopNum, Wrapper( WrapperNum ).HWLoopSideNum, Wrapper( WrapperNum ).GLHELoopNum, Wrapper( WrapperNum ).GLHELoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
+			InterConnectTwoPlantLoopSides( this->HWLoopNum, this->HWLoopSideNum, this->GLHELoopNum, this->GLHELoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
 
-			InterConnectTwoPlantLoopSides( Wrapper( WrapperNum ).CWLoopNum, Wrapper( WrapperNum ).CWLoopSideNum, Wrapper( WrapperNum ).HWLoopNum, Wrapper( WrapperNum ).HWLoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
+			InterConnectTwoPlantLoopSides( this->CWLoopNum, this->CWLoopSideNum, this->HWLoopNum, this->HWLoopSideNum, TypeOf_CentralGroundSourceHeatPump, true );
 
-			if ( Wrapper( WrapperNum ).VariableFlowCH ) {
+			if ( this->VariableFlowCH ) {
 				// Reset flow priority
-				if ( LoopNum == Wrapper( WrapperNum ).CWLoopNum ) {
-					PlantLoop( Wrapper( WrapperNum ).CWLoopNum ).LoopSide( Wrapper( WrapperNum ).CWLoopSideNum ).Branch( Wrapper( WrapperNum ).CWBranchNum ).Comp( Wrapper( WrapperNum ).CWCompNum ).FlowPriority = LoopFlowStatus_NeedyIfLoopOn;
-				} else if ( LoopNum == Wrapper( WrapperNum ).HWLoopNum ) {
-					PlantLoop( Wrapper( WrapperNum ).HWLoopNum ).LoopSide( Wrapper( WrapperNum ).HWLoopSideNum ).Branch( Wrapper( WrapperNum ).HWBranchNum ).Comp( Wrapper( WrapperNum ).HWCompNum ).FlowPriority = LoopFlowStatus_NeedyIfLoopOn;
+				if ( LoopNum == this->CWLoopNum ) {
+					PlantLoop( this->CWLoopNum ).LoopSide( this->CWLoopSideNum ).Branch( this->CWBranchNum ).Comp( this->CWCompNum ).FlowPriority = LoopFlowStatus_NeedyIfLoopOn;
+				} else if ( LoopNum == this->HWLoopNum ) {
+					PlantLoop( this->HWLoopNum ).LoopSide( this->HWLoopSideNum ).Branch( this->HWBranchNum ).Comp( this->HWCompNum ).FlowPriority = LoopFlowStatus_NeedyIfLoopOn;
 				}
 
 				// check if setpoint on outlet node - chilled water loop
-				if ( Node( Wrapper( WrapperNum ).CHWOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) {
+				if ( Node( this->CHWOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) {
 					if ( ! AnyEnergyManagementSystemInModel ) {
-						if ( ! Wrapper( WrapperNum ).CoolSetPointErrDone ) {
-							ShowWarningError( "Missing temperature setpoint on cooling side for CentralHeatPumpSystem named " + Wrapper( WrapperNum ).Name );
+						if ( ! this->CoolSetPointErrDone ) {
+							ShowWarningError( "Missing temperature setpoint on cooling side for CentralHeatPumpSystem named " + this->Name );
 							ShowContinueError( "  A temperature setpoint is needed at the outlet node of a CentralHeatPumpSystem, use a SetpointManager" );
 							ShowContinueError( "  The overall loop setpoint will be assumed for CentralHeatPumpSystem. The simulation continues ... " );
-							Wrapper( WrapperNum ).CoolSetPointErrDone = true;
+							this->CoolSetPointErrDone = true;
 						}
 					} else {
 						// need call to EMS to check node
 						FatalError = false; // but not really fatal yet, but should be.
-						CheckIfNodeSetPointManagedByEMS( Wrapper( WrapperNum ).CHWOutletNodeNum, iTemperatureSetPoint, FatalError );
+						CheckIfNodeSetPointManagedByEMS( this->CHWOutletNodeNum, iTemperatureSetPoint, FatalError );
 						if ( FatalError ) {
-							if ( ! Wrapper( WrapperNum ).CoolSetPointErrDone ) {
-								ShowWarningError( "Missing temperature setpoint on cooling side for CentralHeatPumpSystem named " + Wrapper( WrapperNum ).Name );
+							if ( ! this->CoolSetPointErrDone ) {
+								ShowWarningError( "Missing temperature setpoint on cooling side for CentralHeatPumpSystem named " + this->Name );
 								ShowContinueError( "A temperature setpoint is needed at the outlet node of a CentralHeatPumpSystem " );
 								ShowContinueError( "use a Setpoint Manager to establish a setpoint at the chiller side outlet node " );
 								ShowContinueError( "or use an EMS actuator to establish a setpoint at the outlet node " );
 								ShowContinueError( "The overall loop setpoint will be assumed for chiller side. The simulation continues ... " );
-								Wrapper( WrapperNum ).CoolSetPointErrDone = true;
+								this->CoolSetPointErrDone = true;
 							}
 						}
 					}
-					Wrapper( WrapperNum ).CoolSetPointSetToLoop = true;
-					Node( Wrapper( WrapperNum ).CHWOutletNodeNum ).TempSetPoint = Node( PlantLoop( Wrapper( WrapperNum ).CWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
+					this->CoolSetPointSetToLoop = true;
+					Node( this->CHWOutletNodeNum ).TempSetPoint = Node( PlantLoop( this->CWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
 				}
 
-				if ( Node( Wrapper( WrapperNum ).HWOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) {
+				if ( Node( this->HWOutletNodeNum ).TempSetPoint == SensedNodeFlagValue ) {
 					if ( ! AnyEnergyManagementSystemInModel ) {
-						if ( ! Wrapper( WrapperNum ).HeatSetPointErrDone ) {
-							ShowWarningError( "Missing temperature setpoint on heating side for CentralHeatPumpSystem named " + Wrapper( WrapperNum ).Name );
+						if ( ! this->HeatSetPointErrDone ) {
+							ShowWarningError( "Missing temperature setpoint on heating side for CentralHeatPumpSystem named " + this->Name );
 							ShowContinueError( "  A temperature setpoint is needed at the outlet node of a CentralHeatPumpSystem, use a SetpointManager" );
 							ShowContinueError( "  The overall loop setpoint will be assumed for CentralHeatPumpSystem. The simulation continues ... " );
-							Wrapper( WrapperNum ).HeatSetPointErrDone = true;
+							this->HeatSetPointErrDone = true;
 						}
 					} else {
 						// need call to EMS to check node
 						FatalError = false; // but not really fatal yet, but should be.
-						CheckIfNodeSetPointManagedByEMS( Wrapper( WrapperNum ).HWOutletNodeNum, iTemperatureSetPoint, FatalError );
+						CheckIfNodeSetPointManagedByEMS( this->HWOutletNodeNum, iTemperatureSetPoint, FatalError );
 						if ( FatalError ) {
-							if ( ! Wrapper( WrapperNum ).HeatSetPointErrDone ) {
-								ShowWarningError( "Missing temperature setpoint on heating side for CentralHeatPumpSystem named " + Wrapper( WrapperNum ).Name );
+							if ( ! this->HeatSetPointErrDone ) {
+								ShowWarningError( "Missing temperature setpoint on heating side for CentralHeatPumpSystem named " + this->Name );
 								ShowContinueError( "A temperature setpoint is needed at the outlet node of a CentralHeatPumpSystem " );
 								ShowContinueError( "use a Setpoint Manager to establish a setpoint at the chiller side outlet node " );
 								ShowContinueError( "or use an EMS actuator to establish a setpoint at the outlet node " );
 								ShowContinueError( "The overall loop setpoint will be assumed for chiller side. The simulation continues ... " );
-								Wrapper( WrapperNum ).HeatSetPointErrDone = true;
+								this->HeatSetPointErrDone = true;
 							}
 						}
 					}
-					Wrapper( WrapperNum ).HeatSetPointSetToLoop = true;
-					Node( Wrapper( WrapperNum ).HWOutletNodeNum ).TempSetPoint = Node( PlantLoop( Wrapper( WrapperNum ).HWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
+					this->HeatSetPointSetToLoop = true;
+					Node( this->HWOutletNodeNum ).TempSetPoint = Node( PlantLoop( this->HWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
 				}
 			}
-			MyWrapperFlag( WrapperNum ) = false;
+			this->MyWrapperFlag = false;
 		}
 
-		CHWInletNodeNum = Wrapper( WrapperNum ).CHWInletNodeNum;
-		CHWOutletNodeNum = Wrapper( WrapperNum ).CHWOutletNodeNum;
-		HWInletNodeNum = Wrapper( WrapperNum ).HWInletNodeNum;
-		HWOutletNodeNum = Wrapper( WrapperNum ).HWOutletNodeNum;
-		GLHEInletNodeNum = Wrapper( WrapperNum ).GLHEInletNodeNum;
-		GLHEOutletNodeNum = Wrapper( WrapperNum ).GLHEOutletNodeNum;
+		CHWInletNodeNum = this->CHWInletNodeNum;
+		CHWOutletNodeNum = this->CHWOutletNodeNum;
+		HWInletNodeNum = this->HWInletNodeNum;
+		HWOutletNodeNum = this->HWOutletNodeNum;
+		GLHEInletNodeNum = this->GLHEInletNodeNum;
+		GLHEOutletNodeNum = this->GLHEOutletNodeNum;
 
-		if ( MyWrapperEnvrnFlag( WrapperNum ) && BeginEnvrnFlag && ( PlantFirstSizesOkayToFinalize ) ) {
+		if ( this->MyWrapperEnvrnFlag && BeginEnvrnFlag && ( PlantFirstSizesOkayToFinalize ) ) {
 
-			if ( Wrapper( WrapperNum ).ControlMode == SmartMixing ) {
+			if ( this->ControlMode == SmartMixing ) {
 
-				Wrapper( WrapperNum ).CHWVolFlowRate = 0.0;
-				Wrapper( WrapperNum ).HWVolFlowRate = 0.0;
-				Wrapper( WrapperNum ).GLHEVolFlowRate = 0.0;
+				this->CHWVolFlowRate = 0.0;
+				this->HWVolFlowRate = 0.0;
+				this->GLHEVolFlowRate = 0.0;
 
-				for ( ChillerHeaterNum = 1; ChillerHeaterNum <= Wrapper( WrapperNum ).ChillerHeaterNums; ++ChillerHeaterNum ) {
-					Wrapper( WrapperNum ).CHWVolFlowRate += Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
-					Wrapper( WrapperNum ).HWVolFlowRate += Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).DesignHotWaterVolFlowRate;
-					Wrapper( WrapperNum ).GLHEVolFlowRate += Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondVolFlowRate;
+				for ( ChillerHeaterNum = 1; ChillerHeaterNum <= this->ChillerHeaterNums; ++ChillerHeaterNum ) {
+					this->CHWVolFlowRate += this->ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
+					this->HWVolFlowRate += this->ChillerHeater( ChillerHeaterNum ).DesignHotWaterVolFlowRate;
+					this->GLHEVolFlowRate += this->ChillerHeater( ChillerHeaterNum ).CondVolFlowRate;
 				}
 
-				rho = GetDensityGlycol( PlantLoop( Wrapper( WrapperNum ).CWLoopNum ).FluidName, InitConvTemp, PlantLoop( Wrapper( WrapperNum ).CWLoopNum ).FluidIndex, RoutineName );
+				rho = GetDensityGlycol( PlantLoop( this->CWLoopNum ).FluidName, InitConvTemp, PlantLoop( this->CWLoopNum ).FluidIndex, RoutineName );
 
-				Wrapper( WrapperNum ).CHWMassFlowRateMax = Wrapper( WrapperNum ).CHWVolFlowRate * rho;
-				Wrapper( WrapperNum ).HWMassFlowRateMax = Wrapper( WrapperNum ).HWVolFlowRate * rho;
-				Wrapper( WrapperNum ).GLHEMassFlowRateMax = Wrapper( WrapperNum ).GLHEVolFlowRate * rho;
+				this->CHWMassFlowRateMax = this->CHWVolFlowRate * rho;
+				this->HWMassFlowRateMax = this->HWVolFlowRate * rho;
+				this->GLHEMassFlowRateMax = this->GLHEVolFlowRate * rho;
 
-				InitComponentNodes( 0.0, Wrapper( WrapperNum ).CHWMassFlowRateMax, CHWInletNodeNum, CHWOutletNodeNum, Wrapper( WrapperNum ).CWLoopNum, Wrapper( WrapperNum ).CWLoopSideNum, Wrapper( WrapperNum ).CWBranchNum, Wrapper( WrapperNum ).CWCompNum );
-				InitComponentNodes( 0.0, Wrapper( WrapperNum ).HWMassFlowRateMax, HWInletNodeNum, HWOutletNodeNum, Wrapper( WrapperNum ).HWLoopNum, Wrapper( WrapperNum ).HWLoopSideNum, Wrapper( WrapperNum ).HWBranchNum, Wrapper( WrapperNum ).HWCompNum );
-				InitComponentNodes( 0.0, Wrapper( WrapperNum ).GLHEMassFlowRateMax, GLHEInletNodeNum, GLHEOutletNodeNum, Wrapper( WrapperNum ).GLHELoopNum, Wrapper( WrapperNum ).GLHELoopSideNum, Wrapper( WrapperNum ).GLHEBranchNum, Wrapper( WrapperNum ).GLHECompNum );
+				InitComponentNodes( 0.0, this->CHWMassFlowRateMax, CHWInletNodeNum, CHWOutletNodeNum, this->CWLoopNum, this->CWLoopSideNum, this->CWBranchNum, this->CWCompNum );
+				InitComponentNodes( 0.0, this->HWMassFlowRateMax, HWInletNodeNum, HWOutletNodeNum, this->HWLoopNum, this->HWLoopSideNum, this->HWBranchNum, this->HWCompNum );
+				InitComponentNodes( 0.0, this->GLHEMassFlowRateMax, GLHEInletNodeNum, GLHEOutletNodeNum, this->GLHELoopNum, this->GLHELoopSideNum, this->GLHEBranchNum, this->GLHECompNum );
 
 				// Initialize nodes for individual chiller heaters
-				for ( ChillerHeaterNum = 1; ChillerHeaterNum <= Wrapper( WrapperNum ).ChillerHeaterNums; ++ChillerHeaterNum ) {
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMin = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMinAvail = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMax = rho * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMaxAvail = rho * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRate = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMin = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMinAvail = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMax = rho * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMaxAvail = rho * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRate = 0.0;
-					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateRequest = 0.0;
+				for ( ChillerHeaterNum = 1; ChillerHeaterNum <= this->ChillerHeaterNums; ++ChillerHeaterNum ) {
+					this->ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMin = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMinAvail = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMax = rho * this->ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
+					this->ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRateMaxAvail = rho * this->ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
+					this->ChillerHeater( ChillerHeaterNum ).EvapInletNode.MassFlowRate = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMin = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMinAvail = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMax = rho * this->ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateMaxAvail = rho * this->ChillerHeater( ChillerHeaterNum ).EvapVolFlowRate;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRate = 0.0;
+					this->ChillerHeater( ChillerHeaterNum ).CondInletNode.MassFlowRateRequest = 0.0;
 
 				}
 
 			}
-			MyWrapperEnvrnFlag( WrapperNum ) = false;
+			this->MyWrapperEnvrnFlag = false;
 		}
 
 		if ( ! BeginEnvrnFlag ) {
-			MyWrapperEnvrnFlag( WrapperNum ) = true;
+			this->MyWrapperEnvrnFlag = true;
 		}
 
-		if ( Wrapper( WrapperNum ).CoolSetPointSetToLoop ) {
+		if ( this->CoolSetPointSetToLoop ) {
 			//IF (CurCoolingLoad > 0.0d0) THEN
-			Node( Wrapper( WrapperNum ).CHWOutletNodeNum ).TempSetPoint = Node( PlantLoop( Wrapper( WrapperNum ).CWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
+			Node( this->CHWOutletNodeNum ).TempSetPoint = Node( PlantLoop( this->CWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
 		}
 		//IF (CurHeatingLoad > 0.0d0) THEN
-		if ( Wrapper( WrapperNum ).HeatSetPointSetToLoop ) {
-			Node( Wrapper( WrapperNum ).HWOutletNodeNum ).TempSetPoint = Node( PlantLoop( Wrapper( WrapperNum ).HWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
+		if ( this->HeatSetPointSetToLoop ) {
+			Node( this->HWOutletNodeNum ).TempSetPoint = Node( PlantLoop( this->HWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
 			//ENDIF
 		}
 
 		// Switch over the mass flow rate to the condenser loop, i.e., ground heat exchanger
-		if ( LoopNum == Wrapper( WrapperNum ).CWLoopNum ) { // called for on cooling loop
+		if ( LoopNum == this->CWLoopNum ) { // called for on cooling loop
 			if ( MyLoad < -1.0 ) { // calling for cooling
 				mdotCHW = Node( CHWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotCHW = 0.0;
 			}
-			if ( Wrapper( WrapperNum ).WrapperHeatingLoad > 1.0 ) {
+			if ( this->WrapperHeatingLoad > 1.0 ) {
 				mdotHW = Node( HWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotHW = 0.0;
 			}
-			if ( ( MyLoad < -1.0 ) || ( Wrapper( WrapperNum ).WrapperHeatingLoad > 1.0 ) ) {
+			if ( ( MyLoad < -1.0 ) || ( this->WrapperHeatingLoad > 1.0 ) ) {
 				mdotGLHE = Node( GLHEInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotGLHE = 0.0;
 			}
 
-		} else if ( LoopNum == Wrapper( WrapperNum ).HWLoopNum ) {
+		} else if ( LoopNum == this->HWLoopNum ) {
 			if ( MyLoad > 1.0 ) {
 				mdotHW = Node( HWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotHW = 0.0;
 			}
-			if ( Wrapper( WrapperNum ).WrapperCoolingLoad > 1.0 ) {
+			if ( this->WrapperCoolingLoad > 1.0 ) {
 				mdotCHW = Node( CHWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotCHW = 0.0;
 			}
-			if ( ( MyLoad > 1.0 ) || ( Wrapper( WrapperNum ).WrapperCoolingLoad > 1.0 ) ) {
+			if ( ( MyLoad > 1.0 ) || ( this->WrapperCoolingLoad > 1.0 ) ) {
 				mdotGLHE = Node( GLHEInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotGLHE = 0.0;
 			}
 
-		} else if ( LoopNum == Wrapper( WrapperNum ).GLHELoopNum ) {
-			if ( Wrapper( WrapperNum ).WrapperCoolingLoad > 1.0 ) {
+		} else if ( LoopNum == this->GLHELoopNum ) {
+			if ( this->WrapperCoolingLoad > 1.0 ) {
 				mdotCHW = Node( CHWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotCHW = 0.0;
 			}
-			if ( Wrapper( WrapperNum ).WrapperHeatingLoad > 1.0 ) {
+			if ( this->WrapperHeatingLoad > 1.0 ) {
 				mdotHW = Node( HWInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotHW = 0.0;
 			}
-			if ( ( Wrapper( WrapperNum ).WrapperHeatingLoad > 1.0 ) || ( Wrapper( WrapperNum ).WrapperCoolingLoad > 1.0 ) ) {
+			if ( ( this->WrapperHeatingLoad > 1.0 ) || ( this->WrapperCoolingLoad > 1.0 ) ) {
 				mdotGLHE = Node( GLHEInletNodeNum ).MassFlowRateMax;
 			} else {
 				mdotGLHE = 0.0;
 			}
 		}
 
-		SetComponentFlowRate( mdotCHW, CHWInletNodeNum, CHWOutletNodeNum, Wrapper( WrapperNum ).CWLoopNum, Wrapper( WrapperNum ).CWLoopSideNum, Wrapper( WrapperNum ).CWBranchNum, Wrapper( WrapperNum ).CWCompNum );
+		SetComponentFlowRate( mdotCHW, CHWInletNodeNum, CHWOutletNodeNum, this->CWLoopNum, this->CWLoopSideNum, this->CWBranchNum, this->CWCompNum );
 
-		SetComponentFlowRate( mdotHW, HWInletNodeNum, HWOutletNodeNum, Wrapper( WrapperNum ).HWLoopNum, Wrapper( WrapperNum ).HWLoopSideNum, Wrapper( WrapperNum ).HWBranchNum, Wrapper( WrapperNum ).HWCompNum );
+		SetComponentFlowRate( mdotHW, HWInletNodeNum, HWOutletNodeNum, this->HWLoopNum, this->HWLoopSideNum, this->HWBranchNum, this->HWCompNum );
 
-		SetComponentFlowRate( mdotGLHE, GLHEInletNodeNum, GLHEOutletNodeNum, Wrapper( WrapperNum ).GLHELoopNum, Wrapper( WrapperNum ).GLHELoopSideNum, Wrapper( WrapperNum ).GLHEBranchNum, Wrapper( WrapperNum ).GLHECompNum );
+		SetComponentFlowRate( mdotGLHE, GLHEInletNodeNum, GLHEOutletNodeNum, this->GLHELoopNum, this->GLHELoopSideNum, this->GLHEBranchNum, this->GLHECompNum );
 
 	}
 
