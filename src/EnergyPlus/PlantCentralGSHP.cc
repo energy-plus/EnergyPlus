@@ -139,12 +139,12 @@ namespace PlantCentralGSHP {
 	int NumWrappers( 0 ); // Number of Wrappers specified in input
 	int NumChillerHeaters( 0 ); // Number of Chiller/heaters specified in input
 	Real64 CondenserFanPower( 0.0 ); // Condenser Fan Power (fan cycles with compressor) [W]
-	Real64 ChillerCapFT( 0.0 ); // Chiller/heater capacity fraction (evaluated as a function of temperature)
-	Real64 ChillerEIRFT( 0.0 ); // Chiller/heater electric input ratio (EIR = 1 / COP) as a function of temperature
-	Real64 ChillerEIRFPLR( 0.0 ); // Chiller/heater EIR as a function of part-load ratio (PLR)
-	Real64 ChillerPartLoadRatio( 0.0 ); // Chiller/heater part-load ratio (PLR)
-	Real64 ChillerCyclingRatio( 0.0 ); // Chiller/heater cycling ratio
-	Real64 ChillerFalseLoadRate( 0.0 ); // Chiller/heater false load over and above the water-side load [W]
+	Real64 nsvChillerCapFT( 0.0 ); // Chiller/heater capacity fraction (evaluated as a function of temperature)
+	Real64 nsvChillerEIRFT( 0.0 ); // Chiller/heater electric input ratio (EIR = 1 / COP) as a function of temperature
+	Real64 nsvChillerEIRFPLR( 0.0 ); // Chiller/heater EIR as a function of part-load ratio (PLR)
+	Real64 nsvChillerPartLoadRatio( 0.0 ); // Chiller/heater part-load ratio (PLR)
+	Real64 nsvChillerCyclingRatio( 0.0 ); // Chiller/heater cycling ratio
+	Real64 nsvChillerFalseLoadRate( 0.0 ); // Chiller/heater false load over and above the water-side load [W]
 
 	// Type defining the component specifications
 
@@ -1652,13 +1652,13 @@ namespace PlantCentralGSHP {
 
 			// Initialize local variables for each chiller heater
 			CurrentMode = 0;
-			ChillerCapFT = 0.0;
-			ChillerEIRFT = 0.0;
-			ChillerEIRFPLR = 0.0;
+			nsvChillerCapFT = 0.0;
+			nsvChillerEIRFT = 0.0;
+			nsvChillerEIRFPLR = 0.0;
 			CoolingLoadToMeet = 0.0;
-			ChillerPartLoadRatio = 0.0;
-			ChillerCyclingRatio = 0.0;
-			ChillerFalseLoadRate = 0.0;
+			nsvChillerPartLoadRatio = 0.0;
+			nsvChillerCyclingRatio = 0.0;
+			nsvChillerFalseLoadRate = 0.0;
 			EvapMassFlowRate = 0.0;
 			CondMassFlowRate = 0.0;
 			CHPower = 0.0;
@@ -1783,7 +1783,7 @@ namespace PlantCentralGSHP {
 					CondTempforCurve = CondOutletTemp;
 				} else {
 					ShowWarningError( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\":" );
-					ShowContinueError( "Chiller condensor temperature for curve fit are not decided, defalt value= cond_leaving (" + RoundSigDigits( ChillerCapFT, 3 ) + ")." );
+					ShowContinueError( "Chiller condensor temperature for curve fit are not decided, defalt value= cond_leaving (" + RoundSigDigits( nsvChillerCapFT, 3 ) + ")." );
 					CondTempforCurve = CondOutletTemp;
 				}
 
@@ -1794,20 +1794,20 @@ namespace PlantCentralGSHP {
 				EvapOutletTemp = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).EvapOutletNode.Temp;
 				TempLowLimitEout = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempLowLimitEvapOut;
 				EvapOutletTempSetPoint = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempRefEvapOutCooling;
-				ChillerCapFT = CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFT, EvapOutletTempSetPoint, CondTempforCurve );
+				nsvChillerCapFT = CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFT, EvapOutletTempSetPoint, CondTempforCurve );
 
-				if ( ChillerCapFT < 0 ) {
+				if ( nsvChillerCapFT < 0 ) {
 					if ( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError < 1 && ! WarmupFlag ) {
 						++Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError;
 						ShowWarningError( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\":" );
-						ShowContinueError( " ChillerHeater Capacity as a Function of Temperature curve output is negative (" + RoundSigDigits( ChillerCapFT, 3 ) + ")." );
+						ShowContinueError( " ChillerHeater Capacity as a Function of Temperature curve output is negative (" + RoundSigDigits( nsvChillerCapFT, 3 ) + ")." );
 						ShowContinueError( " Negative value occurs using an Evaporator Outlet Temp of " + RoundSigDigits( EvapOutletTempSetPoint, 1 ) + " and a Condenser Inlet Temp of " + RoundSigDigits( CondInletTemp, 1 ) + '.' );
 						ShowContinueErrorTimeStamp( " Resetting curve output to zero and continuing simulation." );
 					} else if ( ! WarmupFlag ) {
 						++Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError;
-						ShowRecurringWarningErrorAtEnd( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\": ChillerHeater Capacity as a Function of Temperature curve output is negative warning continues...", Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTErrorIndex, ChillerCapFT, ChillerCapFT );
+						ShowRecurringWarningErrorAtEnd( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\": ChillerHeater Capacity as a Function of Temperature curve output is negative warning continues...", Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTErrorIndex, nsvChillerCapFT, nsvChillerCapFT );
 					}
-					ChillerCapFT = 0.0;
+					nsvChillerCapFT = 0.0;
 				}
 
 				// Calculate the specific heat of chilled water
@@ -1819,7 +1819,7 @@ namespace PlantCentralGSHP {
 				CoolingLoadToMeet = min( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).RefCapCooling, max( std::abs( EvaporatorLoad ), EvaporatorCapMin ) );
 
 				// Available chiller capacity as a function of temperature
-				AvailChillerCap = ChillerRefCap * ChillerCapFT;
+				AvailChillerCap = ChillerRefCap * nsvChillerCapFT;
 
 				// Part load ratio based on load and available chiller capacity, cap at max part load ratio
 				if ( AvailChillerCap > 0 ) {
@@ -1909,7 +1909,7 @@ namespace PlantCentralGSHP {
 				if ( PartLoadRat < MinPartLoadRat ) FRAC = min( 1.0, ( PartLoadRat / MinPartLoadRat ) );
 
 				// set the module level variable used for reporting FRAC
-				ChillerCyclingRatio = FRAC;
+				nsvChillerCyclingRatio = FRAC;
 
 				// Chiller is false loading below PLR = minimum unloading ratio, find PLR used for energy calculation
 				if ( AvailChillerCap > 0.0 ) {
@@ -1919,20 +1919,20 @@ namespace PlantCentralGSHP {
 				}
 
 				// set the module level variable used for reporting PLR
-				ChillerPartLoadRatio = PartLoadRat;
+				nsvChillerPartLoadRatio = PartLoadRat;
 
 				// calculate the load due to false loading on chiller over and above water side load
-				ChillerFalseLoadRate = ( AvailChillerCap * PartLoadRat * FRAC ) - QEvaporator;
-				if ( ChillerFalseLoadRate < SmallLoad ) {
-					ChillerFalseLoadRate = 0.0;
+				nsvChillerFalseLoadRate = ( AvailChillerCap * PartLoadRat * FRAC ) - QEvaporator;
+				if ( nsvChillerFalseLoadRate < SmallLoad ) {
+					nsvChillerFalseLoadRate = 0.0;
 				}
 
 				// Determine chiller compressor power and transfer heat calculation
-				ChillerEIRFT = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFT, EvapOutletTemp, CondTempforCurve ) );
-				ChillerEIRFPLR = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFPLR, PartLoadRat ) );
-				CHPower = ( AvailChillerCap / ReferenceCOP ) * ChillerEIRFPLR * ChillerEIRFT * FRAC;
-				QCondenser = CHPower * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).OpenMotorEff + QEvaporator + ChillerFalseLoadRate;
-				ActualCOP = ( QEvaporator + ChillerFalseLoadRate ) / CHPower;
+				nsvChillerEIRFT = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFT, EvapOutletTemp, CondTempforCurve ) );
+				nsvChillerEIRFPLR = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFPLR, PartLoadRat ) );
+				CHPower = ( AvailChillerCap / ReferenceCOP ) * nsvChillerEIRFPLR * nsvChillerEIRFT * FRAC;
+				QCondenser = CHPower * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).OpenMotorEff + QEvaporator + nsvChillerFalseLoadRate;
+				ActualCOP = ( QEvaporator + nsvChillerFalseLoadRate ) / CHPower;
 
 				if ( CondMassFlowRate > MassFlowTolerance ) {
 					Cp = GetSpecificHeatGlycol( PlantLoop( Wrapper( WrapperNum ).GLHELoopNum ).FluidName, CondInletTemp, PlantLoop( Wrapper( WrapperNum ).GLHELoopNum ).FluidIndex, RoutineNameElecEIRChiller );
@@ -1952,9 +1952,9 @@ namespace PlantCentralGSHP {
 				// Initialize reporting variable when this chiller doesn't need to operate
 				if ( QEvaporator == 0.0 ) {
 					CurrentMode = 0;
-					ChillerPartLoadRatio = 0.0;
-					ChillerCyclingRatio = 0.0;
-					ChillerFalseLoadRate = 0.0;
+					nsvChillerPartLoadRatio = 0.0;
+					nsvChillerCyclingRatio = 0.0;
+					nsvChillerFalseLoadRate = 0.0;
 					EvapMassFlowRate = 0.0;
 					CondMassFlowRate = 0.0;
 					CHPower = 0.0;
@@ -1975,12 +1975,12 @@ namespace PlantCentralGSHP {
 			Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondOutletNode.Temp = CondOutletTemp;
 			Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.Temp = CondInletTemp;
 			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CurrentMode = CurrentMode;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatio = ChillerPartLoadRatio;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatio = ChillerCyclingRatio;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate = ChillerFalseLoadRate;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFT = ChillerCapFT;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFT = ChillerEIRFT;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLR = ChillerEIRFPLR;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatio = nsvChillerPartLoadRatio;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatio = nsvChillerCyclingRatio;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate = nsvChillerFalseLoadRate;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFT = nsvChillerCapFT;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFT = nsvChillerEIRFT;
+			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLR = nsvChillerEIRFPLR;
 			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingPower = CHPower;
 			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingPower = HeatingPower;
 			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvap = QEvaporator;
@@ -1995,12 +1995,12 @@ namespace PlantCentralGSHP {
 
 			if ( SimulClgDominant || SimulHtgDominant ) { // Store for using these cooling side data in the hot water loop
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CurrentMode = CurrentMode;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatioSimul = ChillerPartLoadRatio;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatioSimul = ChillerCyclingRatio;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRateSimul = ChillerFalseLoadRate;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFTSimul = ChillerCapFT;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFTSimul = ChillerEIRFT;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLRSimul = ChillerEIRFPLR;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatioSimul = nsvChillerPartLoadRatio;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatioSimul = nsvChillerCyclingRatio;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRateSimul = nsvChillerFalseLoadRate;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFTSimul = nsvChillerCapFT;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFTSimul = nsvChillerEIRFT;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLRSimul = nsvChillerEIRFPLR;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingPowerSimul = CHPower;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvapSimul = QEvaporator;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapOutletTempSimul = EvapOutletTemp;
@@ -2127,9 +2127,9 @@ namespace PlantCentralGSHP {
 			// Set module level inlet and outlet nodes and initialize other local variables
 			CurrentMode = 0;
 			HeatingLoadToMeet = 0.0;
-			ChillerPartLoadRatio = 0.0;
-			ChillerCyclingRatio = 0.0;
-			ChillerFalseLoadRate = 0.0;
+			nsvChillerPartLoadRatio = 0.0;
+			nsvChillerCyclingRatio = 0.0;
+			nsvChillerFalseLoadRate = 0.0;
 			EvapMassFlowRate = 0.0;
 			CondMassFlowRate = 0.0;
 			CHPower = 0.0;
@@ -2293,9 +2293,9 @@ namespace PlantCentralGSHP {
 						CurrentMode = 2;
 					}
 
-					ChillerCapFT = 0.0;
-					ChillerEIRFT = 0.0;
-					ChillerEIRFPLR = 0.0;
+					nsvChillerCapFT = 0.0;
+					nsvChillerEIRFT = 0.0;
+					nsvChillerEIRFPLR = 0.0;
 
 					// Assign curve values to local data array
 					Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).RefCap = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).RefCapClgHtg;
@@ -2314,7 +2314,7 @@ namespace PlantCentralGSHP {
 						CondTempforCurve = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempRefCondOutClgHtg; //!CondOutletTemp
 					} else {
 						ShowWarningError( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\":" );
-						ShowContinueError( "Chiller condensor temperature for curve fit are not decided, defalt value= cond_leaving (" + RoundSigDigits( ChillerCapFT, 3 ) + ")." );
+						ShowContinueError( "Chiller condensor temperature for curve fit are not decided, defalt value= cond_leaving (" + RoundSigDigits( nsvChillerCapFT, 3 ) + ")." );
 						CondTempforCurve = Node( PlantLoop( Wrapper( WrapperNum ).HWLoopNum ).TempSetPointNodeNum ).TempSetPoint;
 					}
 
@@ -2324,24 +2324,24 @@ namespace PlantCentralGSHP {
 					EvapOutletTemp = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempRefEvapOutClgHtg;
 					TempLowLimitEout = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempLowLimitEvapOut;
 					EvapOutletTempSetPoint = Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).TempRefEvapOutClgHtg;
-					ChillerCapFT = CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFT, EvapOutletTempSetPoint, CondTempforCurve );
+					nsvChillerCapFT = CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFT, EvapOutletTempSetPoint, CondTempforCurve );
 
-					if ( ChillerCapFT < 0 ) {
+					if ( nsvChillerCapFT < 0 ) {
 						if ( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError < 1 && ! WarmupFlag ) {
 							++Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError;
 							ShowWarningError( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\":" );
-							ShowContinueError( " ChillerHeater Capacity as a Function of Temperature curve output is negative (" + RoundSigDigits( ChillerCapFT, 3 ) + ")." );
+							ShowContinueError( " ChillerHeater Capacity as a Function of Temperature curve output is negative (" + RoundSigDigits( nsvChillerCapFT, 3 ) + ")." );
 							ShowContinueError( " Negative value occurs using an Evaporator Outlet Temp of " + RoundSigDigits( EvapOutletTempSetPoint, 1 ) + " and a Condenser Inlet Temp of " + RoundSigDigits( CondInletTemp, 1 ) + '.' );
 							ShowContinueErrorTimeStamp( " Resetting curve output to zero and continuing simulation." );
 						} else if ( ! WarmupFlag ) {
 							++Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTError;
-							ShowRecurringWarningErrorAtEnd( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\": ChillerHeater Capacity as a Function of Temperature curve output is negative warning continues...", Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTErrorIndex, ChillerCapFT, ChillerCapFT );
+							ShowRecurringWarningErrorAtEnd( "ChillerHeaterPerformance:Electric:EIR \"" + Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).Name + "\": ChillerHeater Capacity as a Function of Temperature curve output is negative warning continues...", Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerCapFTErrorIndex, nsvChillerCapFT, nsvChillerCapFT );
 						}
-						ChillerCapFT = 0.0;
+						nsvChillerCapFT = 0.0;
 					}
 
 					// Available chiller capacity as a function of temperature
-					AvailChillerCap = ChillerRefCap * ChillerCapFT;
+					AvailChillerCap = ChillerRefCap * nsvChillerCapFT;
 
 					// Part load ratio based on reference capacity and available chiller capacity
 					if ( AvailChillerCap > 0 ) {
@@ -2394,7 +2394,7 @@ namespace PlantCentralGSHP {
 					// Chiller cycles below minimum part load ratio, FRAC = amount of time chiller is ON during this time step
 					if ( PartLoadRat < MinPartLoadRat ) FRAC = min( 1.0, ( PartLoadRat / MinPartLoadRat ) );
 					if ( FRAC <= 0.0 ) FRAC = 1.0; // CR 9303 COP reporting issue, it should be greater than zero in this routine
-					ChillerCyclingRatio = FRAC;
+					nsvChillerCyclingRatio = FRAC;
 
 					// Chiller is false loading below PLR = minimum unloading ratio, find PLR used for energy calculation
 					if ( AvailChillerCap > 0.0 ) {
@@ -2403,19 +2403,19 @@ namespace PlantCentralGSHP {
 						PartLoadRat = 0.0;
 					}
 					// Evaporator part load ratio
-					ChillerPartLoadRatio = PartLoadRat;
+					nsvChillerPartLoadRatio = PartLoadRat;
 
 					// calculate the load due to false loading on chiller over and above water side load
-					ChillerFalseLoadRate = ( AvailChillerCap * PartLoadRat * FRAC ) - QEvaporator;
-					if ( ChillerFalseLoadRate < SmallLoad ) {
-						ChillerFalseLoadRate = 0.0;
+					nsvChillerFalseLoadRate = ( AvailChillerCap * PartLoadRat * FRAC ) - QEvaporator;
+					if ( nsvChillerFalseLoadRate < SmallLoad ) {
+						nsvChillerFalseLoadRate = 0.0;
 					}
 
-					ChillerEIRFT = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFT, EvapOutletTemp, CondTempforCurve ) );
-					ChillerEIRFPLR = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFPLR, PartLoadRat ) );
-					CHPower = ( AvailChillerCap / ReferenceCOP ) * ChillerEIRFPLR * ChillerEIRFT * FRAC;
-					ActualCOP = ( QEvaporator + ChillerFalseLoadRate ) / CHPower;
-					QCondenser = CHPower * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).OpenMotorEff + QEvaporator + ChillerFalseLoadRate;
+					nsvChillerEIRFT = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFT, EvapOutletTemp, CondTempforCurve ) );
+					nsvChillerEIRFPLR = max( 0.0, CurveValue( Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).ChillerEIRFPLR, PartLoadRat ) );
+					CHPower = ( AvailChillerCap / ReferenceCOP ) * nsvChillerEIRFPLR * nsvChillerEIRFT * FRAC;
+					ActualCOP = ( QEvaporator + nsvChillerFalseLoadRate ) / CHPower;
+					QCondenser = CHPower * Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).OpenMotorEff + QEvaporator + nsvChillerFalseLoadRate;
 
 					// Determine heating load for this heater and pass the remaining load to the next chiller heater
 					CondenserCapMin = QCondenser * MinPartLoadRat;
@@ -2469,9 +2469,9 @@ namespace PlantCentralGSHP {
 
 				if ( QCondenser == 0.0 ) {
 					CurrentMode = 0;
-					ChillerPartLoadRatio = 0.0;
-					ChillerCyclingRatio = 0.0;
-					ChillerFalseLoadRate = 0.0;
+					nsvChillerPartLoadRatio = 0.0;
+					nsvChillerCyclingRatio = 0.0;
+					nsvChillerFalseLoadRate = 0.0;
 					EvapMassFlowRate = 0.0;
 					CondMassFlowRate = 0.0;
 					CHPower = 0.0;
@@ -2484,12 +2484,12 @@ namespace PlantCentralGSHP {
 
 				// Heat recovery or cooling dominant modes need to use the evaporator side information
 				if ( CurrentMode == 3 || CurrentMode == 4 ) {
-					ChillerPartLoadRatio = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatioSimul;
-					ChillerCyclingRatio = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatioSimul;
-					ChillerFalseLoadRate = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRateSimul;
-					ChillerCapFT = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFTSimul;
-					ChillerEIRFT = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFTSimul;
-					ChillerEIRFPLR = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLRSimul;
+					nsvChillerPartLoadRatio = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatioSimul;
+					nsvChillerCyclingRatio = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatioSimul;
+					nsvChillerFalseLoadRate = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRateSimul;
+					nsvChillerCapFT = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFTSimul;
+					nsvChillerEIRFT = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFTSimul;
+					nsvChillerEIRFPLR = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLRSimul;
 					QEvaporator = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvapSimul;
 					EvapOutletTemp = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapOutletTempSimul;
 					EvapInletTemp = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapInletTempSimul;
@@ -2512,12 +2512,12 @@ namespace PlantCentralGSHP {
 				Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondOutletNode.Temp = CondOutletTemp;
 				Wrapper( WrapperNum ).ChillerHeater( ChillerHeaterNum ).CondInletNode.Temp = CondInletTemp;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CurrentMode = CurrentMode;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatio = ChillerPartLoadRatio;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatio = ChillerCyclingRatio;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate = ChillerFalseLoadRate;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFT = ChillerCapFT;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFT = ChillerEIRFT;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLR = ChillerEIRFPLR;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerPartLoadRatio = nsvChillerPartLoadRatio;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCyclingRatio = nsvChillerCyclingRatio;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate = nsvChillerFalseLoadRate;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerCapFT = nsvChillerCapFT;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFT = nsvChillerEIRFT;
+				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerEIRFPLR = nsvChillerEIRFPLR;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingPower = CoolingPower;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingPower = CHPower;
 				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvap = QEvaporator;

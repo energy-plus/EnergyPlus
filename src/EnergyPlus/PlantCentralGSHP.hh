@@ -90,12 +90,12 @@ namespace PlantCentralGSHP {
 	extern int NumWrappers; // Number of Wrappers specified in input
 	extern int NumChillerHeaters; // Number of Chiller/heaters specified in input
 	extern Real64 CondenserFanPower; // Condenser Fan Power (fan cycles with compressor) [W]
-	extern Real64 ChillerCapFT; // Chiller/heater capacity fraction (evaluated as a function of temperature)
-	extern Real64 ChillerEIRFT; // Chiller/heater electric input ratio (EIR = 1 / COP) as a function of temperature
-	extern Real64 ChillerEIRFPLR; // Chiller/heater EIR as a function of part-load ratio (PLR)
-	extern Real64 ChillerPartLoadRatio; // Chiller/heater part-load ratio (PLR)
-	extern Real64 ChillerCyclingRatio; // Chiller/heater cycling ratio
-	extern Real64 ChillerFalseLoadRate; // Chiller/heater false load over and above the water-side load [W]
+	extern Real64 nsvChillerCapFT; // Chiller/heater capacity fraction (evaluated as a function of temperature)
+	extern Real64 nsvChillerEIRFT; // Chiller/heater electric input ratio (EIR = 1 / COP) as a function of temperature
+	extern Real64 nsvChillerEIRFPLR; // Chiller/heater EIR as a function of part-load ratio (PLR)
+	extern Real64 nsvChillerPartLoadRatio; // Chiller/heater part-load ratio (PLR)
+	extern Real64 nsvChillerCyclingRatio; // Chiller/heater cycling ratio
+	extern Real64 nsvChillerFalseLoadRate; // Chiller/heater false load over and above the water-side load [W]
 
 	// Type defining the component specifications
 
