@@ -292,7 +292,7 @@ namespace PlantCentralGSHP {
 		if ( LoopNum != this->GLHELoopNum ) {
 
 			this->InitWrapper( CurLoad, LoopNum );
-			this->CalcWrapperModel( WrapperNum, CurLoad, RunFlag, FirstHVACIteration, EquipFlowCtrl, LoopNum );
+			this->CalcWrapperModel( CurLoad, RunFlag, FirstHVACIteration, EquipFlowCtrl, LoopNum );
 
 		} else if ( LoopNum == this->GLHELoopNum ) {
 			LoopSide = this->GLHELoopSideNum;
@@ -2539,7 +2539,6 @@ namespace PlantCentralGSHP {
 
 	void
 	WrapperSpecs::CalcWrapperModel(
-		int const WrapperNum,
 		Real64 & MyLoad,
 		bool const RunFlag,
 		bool const FirstIteration,
@@ -2549,8 +2548,8 @@ namespace PlantCentralGSHP {
 	{
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR         Daeho Kang, PNNL
-		//       DATE WRITTEN   Feb 2013
-		//       MODIFIED       na
+		//       DATE WRITTEN   Feb. 2013
+		//       MODIFIED       Feb. 2016, R. Zhang, Refactor plant component
 		//       RE-ENGINEERED  na
 
 		// PURPOSE OF THIS SUBROUTINE:
@@ -2671,7 +2670,7 @@ namespace PlantCentralGSHP {
 				if ( CurCoolingLoad > 0.0 && CHWInletMassFlowRate > 0.0 && GLHEInletMassFlowRate > 0 ) {
 
 					this->CalcChillerModel( OpMode, MyLoad, RunFlag, FirstIteration, EquipFlowCtrl, LoopNum ); //Autodesk:Uninit OpMode was uninitialized
-					UpdateChillerRecords( WrapperNum );
+					this->UpdateChillerRecords();
 
 					// Initialize local variables only for calculating mass-weighed temperatures
 					CHWOutletTemp = 0.0;
@@ -2777,41 +2776,41 @@ namespace PlantCentralGSHP {
 
 				if ( SimulHtgDominant || SimulClgDominant ) {
 					Node( CHWOutletNodeNum ).Temp = CHWOutletTemp;
-					WrapperReport( WrapperNum ).CHWInletTempSimul = CHWInletTemp;
-					WrapperReport( WrapperNum ).CHWOutletTempSimul = CHWOutletTemp;
-					WrapperReport( WrapperNum ).CHWmdotSimul = CHWInletMassFlowRate;
-					WrapperReport( WrapperNum ).GLHEInletTempSimul = GLHEInletTemp;
-					WrapperReport( WrapperNum ).GLHEOutletTempSimul = GLHEOutletTemp;
-					WrapperReport( WrapperNum ).GLHEmdotSimul = GLHEInletMassFlowRate;
-					WrapperReport( WrapperNum ).TotElecCoolingSimul = WrapperElecEnergyCool;
-					WrapperReport( WrapperNum ).CoolingEnergySimul = WrapperCoolEnergy;
-					WrapperReport( WrapperNum ).TotElecCoolingPwrSimul = WrapperElecPowerCool;
-					WrapperReport( WrapperNum ).CoolingRateSimul = WrapperCoolRate;
+					this->CHWInletTempSimul = CHWInletTemp;
+					this->CHWOutletTempSimul = CHWOutletTemp;
+					this->CHWmdotSimul = CHWInletMassFlowRate;
+					this->GLHEInletTempSimul = GLHEInletTemp;
+					this->GLHEOutletTempSimul = GLHEOutletTemp;
+					this->GLHEmdotSimul = GLHEInletMassFlowRate;
+					this->TotElecCoolingSimul = WrapperElecEnergyCool;
+					this->CoolingEnergySimul = WrapperCoolEnergy;
+					this->TotElecCoolingPwrSimul = WrapperElecPowerCool;
+					this->CoolingRateSimul = WrapperCoolRate;
 
 				} else {
 
 					Node( CHWOutletNodeNum ).Temp = CHWOutletTemp;
 					Node( HWOutletNodeNum ).Temp = HWOutletTemp;
 					Node( GLHEOutletNodeNum ).Temp = GLHEOutletTemp;
-					WrapperReport( WrapperNum ).CHWInletTemp = CHWInletTemp;
-					WrapperReport( WrapperNum ).CHWOutletTemp = CHWOutletTemp;
-					WrapperReport( WrapperNum ).HWInletTemp = HWInletTemp;
-					WrapperReport( WrapperNum ).HWOutletTemp = HWOutletTemp;
-					WrapperReport( WrapperNum ).GLHEInletTemp = GLHEInletTemp;
-					WrapperReport( WrapperNum ).GLHEOutletTemp = GLHEOutletTemp;
-					WrapperReport( WrapperNum ).CHWmdot = CHWInletMassFlowRate;
-					WrapperReport( WrapperNum ).HWmdot = HWInletMassFlowRate;
-					WrapperReport( WrapperNum ).GLHEmdot = GLHEInletMassFlowRate;
-					WrapperReport( WrapperNum ).TotElecCooling = WrapperElecEnergyCool;
-					WrapperReport( WrapperNum ).TotElecHeating = WrapperElecEnergyHeat;
-					WrapperReport( WrapperNum ).CoolingEnergy = WrapperCoolEnergy;
-					WrapperReport( WrapperNum ).HeatingEnergy = WrapperHeatEnergy;
-					WrapperReport( WrapperNum ).GLHEEnergy = WrapperGLHEEnergy;
-					WrapperReport( WrapperNum ).TotElecCoolingPwr = WrapperElecPowerCool;
-					WrapperReport( WrapperNum ).TotElecHeatingPwr = WrapperElecPowerHeat;
-					WrapperReport( WrapperNum ).CoolingRate = WrapperCoolRate;
-					WrapperReport( WrapperNum ).HeatingRate = WrapperHeatRate;
-					WrapperReport( WrapperNum ).GLHERate = WrapperGLHERate;
+					this->CHWInletTemp = CHWInletTemp;
+					this->CHWOutletTemp = CHWOutletTemp;
+					this->HWInletTemp = HWInletTemp;
+					this->HWOutletTemp = HWOutletTemp;
+					this->GLHEInletTemp = GLHEInletTemp;
+					this->GLHEOutletTemp = GLHEOutletTemp;
+					this->CHWmdot = CHWInletMassFlowRate;
+					this->HWmdot = HWInletMassFlowRate;
+					this->GLHEmdot = GLHEInletMassFlowRate;
+					this->TotElecCooling = WrapperElecEnergyCool;
+					this->TotElecHeating = WrapperElecEnergyHeat;
+					this->CoolingEnergy = WrapperCoolEnergy;
+					this->HeatingEnergy = WrapperHeatEnergy;
+					this->GLHEEnergy = WrapperGLHEEnergy;
+					this->TotElecCoolingPwr = WrapperElecPowerCool;
+					this->TotElecHeatingPwr = WrapperElecPowerHeat;
+					this->CoolingRate = WrapperCoolRate;
+					this->HeatingRate = WrapperHeatRate;
+					this->GLHERate = WrapperGLHERate;
 
 				}
 				SetComponentFlowRate( CHWInletMassFlowRate, CHWInletNodeNum, CHWOutletNodeNum, this->CWLoopNum, this->CWLoopSideNum, this->CWBranchNum, this->CWCompNum );
@@ -2827,7 +2826,7 @@ namespace PlantCentralGSHP {
 				if ( CurHeatingLoad > 0.0 && HWInletMassFlowRate > 0.0 ) {
 
 					this->CalcChillerHeaterModel( OpMode, MyLoad, RunFlag, FirstIteration, EquipFlowCtrl, LoopNum ); //Autodesk:Uninit OpMode was uninitialized
-					UpdateChillerHeaterRecords( WrapperNum );
+					this->UpdateChillerHeaterRecords();
 
 					// Calculate individual CH units's temperatures and mass flow rates
 					CHWOutletTemp = 0.0;
@@ -2841,10 +2840,10 @@ namespace PlantCentralGSHP {
 						if ( SimulClgDominant ) {
 							for ( ChillerHeaterNum = 1; ChillerHeaterNum <= ChillerHeaterNums; ++ChillerHeaterNum ) {
 								CurrentMode = this->ChillerHeaterReport( ChillerHeaterNum ).CurrentMode;
-								CHWInletTemp = WrapperReport( WrapperNum ).CHWInletTempSimul;
-								GLHEInletTemp = WrapperReport( WrapperNum ).GLHEInletTempSimul;
-								CHWInletMassFlowRate = WrapperReport( WrapperNum ).CHWmdotSimul;
-								GLHEInletMassFlowRate = WrapperReport( WrapperNum ).GLHEmdotSimul;
+								CHWInletTemp = this->CHWInletTempSimul;
+								GLHEInletTemp = this->GLHEInletTempSimul;
+								CHWInletMassFlowRate = this->CHWmdotSimul;
+								GLHEInletMassFlowRate = this->GLHEmdotSimul;
 
 								if ( CurrentMode != 0 ) { // This chiller heater unit is on
 									if ( CurrentMode == 3 ) { // Heat recovery mode. Both chilled water and hot water connections
@@ -2949,8 +2948,8 @@ namespace PlantCentralGSHP {
 							for ( ChillerHeaterNum = 1; ChillerHeaterNum <= ChillerHeaterNums; ++ChillerHeaterNum ) {
 								// Set temperatures and mass flow rates for the cooling side
 								CurrentMode = this->ChillerHeaterReport( ChillerHeaterNum ).CurrentMode;
-								CHWInletTemp = WrapperReport( WrapperNum ).CHWInletTempSimul;
-								CHWInletMassFlowRate = WrapperReport( WrapperNum ).CHWmdotSimul;
+								CHWInletTemp = this->CHWInletTempSimul;
+								CHWInletMassFlowRate = this->CHWmdotSimul;
 
 								if ( CurrentMode != 0 ) { // This chiller heater unit is on
 									if ( CurrentMode == 3 ) { // Heat recovery mode. Both chilled water and hot water connections
@@ -3118,25 +3117,25 @@ namespace PlantCentralGSHP {
 					SetComponentFlowRate( GLHEInletMassFlowRate, GLHEInletNodeNum, GLHEOutletNodeNum, this->GLHELoopNum, this->GLHELoopSideNum, this->GLHEBranchNum, this->GLHECompNum );
 
 					// Local variables
-					WrapperReport( WrapperNum ).CHWInletTemp = CHWInletTemp;
-					WrapperReport( WrapperNum ).CHWOutletTemp = CHWOutletTemp;
-					WrapperReport( WrapperNum ).HWInletTemp = HWInletTemp;
-					WrapperReport( WrapperNum ).HWOutletTemp = HWOutletTemp;
-					WrapperReport( WrapperNum ).GLHEInletTemp = GLHEInletTemp;
-					WrapperReport( WrapperNum ).GLHEOutletTemp = GLHEOutletTemp;
-					WrapperReport( WrapperNum ).CHWmdot = CHWInletMassFlowRate;
-					WrapperReport( WrapperNum ).HWmdot = HWInletMassFlowRate;
-					WrapperReport( WrapperNum ).GLHEmdot = GLHEInletMassFlowRate;
-					WrapperReport( WrapperNum ).TotElecCooling = WrapperElecEnergyCool;
-					WrapperReport( WrapperNum ).TotElecHeating = WrapperElecEnergyHeat;
-					WrapperReport( WrapperNum ).CoolingEnergy = WrapperCoolEnergy;
-					WrapperReport( WrapperNum ).HeatingEnergy = WrapperHeatEnergy;
-					WrapperReport( WrapperNum ).GLHEEnergy = WrapperGLHEEnergy;
-					WrapperReport( WrapperNum ).TotElecCoolingPwr = WrapperElecPowerCool;
-					WrapperReport( WrapperNum ).TotElecHeatingPwr = WrapperElecPowerHeat;
-					WrapperReport( WrapperNum ).CoolingRate = WrapperCoolRate;
-					WrapperReport( WrapperNum ).HeatingRate = WrapperHeatRate;
-					WrapperReport( WrapperNum ).GLHERate = WrapperGLHERate;
+					this->CHWInletTemp = CHWInletTemp;
+					this->CHWOutletTemp = CHWOutletTemp;
+					this->HWInletTemp = HWInletTemp;
+					this->HWOutletTemp = HWOutletTemp;
+					this->GLHEInletTemp = GLHEInletTemp;
+					this->GLHEOutletTemp = GLHEOutletTemp;
+					this->CHWmdot = CHWInletMassFlowRate;
+					this->HWmdot = HWInletMassFlowRate;
+					this->GLHEmdot = GLHEInletMassFlowRate;
+					this->TotElecCooling = WrapperElecEnergyCool;
+					this->TotElecHeating = WrapperElecEnergyHeat;
+					this->CoolingEnergy = WrapperCoolEnergy;
+					this->HeatingEnergy = WrapperHeatEnergy;
+					this->GLHEEnergy = WrapperGLHEEnergy;
+					this->TotElecCoolingPwr = WrapperElecPowerCool;
+					this->TotElecHeatingPwr = WrapperElecPowerHeat;
+					this->CoolingRate = WrapperCoolRate;
+					this->HeatingRate = WrapperHeatRate;
+					this->GLHERate = WrapperGLHERate;
 
 					Node( CHWOutletNodeNum ).Temp = CHWOutletTemp;
 					Node( HWOutletNodeNum ).Temp = HWOutletTemp;
@@ -3185,25 +3184,25 @@ namespace PlantCentralGSHP {
 							this->ChillerHeaterReport( ChillerHeaterNum ).ActualCOP = 0.0;
 						}
 
-						WrapperReport( WrapperNum ).CHWInletTemp = CHWInletTemp;
-						WrapperReport( WrapperNum ).CHWOutletTemp = CHWOutletTemp;
-						WrapperReport( WrapperNum ).HWInletTemp = HWInletTemp;
-						WrapperReport( WrapperNum ).HWOutletTemp = HWOutletTemp;
-						WrapperReport( WrapperNum ).GLHEInletTemp = GLHEInletTemp;
-						WrapperReport( WrapperNum ).GLHEOutletTemp = GLHEOutletTemp;
-						WrapperReport( WrapperNum ).CHWmdot = CHWInletMassFlowRate;
-						WrapperReport( WrapperNum ).HWmdot = HWInletMassFlowRate;
-						WrapperReport( WrapperNum ).GLHEmdot = GLHEInletMassFlowRate;
-						WrapperReport( WrapperNum ).TotElecCooling = WrapperElecEnergyCool;
-						WrapperReport( WrapperNum ).TotElecHeating = WrapperElecEnergyHeat;
-						WrapperReport( WrapperNum ).CoolingEnergy = WrapperCoolEnergy;
-						WrapperReport( WrapperNum ).HeatingEnergy = WrapperHeatEnergy;
-						WrapperReport( WrapperNum ).GLHEEnergy = WrapperGLHEEnergy;
-						WrapperReport( WrapperNum ).TotElecCoolingPwr = WrapperElecPowerCool;
-						WrapperReport( WrapperNum ).TotElecHeatingPwr = WrapperElecPowerHeat;
-						WrapperReport( WrapperNum ).CoolingRate = WrapperCoolRate;
-						WrapperReport( WrapperNum ).HeatingRate = WrapperHeatRate;
-						WrapperReport( WrapperNum ).GLHERate = WrapperGLHERate;
+						this->CHWInletTemp = CHWInletTemp;
+						this->CHWOutletTemp = CHWOutletTemp;
+						this->HWInletTemp = HWInletTemp;
+						this->HWOutletTemp = HWOutletTemp;
+						this->GLHEInletTemp = GLHEInletTemp;
+						this->GLHEOutletTemp = GLHEOutletTemp;
+						this->CHWmdot = CHWInletMassFlowRate;
+						this->HWmdot = HWInletMassFlowRate;
+						this->GLHEmdot = GLHEInletMassFlowRate;
+						this->TotElecCooling = WrapperElecEnergyCool;
+						this->TotElecHeating = WrapperElecEnergyHeat;
+						this->CoolingEnergy = WrapperCoolEnergy;
+						this->HeatingEnergy = WrapperHeatEnergy;
+						this->GLHEEnergy = WrapperGLHEEnergy;
+						this->TotElecCoolingPwr = WrapperElecPowerCool;
+						this->TotElecHeatingPwr = WrapperElecPowerHeat;
+						this->CoolingRate = WrapperCoolRate;
+						this->HeatingRate = WrapperHeatRate;
+						this->GLHERate = WrapperGLHERate;
 
 						SetComponentFlowRate( CHWInletMassFlowRate, CHWInletNodeNum, CHWOutletNodeNum, this->CWLoopNum, this->CWLoopSideNum, this->CWBranchNum, this->CWCompNum );
 
@@ -3225,12 +3224,13 @@ namespace PlantCentralGSHP {
 	}
 
 	void
-	UpdateChillerRecords( int const WrapperNum ) // Wrapper number
+	WrapperSpecs::UpdateChillerRecords()
 	{
 
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR:          Daeho Kang, PNNL
-		//       DATE WRITTEN:    Feb 2013
+		//       DATE WRITTEN:    Feb. 2013
+		//       MODIFIED         Feb. 2016, R. Zhang, Refactor plant component
 
 		// PURPOSE OF THIS SUBROUTINE:
 		//  Update cihller heater variables
@@ -3260,29 +3260,30 @@ namespace PlantCentralGSHP {
 
 		SecInTimeStep = TimeStepSys * SecInHour;
 
-		for ( ChillerHeaterNum = 1; ChillerHeaterNum <= Wrapper( WrapperNum ).ChillerHeaterNums; ++ChillerHeaterNum ) {
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingPower * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingPower * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvap * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CondEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QCond * SecInTimeStep;
+		for ( ChillerHeaterNum = 1; ChillerHeaterNum <= this->ChillerHeaterNums; ++ChillerHeaterNum ) {
+			this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad = this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).CoolingPower * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).HeatingEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).HeatingPower * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).QEvap * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).CondEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).QCond * SecInTimeStep;
 			if ( SimulClgDominant || SimulHtgDominant ) {
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadSimul = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergySimul = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapEnergySimul = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy;
-				Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CondEnergySimul = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CondEnergy;
+				this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadSimul = this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad;
+				this->ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergySimul = this->ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy;
+				this->ChillerHeaterReport( ChillerHeaterNum ).EvapEnergySimul = this->ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy;
+				this->ChillerHeaterReport( ChillerHeaterNum ).CondEnergySimul = this->ChillerHeaterReport( ChillerHeaterNum ).CondEnergy;
 			}
 		}
 
 	}
 
 	void
-	UpdateChillerHeaterRecords( int const WrapperNum ) // Wrapper number
+	WrapperSpecs::UpdateChillerHeaterRecords()
 	{
 
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR:          Daeho Kang, PNNL
-		//       DATE WRITTEN:    Feb 2013
+		//       DATE WRITTEN:    Feb. 2013
+		//       MODIFIED         Feb. 2016, R. Zhang, Refactor plant component
 
 		// PURPOSE OF THIS SUBROUTINE:
 		//  Reporting
@@ -3312,13 +3313,13 @@ namespace PlantCentralGSHP {
 
 		SecInTimeStep = TimeStepSys * SecInHour;
 
-		for ( ChillerHeaterNum = 1; ChillerHeaterNum <= Wrapper( WrapperNum ).ChillerHeaterNums; ++ChillerHeaterNum ) {
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CoolingPower * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).HeatingPower * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QEvap * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CondEnergy = Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).QCond * SecInTimeStep;
-			Wrapper( WrapperNum ).ChillerHeaterReport( ChillerHeaterNum ).CondenserFanEnergyConsumption = CondenserFanPower * SecInTimeStep;
+		for ( ChillerHeaterNum = 1; ChillerHeaterNum <= this->ChillerHeaterNums; ++ChillerHeaterNum ) {
+			this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoad = this->ChillerHeaterReport( ChillerHeaterNum ).ChillerFalseLoadRate * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).CoolingEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).CoolingPower * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).HeatingEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).HeatingPower * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).EvapEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).QEvap * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).CondEnergy = this->ChillerHeaterReport( ChillerHeaterNum ).QCond * SecInTimeStep;
+			this->ChillerHeaterReport( ChillerHeaterNum ).CondenserFanEnergyConsumption = CondenserFanPower * SecInTimeStep;
 		}
 
 	}

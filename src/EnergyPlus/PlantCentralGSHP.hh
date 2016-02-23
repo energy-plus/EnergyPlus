@@ -534,6 +534,8 @@ namespace PlantCentralGSHP {
 		void getSizingFactor( Real64 & SizFac );
 		void SizeWrapper();
 		void InitWrapper( Real64 const MyLoad, int const LoopNum );
+		void UpdateChillerRecords();
+		void UpdateChillerHeaterRecords();
 		
 		void
 		CalcChillerModel(
@@ -557,7 +559,6 @@ namespace PlantCentralGSHP {
 
 		void
 		CalcWrapperModel(
-			int const WrapperNum, //@@
 			Real64 & MyLoad,
 			bool const RunFlag,
 			bool const FirstIteration,
@@ -655,12 +656,6 @@ namespace PlantCentralGSHP {
 
 	void
 	GetChillerHeaterInput();
-
-	void
-	UpdateChillerRecords( int const WrapperNum ); // Wrapper number
-
-	void
-	UpdateChillerHeaterRecords( int const WrapperNum ); // Wrapper number
 
 } // PlantCentralGSHP
 
