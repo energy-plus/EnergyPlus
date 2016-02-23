@@ -534,6 +534,37 @@ namespace PlantCentralGSHP {
 		void getSizingFactor( Real64 & SizFac );
 		void SizeWrapper();
 		void InitWrapper( Real64 const MyLoad, int const LoopNum );
+		
+		void
+		CalcChillerModel(
+			int const OpMode, // Operation mode
+			Real64 & MyLoad, // Operating load
+			bool const RunFlag, // TRUE when chiller operating
+			bool const FirstIteration, // TRUE when first iteration of timestep
+			int const EquipFlowCtrl, // Flow control mode for the equipment
+			int const LoopNum // Plant loop number
+		);
+
+		void
+		CalcChillerHeaterModel(
+			int const OpMode, // Operation mode
+			Real64 & MyLoad, // Heating load plant should meet
+			bool const RunFlag, // TRUE when chiller operating
+			bool const FirstIteration, // TRUE when first iteration of timestep
+			int const EquipFlowCtrl, // Flow control mode for the equipment
+			int const LoopNum // Loop number
+		);
+
+		void
+		CalcWrapperModel(
+			int const WrapperNum, //@@
+			Real64 & MyLoad,
+			bool const RunFlag,
+			bool const FirstIteration,
+			int const EquipFlowCtrl,
+			int const LoopNum
+		);
+		
 	};
 
 	struct WrapperReportVars
@@ -624,38 +655,6 @@ namespace PlantCentralGSHP {
 
 	void
 	GetChillerHeaterInput();
-
-	void
-	CalcChillerModel(
-		int const WrapperNum, // Number of wrapper
-		int const OpMode, // Operation mode
-		Real64 & MyLoad, // Operating load
-		bool const RunFlag, // TRUE when chiller operating
-		bool const FirstIteration, // TRUE when first iteration of timestep
-		int const EquipFlowCtrl, // Flow control mode for the equipment
-		int const LoopNum // Plant loop number
-	);
-
-	void
-	CalcChillerHeaterModel(
-		int const WrapperNum, // Wrapper number pointor
-		int const OpMode, // Operation mode
-		Real64 & MyLoad, // Heating load plant should meet
-		bool const RunFlag, // TRUE when chiller operating
-		bool const FirstIteration, // TRUE when first iteration of timestep
-		int const EquipFlowCtrl, // Flow control mode for the equipment
-		int const LoopNum // Loop number
-	);
-
-	void
-	CalcWrapperModel(
-		int const WrapperNum,
-		Real64 & MyLoad,
-		bool const RunFlag,
-		bool const FirstIteration,
-		int const EquipFlowCtrl,
-		int const LoopNum
-	);
 
 	void
 	UpdateChillerRecords( int const WrapperNum ); // Wrapper number
