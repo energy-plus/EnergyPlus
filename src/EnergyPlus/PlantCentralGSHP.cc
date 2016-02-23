@@ -160,7 +160,6 @@ namespace PlantCentralGSHP {
 	Array1D< WrapperSpecs > Wrapper;
 	Array1D< ChillerHeaterSpecs > ChillerHeater;
 	Array1D< CHReportVars > ChillerHeaterReport;
-	Array1D< WrapperReportVars > WrapperReport;
 
 	// MODULE SUBROUTINES:
 
@@ -193,7 +192,7 @@ namespace PlantCentralGSHP {
 	void 
 	WrapperSpecs::onInitLoopEquip( const PlantLocation & calledFromLocation )
 	{
-		this -> InitWrapper( 0.0, calledFromLocation.loopNum );
+		this->InitWrapper( 0.0, calledFromLocation.loopNum );
 		
 		if ( calledFromLocation.loopNum == this->CWLoopNum ) { // Chilled water loop
 			this->SizeWrapper();
@@ -275,7 +274,6 @@ namespace PlantCentralGSHP {
 
 		// Locals
 		// SUBROUTINE ARGUMENT DEFINITIONS:
-		int WrapperNum; // Wrapper number pointer
 		int NumChillerHeater; // Chiller heater number pointer
 		int LoopSide; // Plant loop side
 		int LoopNum; // plant loop index pointer
@@ -287,7 +285,6 @@ namespace PlantCentralGSHP {
 
 		// Initialization
 		LoopNum = calledFromLocation.loopNum;
-		WrapperNum = InputProcessor::FindItemInList( this->Name, Wrapper );
 		
 		if ( LoopNum != this->GLHELoopNum ) {
 
@@ -296,7 +293,7 @@ namespace PlantCentralGSHP {
 
 		} else if ( LoopNum == this->GLHELoopNum ) {
 			LoopSide = this->GLHELoopSideNum;
-			UpdateChillerComponentCondenserSide( LoopNum, LoopSide, TypeOf_CentralGroundSourceHeatPump, this->GLHEInletNodeNum, this->GLHEOutletNodeNum, WrapperReport( WrapperNum ).GLHERate, WrapperReport( WrapperNum ).GLHEInletTemp, WrapperReport( WrapperNum ).GLHEOutletTemp, WrapperReport( WrapperNum ).GLHEmdot, FirstHVACIteration );
+			UpdateChillerComponentCondenserSide( LoopNum, LoopSide, TypeOf_CentralGroundSourceHeatPump, this->GLHEInletNodeNum, this->GLHEOutletNodeNum, this->GLHERate, this->GLHEInletTemp, this->GLHEOutletTemp, this->GLHEmdot, FirstHVACIteration );
 
 			// Use the first chiller heater's evaporator capacity ratio to determine dominant load
 			SimulClgDominant = false;
@@ -313,7 +310,7 @@ namespace PlantCentralGSHP {
 			}
 		}
 	}
- 
+	
 	void
 	WrapperSpecs::SizeWrapper()
 	{
@@ -694,7 +691,6 @@ namespace PlantCentralGSHP {
 
 		// ALLOCATE ARRAYS
 		Wrapper.allocate( NumWrappers );
-		WrapperReport.allocate( NumWrappers );
 		CheckEquipName.dimension( NumWrappers, true );
 		AllocatedFlag = true;
 
@@ -833,43 +829,43 @@ namespace PlantCentralGSHP {
 
 		//Set up output variables
 		for ( WrapperNum = 1; WrapperNum <= NumWrappers; ++WrapperNum ) {
-			SetupOutputVariable( "Chiller Heater System Cooling Electric Energy [J]", WrapperReport( WrapperNum ).TotElecCooling, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ELECTRICITY", "Cooling", _, "Plant" );
+			SetupOutputVariable( "Chiller Heater System Cooling Electric Energy [J]", Wrapper( WrapperNum ).TotElecCooling, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ELECTRICITY", "Cooling", _, "Plant" );
 
-			SetupOutputVariable( "Chiller Heater System Heating Electric Energy [J]", WrapperReport( WrapperNum ).TotElecHeating, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ELECTRICITY", "Heating", _, "Plant" );
+			SetupOutputVariable( "Chiller Heater System Heating Electric Energy [J]", Wrapper( WrapperNum ).TotElecHeating, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ELECTRICITY", "Heating", _, "Plant" );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Electric Power [W]", WrapperReport( WrapperNum ).TotElecCoolingPwr, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Cooling Electric Power [W]", Wrapper( WrapperNum ).TotElecCoolingPwr, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Heating Electric Power [W]", WrapperReport( WrapperNum ).TotElecHeatingPwr, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Heating Electric Power [W]", Wrapper( WrapperNum ).TotElecHeatingPwr, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Energy [J]", WrapperReport( WrapperNum ).CoolingEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "CHILLERS", _, "Plant" );
+			SetupOutputVariable( "Chiller Heater System Cooling Energy [J]", Wrapper( WrapperNum ).CoolingEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "CHILLERS", _, "Plant" );
 
-			SetupOutputVariable( "Chiller Heater System Heating Energy [J]", WrapperReport( WrapperNum ).HeatingEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "BOILER", _, "Plant" );
+			SetupOutputVariable( "Chiller Heater System Heating Energy [J]", Wrapper( WrapperNum ).HeatingEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "BOILER", _, "Plant" );
 
-			SetupOutputVariable( "Chiller Heater System Source Heat Transfer Energy [J]", WrapperReport( WrapperNum ).GLHEEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "HEATREJECTION", _, "Plant" );
+			SetupOutputVariable( "Chiller Heater System Source Heat Transfer Energy [J]", Wrapper( WrapperNum ).GLHEEnergy, "System", "Sum", Wrapper( WrapperNum ).Name, _, "ENERGYTRANSFER", "HEATREJECTION", _, "Plant" );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Rate [W]", WrapperReport( WrapperNum ).CoolingRate, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Cooling Rate [W]", Wrapper( WrapperNum ).CoolingRate, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Heating Rate [W]", WrapperReport( WrapperNum ).HeatingRate, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Heating Rate [W]", Wrapper( WrapperNum ).HeatingRate, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Source Heat Transfer Rate [W]", WrapperReport( WrapperNum ).GLHERate, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Source Heat Transfer Rate [W]", Wrapper( WrapperNum ).GLHERate, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Mass Flow Rate [kg/s]", WrapperReport( WrapperNum ).CHWmdot, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Cooling Mass Flow Rate [kg/s]", Wrapper( WrapperNum ).CHWmdot, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Heating Mass Flow Rate [kg/s]", WrapperReport( WrapperNum ).HWmdot, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Heating Mass Flow Rate [kg/s]", Wrapper( WrapperNum ).HWmdot, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Source Mass Flow Rate [kg/s]", WrapperReport( WrapperNum ).GLHEmdot, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Source Mass Flow Rate [kg/s]", Wrapper( WrapperNum ).GLHEmdot, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Inlet Temperature [C]", WrapperReport( WrapperNum ).CHWInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Cooling Inlet Temperature [C]", Wrapper( WrapperNum ).CHWInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Heating Inlet Temperature [C]", WrapperReport( WrapperNum ).HWInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Heating Inlet Temperature [C]", Wrapper( WrapperNum ).HWInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Source Inlet Temperature [C]", WrapperReport( WrapperNum ).GLHEInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Source Inlet Temperature [C]", Wrapper( WrapperNum ).GLHEInletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Cooling Outlet Temperature [C]", WrapperReport( WrapperNum ).CHWOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Cooling Outlet Temperature [C]", Wrapper( WrapperNum ).CHWOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Heating Outlet Temperature [C]", WrapperReport( WrapperNum ).HWOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Heating Outlet Temperature [C]", Wrapper( WrapperNum ).HWOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
-			SetupOutputVariable( "Chiller Heater System Source Outlet Temperature [C]", WrapperReport( WrapperNum ).GLHEOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
+			SetupOutputVariable( "Chiller Heater System Source Outlet Temperature [C]", Wrapper( WrapperNum ).GLHEOutletTemp, "System", "Average", Wrapper( WrapperNum ).Name );
 
 			if ( Wrapper( WrapperNum ).ChillerHeaterNums > 0 ) {
 
@@ -1560,7 +1556,8 @@ namespace PlantCentralGSHP {
 	{
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR         Daeho Kang, PNNL
-		//       DATE WRITTEN   Feb 2013
+		//       DATE WRITTEN   Feb. 2013
+		//       MODIFIED       Feb. 2016, R. Zhang, Refactor plant component
 		//       MODIFIED       na
 		//       RE-ENGINEERED  na
 
@@ -2032,8 +2029,8 @@ namespace PlantCentralGSHP {
 	{
 		// SUBROUTINE INFORMATION:
 		//       AUTHOR         Daeho Kang, PNNL
-		//       DATE WRITTEN   Feb 2013
-		//       MODIFIED       na
+		//       DATE WRITTEN   Feb. 2013
+		//       MODIFIED       Feb. 2016, R. Zhang, Refactor plant component
 		//       RE-ENGINEERED  na
 
 		// PURPOSE OF THIS SUBROUTINE:

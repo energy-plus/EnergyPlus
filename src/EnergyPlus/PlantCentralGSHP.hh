@@ -476,6 +476,40 @@ namespace PlantCentralGSHP {
 		Real64 CHWVolFlowRate; // Chilled water volume flow rate [kg/s]
 		Real64 HWVolFlowRate; // Hot water volume flow rate [kg/s]
 		Real64 GLHEVolFlowRate; // Geo-field volume flow rate [kg/s]
+		// WrapperReportVars Members
+		Real64 Power; // Wrapper power, W
+		Real64 QCHW; // Chilled water heat transfer rate [W]
+		Real64 QHW; // Hot Water heat transfer rate [W]
+		Real64 QGLHE; // Geo-field heat transfer rate [W]
+		Real64 TotElecCooling; // Wrapper cooling electric consumption [J]
+		Real64 TotElecHeating; // Wrapper heating electric consumption [J]
+		Real64 CoolingEnergy; // Chilled water heat transfer energy [J]
+		Real64 HeatingEnergy; // Hot Water heat transfer energy [J]
+		Real64 GLHEEnergy; // Geo-field heat transfer energy [J]
+		Real64 TotElecCoolingPwr; // Wrapper cooling electric consumption rate [W]
+		Real64 TotElecHeatingPwr; // Wrapper heating electric consumption rate [W]
+		Real64 CoolingRate; // Chilled water heat transfer rate [W]
+		Real64 HeatingRate; // Hot Water heat transfer rate [W]
+		Real64 GLHERate; // Geo-field heat transfer rate [W]
+		Real64 CHWInletTemp; // Chilled water inlet temperature [C]
+		Real64 HWInletTemp; // Hot water inlet temperature [C]
+		Real64 GLHEInletTemp; // Geo-field inlet temperature [C]
+		Real64 CHWOutletTemp; // Chilled water Outlet temperature [C]
+		Real64 HWOutletTemp; // Hot water Outlet temperature [C]
+		Real64 GLHEOutletTemp; // Geo-field Outlet temperature [C]
+		Real64 CHWmdot; // Chilled water mass flow rate [kg/s]
+		Real64 HWmdot; // Hot water mass flow rate [kg/s]
+		Real64 GLHEmdot; // Geo-field mass flow rate [kg/s]
+		Real64 TotElecCoolingSimul; // Wrapper cooling electric consumption [J]
+		Real64 CoolingEnergySimul; // Chilled water heat transfer energy [J]
+		Real64 TotElecCoolingPwrSimul; // Wrapper cooling electric consumption rate [W]
+		Real64 CoolingRateSimul; // Chilled water heat transfer rate [W]
+		Real64 CHWInletTempSimul; // Chilled water inlet temperature [C]
+		Real64 GLHEInletTempSimul; // Geo-field inlet temperature [C]
+		Real64 CHWOutletTempSimul; // Chilled water Outlet temperature [C]
+		Real64 GLHEOutletTempSimul; // Geo-field Outlet temperature [C]
+		Real64 CHWmdotSimul; // Chilled water mass flow rate [kg/s]
+		Real64 GLHEmdotSimul; // Geo-field mass flow rate [kg/s]
 
 		// Default Constructor
 		WrapperSpecs() :
@@ -523,7 +557,40 @@ namespace PlantCentralGSHP {
 			HWVolFlowRate( 0.0 ),
 			GLHEVolFlowRate( 0.0 ),
 			MyWrapperFlag( true ),
-			MyWrapperEnvrnFlag( true )
+			MyWrapperEnvrnFlag( true ),
+			Power( 0.0 ),
+			QCHW( 0.0 ),
+			QHW( 0.0 ),
+			QGLHE( 0.0 ),
+			TotElecCooling( 0.0 ),
+			TotElecHeating( 0.0 ),
+			CoolingEnergy( 0.0 ),
+			HeatingEnergy( 0.0 ),
+			GLHEEnergy( 0.0 ),
+			TotElecCoolingPwr( 0.0 ),
+			TotElecHeatingPwr( 0.0 ),
+			CoolingRate( 0.0 ),
+			HeatingRate( 0.0 ),
+			GLHERate( 0.0 ),
+			CHWInletTemp( 0.0 ),
+			HWInletTemp( 0.0 ),
+			GLHEInletTemp( 0.0 ),
+			CHWOutletTemp( 0.0 ),
+			HWOutletTemp( 0.0 ),
+			GLHEOutletTemp( 0.0 ),
+			CHWmdot( 0.0 ),
+			HWmdot( 0.0 ),
+			GLHEmdot( 0.0 ),
+			TotElecCoolingSimul( 0.0 ),
+			CoolingEnergySimul( 0.0 ),
+			TotElecCoolingPwrSimul( 0.0 ),
+			CoolingRateSimul( 0.0 ),
+			CHWInletTempSimul( 0.0 ),
+			GLHEInletTempSimul( 0.0 ),
+			CHWOutletTempSimul( 0.0 ),
+			GLHEOutletTempSimul( 0.0 ),
+			CHWmdotSimul( 0.0 ),
+			GLHEmdotSimul( 0.0 )
 		{}
 		
 	public:
@@ -568,86 +635,11 @@ namespace PlantCentralGSHP {
 		
 	};
 
-	struct WrapperReportVars
-	{
-		// Members
-		Real64 Power; // Wrapper power, W
-		Real64 QCHW; // Chilled water heat transfer rate [W]
-		Real64 QHW; // Hot Water heat transfer rate [W]
-		Real64 QGLHE; // Geo-field heat transfer rate [W]
-		Real64 TotElecCooling; // Wrapper cooling electric consumption [J]
-		Real64 TotElecHeating; // Wrapper heating electric consumption [J]
-		Real64 CoolingEnergy; // Chilled water heat transfer energy [J]
-		Real64 HeatingEnergy; // Hot Water heat transfer energy [J]
-		Real64 GLHEEnergy; // Geo-field heat transfer energy [J]
-		Real64 TotElecCoolingPwr; // Wrapper cooling electric consumption rate [W]
-		Real64 TotElecHeatingPwr; // Wrapper heating electric consumption rate [W]
-		Real64 CoolingRate; // Chilled water heat transfer rate [W]
-		Real64 HeatingRate; // Hot Water heat transfer rate [W]
-		Real64 GLHERate; // Geo-field heat transfer rate [W]
-		Real64 CHWInletTemp; // Chilled water inlet temperature [C]
-		Real64 HWInletTemp; // Hot water inlet temperature [C]
-		Real64 GLHEInletTemp; // Geo-field inlet temperature [C]
-		Real64 CHWOutletTemp; // Chilled water Outlet temperature [C]
-		Real64 HWOutletTemp; // Hot water Outlet temperature [C]
-		Real64 GLHEOutletTemp; // Geo-field Outlet temperature [C]
-		Real64 CHWmdot; // Chilled water mass flow rate [kg/s]
-		Real64 HWmdot; // Hot water mass flow rate [kg/s]
-		Real64 GLHEmdot; // Geo-field mass flow rate [kg/s]
-		Real64 TotElecCoolingSimul; // Wrapper cooling electric consumption [J]
-		Real64 CoolingEnergySimul; // Chilled water heat transfer energy [J]
-		Real64 TotElecCoolingPwrSimul; // Wrapper cooling electric consumption rate [W]
-		Real64 CoolingRateSimul; // Chilled water heat transfer rate [W]
-		Real64 CHWInletTempSimul; // Chilled water inlet temperature [C]
-		Real64 GLHEInletTempSimul; // Geo-field inlet temperature [C]
-		Real64 CHWOutletTempSimul; // Chilled water Outlet temperature [C]
-		Real64 GLHEOutletTempSimul; // Geo-field Outlet temperature [C]
-		Real64 CHWmdotSimul; // Chilled water mass flow rate [kg/s]
-		Real64 GLHEmdotSimul; // Geo-field mass flow rate [kg/s]
-
-		// Default Constructor
-		WrapperReportVars() :
-			Power( 0.0 ),
-			QCHW( 0.0 ),
-			QHW( 0.0 ),
-			QGLHE( 0.0 ),
-			TotElecCooling( 0.0 ),
-			TotElecHeating( 0.0 ),
-			CoolingEnergy( 0.0 ),
-			HeatingEnergy( 0.0 ),
-			GLHEEnergy( 0.0 ),
-			TotElecCoolingPwr( 0.0 ),
-			TotElecHeatingPwr( 0.0 ),
-			CoolingRate( 0.0 ),
-			HeatingRate( 0.0 ),
-			GLHERate( 0.0 ),
-			CHWInletTemp( 0.0 ),
-			HWInletTemp( 0.0 ),
-			GLHEInletTemp( 0.0 ),
-			CHWOutletTemp( 0.0 ),
-			HWOutletTemp( 0.0 ),
-			GLHEOutletTemp( 0.0 ),
-			CHWmdot( 0.0 ),
-			HWmdot( 0.0 ),
-			GLHEmdot( 0.0 ),
-			TotElecCoolingSimul( 0.0 ),
-			CoolingEnergySimul( 0.0 ),
-			TotElecCoolingPwrSimul( 0.0 ),
-			CoolingRateSimul( 0.0 ),
-			CHWInletTempSimul( 0.0 ),
-			GLHEInletTempSimul( 0.0 ),
-			CHWOutletTempSimul( 0.0 ),
-			GLHEOutletTempSimul( 0.0 ),
-			CHWmdotSimul( 0.0 ),
-			GLHEmdotSimul( 0.0 )
-		{}
-	};
-
 	// Object Data
 	extern Array1D< WrapperSpecs > Wrapper;
 	extern Array1D< ChillerHeaterSpecs > ChillerHeater;
 	extern Array1D< CHReportVars > ChillerHeaterReport;
-	extern Array1D< WrapperReportVars > WrapperReport;
+	//extern Array1D< WrapperReportVars > WrapperReport;
 
 	// Functions
 
