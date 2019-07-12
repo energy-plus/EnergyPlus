@@ -1117,6 +1117,7 @@ namespace DataSurfaces {
               InsRevealDiffOntoFrameReport(0.0), BmSolAbsdInsRevealReport(0.0), BmSolTransThruIntWinRepEnergy(0.0),
               BmSolRefldOutsRevealRepEnergy(0.0), BmSolRefldInsRevealRepEnergy(0.0), ProfileAngHor(0.0), ProfileAngVert(0.0),
               SkySolarInc(0.0), GndSolarInc(0.0),
+              ShadingFlag(0), ShadingFlagEMSOn(0), ShadingFlagEMSValue(0), StormWinFlag(0), StormWinFlagPrevDay(0),
               FracTimeShadingDeviceOn(0.0), ExtIntShadePrevTS(0), ShadedConstruction(0), HasShadeOrBlindLayer(false), SurfDayLightInit(false),
               DaylFacPoint(0), VisTransSelected(0.0), SwitchingFactor(0.0), WinCenter(3, 0.0), Theta(0.0), Phi(0.0), RhoCeilingWall(0.0),
               RhoFloorWall(0.0), FractionUpgoing(0.0), VisTransRatio(0.0), ThetaFace(10, 296.15), IRfromParentZone(0.0), IRErrCount(0),
@@ -1138,7 +1139,7 @@ namespace DataSurfaces {
               AirflowDestination(0), AirflowReturnNodePtr(0), MaxAirflow(0.0), AirflowControlType(0), AirflowHasSchedule(false),
               AirflowSchedulePtr(0), AirflowThisTS(0.0), TAirflowGapOutlet(0.0), WindowCalcIterationsRep(0),
               VentingOpenFactorRep(0.0), VentingOpenFactorMultRep(0.0), InsideTempForVentingRep(0.0), VentingAvailabilityRep(0.0),
-              SkyGndSolarInc(0.0), BmGndSolarInc(0.0), ZoneAreaMinusThisSurf(3, 0.0), ZoneAreaReflProdMinusThisSurf(3, 0.0),
+              LumWinFromRefPt2Rep(0.0), SkyGndSolarInc(0.0), BmGndSolarInc(0.0), ZoneAreaMinusThisSurf(3, 0.0), ZoneAreaReflProdMinusThisSurf(3, 0.0),
               LightWellEff(1.0), SolarDiffusing(false), FrameHeatGain(0.0), FrameHeatLoss(0.0), DividerHeatLoss(0.0),
               TCLayerTemp(0.0), SpecTemp(0.0), WindowModelType(Window5DetailedModel)
         {
