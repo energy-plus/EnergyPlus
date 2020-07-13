@@ -289,6 +289,7 @@ set_target_properties(energyplusparser PROPERTIES FOLDER "Internal")
 
 if( BUILD_TESTING )
   ADD_SUBDIRECTORY(testfiles)
+  ADD_SUBDIRECTORY(testfiles/10xSuite)
   ADD_SUBDIRECTORY(tst/EnergyPlus/unit)
   option( BUILD_PERFORMANCE_TESTS "Build performance testing targets" OFF )
   if (BUILD_PERFORMANCE_TESTS)
