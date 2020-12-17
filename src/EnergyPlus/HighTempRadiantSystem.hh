@@ -71,26 +71,36 @@ namespace HighTempRadiantSystem {
     extern std::string const cNaturalGas;
     extern std::string const cElectric;
     extern std::string const cElectricity;
-    extern int const Gas;
-    extern int const Electric;
+//    extern int const Gas;
+//    extern int const Electric;
+    
+    enum class RadHeaterType {
+        Unasssigned,
+        Gas,
+        Electric,
+    };
+    
     extern std::string const cMATControl;         // Control for using mean air temperature
     extern std::string const cMRTControl;         // Control for using mean radiant temperature
     extern std::string const cOperativeControl;   // Control for using operative temperature
     extern std::string const cMATSPControl;       // Control for to MAT setpoint
     extern std::string const cMRTSPControl;       // Control for to MRT setpoint
     extern std::string const cOperativeSPControl; // Control for operative temperature setpoint
-    extern int const MATControl;
-    extern int const MRTControl;
-    extern int const OperativeControl;
-    extern int const MATSPControl;
-    extern int const MRTSPControl;
-    extern int const OperativeSPControl;
+
+    enum class RadControlType {
+        Unassigned,
+        MATControl,
+        MRTControl,
+        OperativeControl,
+        MATSPControl,
+        MRTSPControl,
+        OperativeSPControl,
+    };
 
     // DERIVED TYPE DEFINITIONS:
 
     // MODULE VARIABLE DECLARATIONS:
     // Standard, run-of-the-mill variables...
-    extern int NumOfHighTempRadSys;              // Number of hydronic low tempererature radiant systems
     extern Array1D<Real64> QHTRadSource;         // Need to keep the last value in case we are still iterating
     extern Array1D<Real64> QHTRadSrcAvg;         // Need to keep the last value in case we are still iterating
     extern Array1D<Real64> ZeroSourceSumHATsurf; // Equal to the SumHATsurf for all the walls in a zone with no source
@@ -114,7 +124,7 @@ namespace HighTempRadiantSystem {
         int SchedPtr;           // index to schedule
         std::string ZoneName;   // Name of zone the system is serving
         int ZonePtr;            // Point to this zone in the Zone derived type
-        int HeaterType;         // Type of heater (gas or electric)
+        RadHeaterType HeaterType;         // Type of heater (gas or electric)
         Real64 MaxPowerCapac;   // Maximum capacity of the radiant heater in Watts
         Real64 CombustionEffic; // Combustion efficiency (only valid for a gas heater)
         Real64 FracRadiant;     // Fraction of heater power that is given off as radiant heat
@@ -122,7 +132,7 @@ namespace HighTempRadiantSystem {
         Real64 FracLost;        // Fraction of heater power that is lost to the outside environment
         Real64 FracConvect;     // Fraction of heater power that is given off as convective heat
         // (by definition this is 1 minus the sum of all other fractions)
-        int ControlType;                   // Control type for the system (MAT, MRT, or op temp)
+        RadControlType ControlType;                   // Control type for the system (MAT, MRT, or op temp)
         Real64 ThrottlRange;               // Throttling range for heating [C]
         std::string SetptSched;            // Schedule name for the zone setpoint temperature
         int SetptSchedPtr;                 // Schedule index for the zone setpoint temperature
@@ -146,8 +156,8 @@ namespace HighTempRadiantSystem {
 
         // Default Constructor
         HighTempRadiantSystemData()
-            : SchedPtr(0), ZonePtr(0), HeaterType(0), MaxPowerCapac(0.0), CombustionEffic(0.0), FracRadiant(0.0), FracLatent(0.0), FracLost(0.0),
-              FracConvect(0.0), ControlType(0), ThrottlRange(0.0), SetptSchedPtr(0), FracDistribPerson(0.0), TotSurfToDistrib(0), ElecPower(0.0),
+            : SchedPtr(0), ZonePtr(0), HeaterType(RadHeaterType::Unasssigned), MaxPowerCapac(0.0), CombustionEffic(0.0), FracRadiant(0.0), FracLatent(0.0), FracLost(0.0),
+              FracConvect(0.0), ControlType(RadControlType::Unassigned), ThrottlRange(0.0), SetptSchedPtr(0), FracDistribPerson(0.0), TotSurfToDistrib(0), ElecPower(0.0),
               ElecEnergy(0.0), GasPower(0.0), GasEnergy(0.0), HeatPower(0.0), HeatEnergy(0.0), HeatingCapMethod(0), ScaledHeatingCapacity(0.0)
         {
         }

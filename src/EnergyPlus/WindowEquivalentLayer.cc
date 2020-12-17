@@ -228,9 +228,9 @@ namespace WindowEquivalentLayer {
             if (state.dataMaterial->Material(MaterNum).Group == BlindEquivalentLayer) {
                 CFS(EQLNum).VBLayerPtr = sLayer;
                 if (state.dataMaterial->Material(MaterNum).SlatOrientation == Horizontal) {
-                    CFS(EQLNum).L(sLayer).LTYPE = ltyVBHOR;
+                    CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyVBHOR;
                 } else if (state.dataMaterial->Material(MaterNum).SlatOrientation == Vertical) {
-                    CFS(EQLNum).L(sLayer).LTYPE = ltyVBVER;
+                    CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyVBVER;
                 }
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSFBD = state.dataMaterial->Material(MaterNum).ReflFrontBeamDiff;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSBBD = state.dataMaterial->Material(MaterNum).ReflBackBeamDiff;
@@ -247,7 +247,7 @@ namespace WindowEquivalentLayer {
                 CFS(EQLNum).L(sLayer).C = state.dataMaterial->Material(MaterNum).SlatCrown;
             } else if (state.dataMaterial->Material(MaterNum).Group == GlassEquivalentLayer) {
                 // glazing
-                CFS(EQLNum).L(sLayer).LTYPE = ltyGLAZE;
+                CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyGLAZE;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSFBB = state.dataMaterial->Material(MaterNum).ReflFrontBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSBBB = state.dataMaterial->Material(MaterNum).ReflBackBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSFBB = state.dataMaterial->Material(MaterNum).TausFrontBeamBeam;
@@ -262,7 +262,7 @@ namespace WindowEquivalentLayer {
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUS_DD = state.dataMaterial->Material(MaterNum).TausDiffDiff;
             } else if (state.dataMaterial->Material(MaterNum).Group == ShadeEquivalentLayer) {
                 // roller blind
-                CFS(EQLNum).L(sLayer).LTYPE = ltyROLLB;
+                CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyROLLB;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSFBB = state.dataMaterial->Material(MaterNum).TausFrontBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSBBB = state.dataMaterial->Material(MaterNum).TausBackBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSFBD = state.dataMaterial->Material(MaterNum).ReflFrontBeamDiff;
@@ -272,7 +272,7 @@ namespace WindowEquivalentLayer {
 
             } else if (state.dataMaterial->Material(MaterNum).Group == DrapeEquivalentLayer) {
                 // drapery fabric
-                CFS(EQLNum).L(sLayer).LTYPE = ltyDRAPE;
+                CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyDRAPE;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSFBB = state.dataMaterial->Material(MaterNum).TausFrontBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSBBB = state.dataMaterial->Material(MaterNum).TausBackBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSFBD = state.dataMaterial->Material(MaterNum).ReflFrontBeamDiff;
@@ -288,7 +288,7 @@ namespace WindowEquivalentLayer {
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUS_DD = -1.0;
             } else if (state.dataMaterial->Material(MaterNum).Group == ScreenEquivalentLayer) {
                 // insect screen
-                CFS(EQLNum).L(sLayer).LTYPE = ltyINSCRN;
+                CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyINSCRN;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSFBB = state.dataMaterial->Material(MaterNum).TausFrontBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.TAUSBBB = state.dataMaterial->Material(MaterNum).TausBackBeamBeam;
                 CFS(EQLNum).L(sLayer).SWP_MAT.RHOSFBD = state.dataMaterial->Material(MaterNum).ReflFrontBeamDiff;
@@ -318,7 +318,7 @@ namespace WindowEquivalentLayer {
                 // fills gas density and effective gap thickness
                 BuildGap(state, CFS(EQLNum).G(gLayer), CFS(EQLNum).G(gLayer).GTYPE, CFS(EQLNum).G(gLayer).TAS);
             } else {
-                CFS(EQLNum).L(sLayer).LTYPE = ltyNONE;
+                CFS(EQLNum).L(sLayer).LTYPE = DataWindowEquivalentLayer::CFSLayer::ltyNONE;
             }
             // beam beam transmittance is the same for front and back side
             CFS(EQLNum).L(sLayer).SWP_MAT.TAUSBBB = CFS(EQLNum).L(sLayer).SWP_MAT.TAUSFBB;
@@ -509,8 +509,8 @@ namespace WindowEquivalentLayer {
         Abs1 = 0.0;
         HCIN = 3.0; // Initial guess
         HCOUT = 15.0;
-        if (FS.L(1).LTYPE == ltyROLLB || FS.L(1).LTYPE == ltyDRAPE || FS.L(1).LTYPE == ltyINSCRN || FS.L(1).LTYPE == ltyVBHOR ||
-            FS.L(1).LTYPE == ltyVBVER) { // Exterior Roller Blind Present | Exterior Drape Fabric | Exterior Insect Screen Present | Exterior Venetian
+        if (FS.L(1).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROLLB || FS.L(1).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyDRAPE || FS.L(1).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyINSCRN || FS.L(1).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR ||
+            FS.L(1).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER) { // Exterior Roller Blind Present | Exterior Drape Fabric | Exterior Insect Screen Present | Exterior Venetian
                                          // Blind Present
             // Reduced convection coefficient due to external attachment
             HCOUT = 12.25;
@@ -708,7 +708,7 @@ namespace WindowEquivalentLayer {
         Real64 ConvHeatFlowNatural; // Convective heat flow from gap between glass and interior shade or blind (W)
         Real64 NetIRHeatGainWindow; // net radiation gain from the window surface to the zone (W)
         Real64 ConvHeatGainWindow;  // net convection heat gain from inside surface of window to zone air (W)
-        int InSideLayerType;        // interior shade type
+        DataWindowEquivalentLayer::CFSLayer InSideLayerType;        // interior shade type
 
         int SrdSurfsNum;       // Surrounding surfaces list number
         int SrdSurfNum;        // Surrounding surface number DO loop counter
@@ -884,7 +884,7 @@ namespace WindowEquivalentLayer {
         SurfOutsideTemp = T(1) - DataGlobalConstants::KelvinConv;
         // Various reporting calculations
         InSideLayerType = CFS(EQLNum).L(NL).LTYPE;
-        if (InSideLayerType == ltyGLAZE) {
+        if (InSideLayerType == DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
             ConvHeatFlowNatural = 0.0;
         } else {
             ConvHeatFlowNatural = Surface(SurfNum).Area * QOCFRoom;
@@ -901,7 +901,7 @@ namespace WindowEquivalentLayer {
         SurfWinGainConvShadeToZoneRep(SurfNum) = ConvHeatGainWindow;
         SurfWinGainIRGlazToZoneRep(SurfNum) = NetIRHeatGainWindow;
         SurfWinGainIRShadeToZoneRep(SurfNum) = NetIRHeatGainWindow;
-        if (InSideLayerType == ltyGLAZE) {
+        if (InSideLayerType == DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
             // no interior sade
             SurfWinGainIRShadeToZoneRep(SurfNum) = 0.0;
         } else {
@@ -6352,7 +6352,7 @@ namespace WindowEquivalentLayer {
 
         Real64 SlatADeg;
 
-        if (L.LTYPE == ltyVBHOR) {
+        if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR) {
             // horiz VB: enhanced convection at +/- 45 due to "pumping"
             SlatADeg = min(90.0, std::abs(L.PHI_DEG));
             ConvectionFactor = 1.0 + 0.2 * std::sin(2.0 * SlatADeg);
@@ -6775,17 +6775,17 @@ namespace WindowEquivalentLayer {
             // specular glazing
             // HBX note: ltyGZS here iff modelOption F=x; spectral cases elsewhere
             Specular_SWP(LSWP_ON, THETA);
-        } else if (L.LTYPE == ltyVBHOR) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR) {
             OKAY = VB_SWP(state, L, LSWP_ON, OMEGA_V);
-        } else if (L.LTYPE == ltyVBVER) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER) {
             OKAY = VB_SWP(state, L, LSWP_ON, OMEGA_H);
-        } else if (L.LTYPE == ltyDRAPE) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyDRAPE) {
             OKAY = PD_SWP(state, L, LSWP_ON, OMEGA_V, OMEGA_H);
-        } else if (L.LTYPE == ltyROLLB) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROLLB) {
             OKAY = RB_SWP(state, L, LSWP_ON, THETA);
-        } else if (L.LTYPE == ltyINSCRN) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyINSCRN) {
             OKAY = IS_SWP(state, L, LSWP_ON, THETA);
-        } else if (L.LTYPE == ltyNONE || L.LTYPE == ltyROOM) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyNONE || L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROOM) {
             // none or room: do nothing
         } else {
             // placeholder for add'l non-specular layers
@@ -7028,7 +7028,7 @@ namespace WindowEquivalentLayer {
         Real64 OPENNESS;
 
         RB_LWP = false;
-        if (L.LTYPE != ltyROLLB) return RB_LWP;
+        if (L.LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyROLLB) return RB_LWP;
 
         OPENNESS = L.SWP_MAT.TAUSFBB;
 
@@ -7071,7 +7071,7 @@ namespace WindowEquivalentLayer {
         Real64 TAUX;
 
         RB_SWP = false;
-        if (L.LTYPE != ltyROLLB) return RB_SWP;
+        if (L.LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyROLLB) return RB_SWP;
 
         DODIFFUSE = !present(THETA);
 
@@ -7117,7 +7117,7 @@ namespace WindowEquivalentLayer {
         Real64 TAULX;
 
         IS_LWP = false;
-        if (L.LTYPE != ltyINSCRN) return IS_LWP;
+        if (L.LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyINSCRN) return IS_LWP;
 
         OPENNESS = L.SWP_MAT.TAUSFBB;
 
@@ -7159,7 +7159,7 @@ namespace WindowEquivalentLayer {
         Real64 TAUX;
 
         IS_SWP = false;
-        if (L.LTYPE != ltyINSCRN) return IS_SWP;
+        if (L.LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyINSCRN) return IS_SWP;
 
         DODIFFUSE = !present(THETA);
 
@@ -7236,7 +7236,7 @@ namespace WindowEquivalentLayer {
         Real64 OPENNESS_FABRIC;
 
         PD_LWP = false;
-        if (L.LTYPE != ltyDRAPE) return PD_LWP;
+        if (L.LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyDRAPE) return PD_LWP;
 
         OPENNESS_FABRIC = L.SWP_MAT.TAUSFBB;
 
@@ -7274,7 +7274,7 @@ namespace WindowEquivalentLayer {
         Real64 TAUX;
 
         PD_SWP = false;
-        if (!(L.LTYPE == ltyDRAPE)) return PD_SWP;
+        if (!(L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyDRAPE)) return PD_SWP;
 
         DODIFFUSE = !(present(OHM_V_RAD) && present(OHM_H_RAD));
 
@@ -7545,7 +7545,7 @@ namespace WindowEquivalentLayer {
         if (IsVBLayer(L) && L.CNTRL != state.dataWindowEquivalentLayer->lscNONE) {
             if (THETA < 0.0 || THETA >= DataGlobalConstants::PiOvr2) {
                 OMEGA_DEG = -1.0; // diffuse only
-            } else if (L.LTYPE == ltyVBHOR) {
+            } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR) {
                 // horiz VB
                 OMEGA_DEG = state.dataWindowEquivalentLayer->RadiansToDeg * OMEGA_V;
             } else {
@@ -7592,18 +7592,18 @@ namespace WindowEquivalentLayer {
             L.PHI_DEG = 0.0; // phi, C, CNTRL are VB only
             L.C = 0.0;
             L.CNTRL = state.dataWindowEquivalentLayer->lscNONE;
-            if (L.LTYPE == ltyDRAPE) {
+            if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyDRAPE) {
                 LOK = PD_LWP(state, L, L.LWP_EL);
                 DOK = PD_SWP(state, L, L.SWP_EL);           // SW diffuse
                 BOK = PD_SWP(state, L, L.SWP_EL, 0.0, 0.0); // SW properties w/ profile angs = 0
-            } else if (L.LTYPE == ltyINSCRN) {
+            } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyINSCRN) {
                 LOK = IS_LWP(L, L.LWP_EL);      // LW
                 DOK = IS_SWP(state, L, L.SWP_EL);      // SW diffuse
                 BOK = IS_SWP(state, L, L.SWP_EL, 0.0); // SW beam w/ theta = 0
             } else {
                 L.S = 0.0; // geometry mbrs unused
                 L.W = 0.0;
-                if (L.LTYPE == ltyROLLB) {
+                if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROLLB) {
                     LOK = RB_LWP(L, L.LWP_EL);      // LW
                     DOK = RB_SWP(state, L, L.SWP_EL);      // SW diffuse
                     BOK = RB_SWP(state, L, L.SWP_EL, 0.0); // SW beam w/ theta = 0
@@ -7642,7 +7642,7 @@ namespace WindowEquivalentLayer {
         // Return value
         bool IsGZSLayer;
 
-        IsGZSLayer = L.LTYPE == ltyGZS;
+        IsGZSLayer = L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyGZS;
         return IsGZSLayer;
     }
 
@@ -7661,7 +7661,7 @@ namespace WindowEquivalentLayer {
         // Return value
         bool IsGlazeLayerX;
 
-        IsGlazeLayerX = L.LTYPE == ltyGLAZE || IsGZSLayer(L);
+        IsGlazeLayerX = L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyGLAZE || IsGZSLayer(L);
         return IsGlazeLayerX;
     }
 
@@ -7699,7 +7699,7 @@ namespace WindowEquivalentLayer {
         // Return value
         bool IsVBLayer;
 
-        IsVBLayer = L.LTYPE == ltyVBHOR || L.LTYPE == ltyVBVER;
+        IsVBLayer = L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR || L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER;
         return IsVBLayer;
     }
 
@@ -7891,24 +7891,24 @@ namespace WindowEquivalentLayer {
         if (SWP.TAUSBBB < 0.0) SWP.TAUSBBB = SWP.TAUSFBB;
         if (SWP.TAUSBBD < 0.0) SWP.TAUSBBD = SWP.TAUSFBD;
 
-        if (L.LTYPE == ltyGLAZE) {
+        if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
             // estimate diffuse properties if any < 0 or autocalculate
             if (min(SWP.RHOSBDD, SWP.RHOSFDD, SWP.TAUS_DD) < 0.0) {
                 Specular_EstimateDiffuseProps(state, SWP);
             }
-        } else if (L.LTYPE == ltyVBHOR || L.LTYPE == ltyVBVER) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR || L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER) {
 
-        } else if (L.LTYPE == ltyDRAPE) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyDRAPE) {
             // estimate diffuse properties if any < 0
             if (min(SWP.RHOSBDD, SWP.RHOSFDD, SWP.TAUS_DD) < 0.0) {
                 Fabric_EstimateDiffuseProps(state, SWP);
             }
-        } else if (L.LTYPE == ltyROLLB) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROLLB) {
             // estimate diffuse properties if any < 0
             if (min(SWP.RHOSBDD, SWP.RHOSFDD, SWP.TAUS_DD) < 0.0) {
                 OK = RB_SWP(state, L, SWP); // TODO RB
             }
-        } else if (L.LTYPE == ltyINSCRN) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyINSCRN) {
             if (SWP.TAUSFBB < 0.0) {
                 SWP.TAUSFBB = IS_OPENNESS(L.S, L.W);
                 if (SWP.TAUSBBB < 0.0) SWP.TAUSBBB = SWP.TAUSFBB;
@@ -7916,7 +7916,7 @@ namespace WindowEquivalentLayer {
             if (min(SWP.RHOSBDD, SWP.RHOSFDD, SWP.TAUS_DD) < 0.0) {
                 OK = IS_SWP(state, L, SWP); // TODO IS
             }
-        } else if (L.LTYPE == ltyNONE || L.LTYPE == ltyROOM) {
+        } else if (L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyNONE || L.LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyROOM) {
             // none or room: do nothing
         } else {
             ShowSevereError(state, RoutineName + L.Name + '.');
@@ -8142,9 +8142,9 @@ namespace WindowEquivalentLayer {
 
             for (Lay = 1; Lay <= CFS(EQLNum).NL; ++Lay) {
                 if (IsVBLayer(CFS(EQLNum).L(Lay))) {
-                    if (CFS(EQLNum).L(Lay).LTYPE == ltyVBHOR) {
+                    if (CFS(EQLNum).L(Lay).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR) {
                         ProfileAngle(SurfNum, state.dataEnvrn->SOLCOS, Horizontal, ProfAngVer);
-                    } else if (CFS(EQLNum).L(Lay).LTYPE == ltyVBVER) {
+                    } else if (CFS(EQLNum).L(Lay).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER) {
                         ProfileAngle(SurfNum, state.dataEnvrn->SOLCOS, Vertical, ProfAngHor);
                     }
                 }
@@ -8158,9 +8158,9 @@ namespace WindowEquivalentLayer {
             if (state.dataWindowEquivalentLayer->EQLDiffPropFlag(EQLNum)) {
                 for (Lay = 1; Lay <= CFS(EQLNum).NL; ++Lay) {
                     if (IsVBLayer(CFS(EQLNum).L(Lay))) {
-                        if (CFS(EQLNum).L(Lay).LTYPE == ltyVBHOR) {
+                        if (CFS(EQLNum).L(Lay).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBHOR) {
                             ProfileAngle(SurfNum, state.dataEnvrn->SOLCOS, Horizontal, ProfAngVer);
-                        } else if (CFS(EQLNum).L(Lay).LTYPE == ltyVBVER) {
+                        } else if (CFS(EQLNum).L(Lay).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyVBVER) {
                             ProfileAngle(SurfNum, state.dataEnvrn->SOLCOS, Vertical, ProfAngHor);
                         }
                     }

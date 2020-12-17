@@ -81,16 +81,7 @@ namespace DataWindowEquivalentLayer {
     // Gap Gas Properties
     // Gap information
     // Equivalent Layer Window Constructon
-    // CFSLAYER: layer types
-    int const ltyNONE(0);   // unused / empty layer
-    int const ltyGLAZE(1);  // glazing layer i.e, purely specular
-    int const ltyDRAPE(2);  // pleated drapes/curtains
-    int const ltyROLLB(3);  // roller blind
-    int const ltyVBHOR(4);  // venetian blinds - horizontal
-    int const ltyVBVER(5);  // venetian blinds - vertical
-    int const ltyINSCRN(6); // insect screen
-    int const ltyROOM(7);   // indoor space and/or make no adjustment
-    int const ltyGZS(8);    // glazing with spectral data (read from aux file)
+
     // index for solar arrays
     int const isDIFF(1);
     int const isBEAM(2);

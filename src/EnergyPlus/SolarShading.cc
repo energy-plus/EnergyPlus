@@ -6459,13 +6459,13 @@ namespace SolarShading {
                         for (int Lay = 1; Lay <= CFS(EQLNum).NL + 1; ++Lay) {
                             // Factor for front beam radiation absorbed for equivalent layer window model
                             Real64 AbWinEQL = AbsSolBeamEQL(1, Lay) * CosInc * SunLitFract * InOutProjSLFracMult;
-                            if (CFS(EQLNum).L(1).LTYPE != ltyGLAZE) {
+                            if (CFS(EQLNum).L(1).LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
                                 // if the first layer is not glazing (or it is a shade) do not
                                 SurfWinA(Lay, SurfNum) = AbWinEQL;
                             } else {
                                 // the first layer is a glazing, include the outside reveal reflection
                                 // and the inside reveal reflection until indoor shade layer is encountered.
-                                if (CFS(EQLNum).L(Lay).LTYPE == ltyGLAZE) {
+                                if (CFS(EQLNum).L(Lay).LTYPE == DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
                                     SurfWinA(Lay, SurfNum) = AbWinEQL + SurfWinOutsRevealDiffOntoGlazing(SurfNum) * AbsSolBeamEQL(1, Lay) +
                                                              SurfWinInsRevealDiffOntoGlazing(SurfNum) * AbsSolDiffEQL(2, Lay);
                                 } else {
@@ -7553,13 +7553,13 @@ namespace SolarShading {
                                     // get the interior beam transmitted through back exterior or interior EQL window
                                     TransBeamWin = AbsSolBeamBackEQL(1, CFS(EQLNum).NL + 1);
                                     //   Absorbed by the interior shade layer of back exterior window
-                                    if (CFS(EQLNum).L(CFS(EQLNum).NL).LTYPE != ltyGLAZE) {
+                                    if (CFS(EQLNum).L(CFS(EQLNum).NL).LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
                                         IntBeamAbsByShadFac(BackSurfNum) = BOverlap * AbsSolBeamBackEQL(1, CFS(EQLNum).NL) /
                                                                            (Surface(BackSurfNum).Area + SurfWinDividerArea(BackSurfNum));
                                         BABSZone += BOverlap * AbsSolBeamBackEQL(1, CFS(EQLNum).NL);
                                     }
                                     //   Absorbed by the exterior shade layer of back exterior window
-                                    if (CFS(EQLNum).L(1).LTYPE != ltyGLAZE) {
+                                    if (CFS(EQLNum).L(1).LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
                                         IntBeamAbsByShadFac(BackSurfNum) =
                                                 BOverlap * AbsSolBeamBackEQL(1, 1) / (Surface(BackSurfNum).Area + SurfWinDividerArea(BackSurfNum));
                                         BABSZone += BOverlap * AbsSolBeamBackEQL(1, 1);
@@ -7568,13 +7568,13 @@ namespace SolarShading {
                                     // determine the number of glass layers
                                     NBackGlass = 0;
                                     for (int Lay = 1; Lay <= CFS(EQLNum).NL; ++Lay) {
-                                        if (CFS(EQLNum).L(Lay).LTYPE != ltyGLAZE) continue;
+                                        if (CFS(EQLNum).L(Lay).LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) continue;
                                         ++NBackGlass;
                                     }
                                     if (NBackGlass >= 2) {
                                         // If the number of glass is greater than 2, in between glass shade can be present
                                         for (int Lay = 2; Lay <= CFS(EQLNum).NL - 1; ++Lay) {
-                                            if (CFS(EQLNum).L(CFS(EQLNum).NL).LTYPE != ltyGLAZE) {
+                                            if (CFS(EQLNum).L(CFS(EQLNum).NL).LTYPE != DataWindowEquivalentLayer::CFSLayer::ltyGLAZE) {
                                                 // if there is in between shade glass determine the shade absorptance
                                                 IntBeamAbsByShadFac(BackSurfNum) += BOverlap * AbsSolBeamBackEQL(1, Lay) / Surface(BackSurfNum).Area;
                                                 BABSZone += BOverlap * AbsSolBeamBackEQL(1, Lay);

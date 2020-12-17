@@ -74,15 +74,19 @@ namespace DataWindowEquivalentLayer {
     // Gap information
     // Equivalent Layer Window Constructon
     // CFSLAYER: layer types
-    extern int const ltyNONE;   // unused / empty layer
-    extern int const ltyGLAZE;  // glazing layer i.e, purely specular
-    extern int const ltyDRAPE;  // pleated drapes/curtains
-    extern int const ltyROLLB;  // roller blind
-    extern int const ltyVBHOR;  // venetian blinds - horizontal
-    extern int const ltyVBVER;  // venetian blinds - vertical
-    extern int const ltyINSCRN; // insect screen
-    extern int const ltyROOM;   // indoor space and/or make no adjustment
-    extern int const ltyGZS;    // glazing with spectral data (read from aux file)
+
+    enum class CFSLayer {
+        ltyNONE,   // unused / empty layer
+        ltyGLAZE,  // glazing layer i.e, purely specular
+        ltyDRAPE,  // pleated drapes/curtains
+        ltyROLLB,  // roller blind
+        ltyVBHOR,  // venetian blinds - horizontal
+        ltyVBVER,  // venetian blinds - vertical
+        ltyINSCRN, // insect screen
+        ltyROOM,   // indoor space and/or make no adjustment
+        ltyGZS,    // glazing with spectral data (read from aux file)
+    };
+
     // index for solar arrays
     extern int const isDIFF;
     extern int const isBEAM;
@@ -137,7 +141,7 @@ namespace DataWindowEquivalentLayer {
     {
         // Members
         std::string Name; // ID of layer
-        int LTYPE;        // layer type (see ltyXXX above)
+        CFSLayer LTYPE;        // layer type (see ltyXXX above)
         int iGZS;         // re spectral glazing
         //   = GZSTbl idx of LTYPE=ltyGZS (spectral glazing)
         //   else 0
@@ -181,7 +185,7 @@ namespace DataWindowEquivalentLayer {
         //                   PHI_DEG = 20 if diffuse only
 
         // Default Constructor
-        CFSLAYER() : LTYPE(0), iGZS(0), S(0.0), W(0.0), C(0.0), PHI_DEG(0.0), CNTRL(0)
+        CFSLAYER() : LTYPE(CFSLayer::ltyNONE), iGZS(0), S(0.0), W(0.0), C(0.0), PHI_DEG(0.0), CNTRL(0)
         {
         }
     };

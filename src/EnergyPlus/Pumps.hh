@@ -88,16 +88,36 @@ namespace Pumps {
     };
 
     extern std::string const cPump_VarSpeed;
-    extern int const Pump_VarSpeed;
     extern std::string const cPump_ConSpeed;
-    extern int const Pump_ConSpeed;
     extern std::string const cPump_Cond;
-    extern int const Pump_Cond;
     extern std::string const cPumpBank_VarSpeed;
-    extern int const PumpBank_VarSpeed;
     extern std::string const cPumpBank_ConSpeed;
-    extern int const PumpBank_ConSpeed;
-    extern Array1D_string const cPumpTypes;
+    
+    enum class TypeOfPump : int {
+        Unassigned = 0,
+        Pump_VarSpeed = 101,
+        Pump_ConSpeed = 102,
+        Pump_Cond = 103,
+        PumpBank_VarSpeed = 104,
+        PumpBank_ConSpeed = 105,
+    };
+
+    constexpr std::string_view cPumpTypes(TypeOfPump &e) {
+        switch (e) {
+            case TypeOfPump::Pump_VarSpeed:
+                return cPump_VarSpeed;
+            case TypeOfPump::Pump_ConSpeed:
+                return cPump_ConSpeed;
+            case TypeOfPump::Pump_Cond:
+                return cPump_Cond;
+            case TypeOfPump::PumpBank_VarSpeed:
+                return cPumpBank_VarSpeed;
+            case TypeOfPump::PumpBank_ConSpeed:
+                return cPumpBank_ConSpeed;
+            default:
+                assert(false);
+        }
+    }
 
     enum powerSizingMethodEnum
     {
@@ -108,19 +128,12 @@ namespace Pumps {
     // DERIVED TYPE DEFINITIONS
 
     // MODULE VARIABLE DECLARATIONS:
-    extern int NumPumps;         // Num Pumps (used in pump bank)
-    extern int NumPumpsRunning;  // Num of pumps ON (used in pump bank)
-    extern int NumPumpsFullLoad; // Num pumps running at full load (used in pump bank)
     //  INTEGER       :: NumPumpsPartLoad                   = 0    !Num pumps running at part load (used in pump bank)
 
     // simulation and reporting variables
     //  REAL(r64)           :: OutletTemp                   = 0.0d0  ! pump outlet temperature
-    extern Real64 PumpMassFlowRate; // mass flow rate at pump inlet node
     //  REAL(r64)           :: PumpPress                    = 0.0d0  ! For Passing around the steam loops
     //  REAL(r64)           :: PumpQuality                  = 0.0d0  ! For Passing around the steam loops=0.0 here
-    extern Real64 PumpHeattoFluid; // Pump Power dissipated in fluid stream
-    extern Real64 Power;           // Pump Electric power
-    extern Real64 ShaftPower;      // Power passing through pump shaft
 
     // SUBROUTINE SPECIFICATIONS FOR MODULE PrimaryPlantLoops
 
@@ -160,7 +173,7 @@ namespace Pumps {
         std::string Name;               // user identifier
         std::string PumpSchedule;       // Schedule to modify the design nominal capacity of the pump
         std::string PressureCurve_Name; // - placeholder for pump curve name
-        int PumpType;                   // pump type integer, based on local parameter values, used to identify
+        TypeOfPump PumpType;                   // pump type integer, based on local parameter values, used to identify
         // index in the cPumpTypes string array to do error reporting
         int TypeOf_Num;                              // pump type of number in reference to the dataplant values
         int LoopNum;                                 // loop where pump is located
@@ -223,7 +236,7 @@ namespace Pumps {
 
         // Default Constructor
         PumpSpecs()
-            : PumpType(0), TypeOf_Num(0), LoopNum(0), LoopSideNum(0), BranchNum(0), CompNum(0), PumpControl(PumpControlType::Unassigned), PumpScheduleIndex(0), InletNodeNum(0), OutletNodeNum(0), SequencingScheme(PumpBankControlSeq::Unassigned), FluidIndex(0), NumPumpsInBank(0),
+            : PumpType(TypeOfPump::Unassigned), TypeOf_Num(0), LoopNum(0), LoopSideNum(0), BranchNum(0), CompNum(0), PumpControl(PumpControlType::Unassigned), PumpScheduleIndex(0), InletNodeNum(0), OutletNodeNum(0), SequencingScheme(PumpBankControlSeq::Unassigned), FluidIndex(0), NumPumpsInBank(0),
               PowerErrIndex1(0), PowerErrIndex2(0), MinVolFlowRateFrac(0.0),
               NomVolFlowRate(0.0), NomVolFlowRateWasAutoSized(false), MassFlowRateMax(0.0), EMSMassFlowOverrideOn(false), EMSMassFlowValue(0.0),
               NomSteamVolFlowRate(0.0), NomSteamVolFlowRateWasAutoSized(false), MinVolFlowRate(0.0), minVolFlowRateWasAutosized(false),

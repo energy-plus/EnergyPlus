@@ -162,14 +162,6 @@ namespace FanCoilUnits {
     int const HCoil_Water(1);
     int const HCoil_Electric(2);
 
-    // capacity control method supported in this module
-    int const CCM_ConsFanVarFlow(1);
-    int const CCM_CycFan(2);
-    int const CCM_VarFanVarFlow(3);
-    int const CCM_VarFanConsFlow(4);
-    int const CCM_MultiSpeedFan(5);
-    int const CCM_ASHRAE(6);
-
     // DERIVED TYPE DEFINITIONS
 
     // MODULE VARIABLE DECLARATIONS:
@@ -430,13 +422,13 @@ namespace FanCoilUnits {
                 UtilityRoutines::SameString(Alphas(3), "VariableFanConstantFlow") || UtilityRoutines::SameString(Alphas(3), "MultiSpeedFan") ||
                 UtilityRoutines::SameString(Alphas(3), "ASHRAE90VariableFan")) {
                 FanCoil(FanCoilNum).CapCtrlMeth = Alphas(3);
-                if (UtilityRoutines::SameString(Alphas(3), "ConstantFanVariableFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_ConsFanVarFlow;
-                if (UtilityRoutines::SameString(Alphas(3), "CyclingFan")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_CycFan;
-                if (UtilityRoutines::SameString(Alphas(3), "VariableFanVariableFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_VarFanVarFlow;
-                if (UtilityRoutines::SameString(Alphas(3), "VariableFanConstantFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_VarFanConsFlow;
-                if (UtilityRoutines::SameString(Alphas(3), "MultiSpeedFan")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_MultiSpeedFan;
+                if (UtilityRoutines::SameString(Alphas(3), "ConstantFanVariableFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_ConsFanVarFlow;
+                if (UtilityRoutines::SameString(Alphas(3), "CyclingFan")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_CycFan;
+                if (UtilityRoutines::SameString(Alphas(3), "VariableFanVariableFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_VarFanVarFlow;
+                if (UtilityRoutines::SameString(Alphas(3), "VariableFanConstantFlow")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_VarFanConsFlow;
+                if (UtilityRoutines::SameString(Alphas(3), "MultiSpeedFan")) FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_MultiSpeedFan;
                 if (UtilityRoutines::SameString(Alphas(3), "ASHRAE90VariableFan")) {
-                    FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM_ASHRAE;
+                    FanCoil(FanCoilNum).CapCtrlMeth_Num = CCM::CCM_ASHRAE;
                     FanCoil(FanCoilNum).DesZoneCoolingLoad = AutoSize;
                     FanCoil(FanCoilNum).DesZoneHeatingLoad = AutoSize;
                     FanCoil(FanCoilNum).FanOpMode = ContFanCycCoil;
@@ -691,11 +683,11 @@ namespace FanCoilUnits {
                             }
 
                             // Check that the fan type match with the capacity control method selected
-                            if ((FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ConsFanVarFlow &&
+                            if ((FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ConsFanVarFlow &&
                                  (FanCoil(FanCoilNum).FanType_Num == FanType_SimpleVAV)) ||
-                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_CycFan && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleOnOff) ||
-                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanVarFlow && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleVAV) ||
-                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanConsFlow && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleVAV)) {
+                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_CycFan && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleOnOff) ||
+                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanVarFlow && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleVAV) ||
+                                (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanConsFlow && FanCoil(FanCoilNum).FanType_Num != FanType_SimpleVAV)) {
                                 ShowSevereError(state, RoutineName + FanCoil(FanCoilNum).UnitType + ": " + FanCoil(FanCoilNum).Name);
                                 ShowContinueError(state, "...the fan type of the object : " + FanCoil(FanCoilNum).FanName +
                                                   " does not match with the capacity control method selected : " + FanCoil(FanCoilNum).CapCtrlMeth +
@@ -730,8 +722,8 @@ namespace FanCoilUnits {
                     }
 
                     // check that for VariableFanVariableFlow or VariableFanConstantFlow that the fan speed control is continuous
-                    if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanVarFlow || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanConsFlow ||
-                        FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ASHRAE) { // then expect continuous speed control fan
+                    if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanVarFlow || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanConsFlow ||
+                        FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ASHRAE) { // then expect continuous speed control fan
                         if (HVACFan::fanObjs[FanCoil(FanCoilNum).FanIndex]->speedControl != HVACFan::FanSystem::SpeedControlMethod::Continuous) {
                             ShowSevereError(state, RoutineName + FanCoil(FanCoilNum).UnitType + ": " + FanCoil(FanCoilNum).Name);
                             ShowContinueError(state, "...the fan type of the object : " + FanCoil(FanCoilNum).FanName +
@@ -746,7 +738,7 @@ namespace FanCoilUnits {
             }
 
             // check low speed fan ratio when using ASHRAE90.1 capacity control method
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ASHRAE) {
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ASHRAE) {
                 if (FanCoil(FanCoilNum).LowSpeedRatio > 0.5) {
                     ShowWarningError(state, RoutineName + CurrentModuleObject + "=\"" + FanCoil(FanCoilNum).Name + "\",");
                     ShowContinueError(state, "... " + cNumericFields(2) + " is greater than the 50% of the supply air flow ratio.");
@@ -1023,7 +1015,7 @@ namespace FanCoilUnits {
                                 "System",
                                 "Sum",
                                 FanCoil(FanCoilNum).Name);
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_CycFan || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_MultiSpeedFan) {
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_CycFan || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_MultiSpeedFan) {
                 SetupOutputVariable(state,
                     "Fan Coil Runtime Fraction", OutputProcessor::Unit::None, FanCoil(FanCoilNum).PLR, "System", "Average", FanCoil(FanCoilNum).Name);
                 SetupOutputVariable(state, "Fan Coil Fan Speed Level",
@@ -1032,7 +1024,7 @@ namespace FanCoilUnits {
                                     "System",
                                     "Average",
                                     FanCoil(FanCoilNum).Name);
-                if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_MultiSpeedFan) {
+                if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_MultiSpeedFan) {
                     SetupOutputVariable(state, "Fan Coil Speed Ratio",
                                         OutputProcessor::Unit::None,
                                         FanCoil(FanCoilNum).SpeedRatio,
@@ -1047,7 +1039,7 @@ namespace FanCoilUnits {
                                         FanCoil(FanCoilNum).Name);
                 }
             }
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanVarFlow || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_VarFanConsFlow) {
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanVarFlow || FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_VarFanConsFlow) {
                 SetupOutputVariable(state,
                     "Fan Coil Part Load Ratio", OutputProcessor::Unit::None, FanCoil(FanCoilNum).PLR, "System", "Average", FanCoil(FanCoilNum).Name);
             }
@@ -2089,7 +2081,7 @@ namespace FanCoilUnits {
                 }
             }
 
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ASHRAE && !FanCoil(FanCoilNum).ASHRAETempControl) {
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ASHRAE && !FanCoil(FanCoilNum).ASHRAETempControl) {
 
                 CompType = FanCoil(FanCoilNum).UnitType;
                 CompName = FanCoil(FanCoilNum).Name;
@@ -2106,7 +2098,7 @@ namespace FanCoilUnits {
 
                 FanCoil(FanCoilNum).DSOAPtr = FinalZoneSizing(CurZoneEqNum).ZoneDesignSpecOAIndex;
 
-            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ASHRAE && FanCoil(FanCoilNum).ASHRAETempControl) {
+            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ASHRAE && FanCoil(FanCoilNum).ASHRAETempControl) {
 
                 CompType = FanCoil(FanCoilNum).UnitType;
                 CompName = FanCoil(FanCoilNum).Name;
@@ -2323,7 +2315,7 @@ namespace FanCoilUnits {
             auto const SELECT_CASE_var(FanCoil(FanCoilNum).CapCtrlMeth_Num);
 
             // constant fan variable flow
-            if (SELECT_CASE_var == CCM_ConsFanVarFlow) {
+            if (SELECT_CASE_var == CCM::CCM_ConsFanVarFlow) {
 
                 if (AirMassFlow < SmallMassFlow) UnitOn = false;
                 // zero the hot & cold water flows
@@ -2693,7 +2685,7 @@ namespace FanCoilUnits {
                 LatOutputProvided = LatentOutput;
 
                 // cycling fan constant water flow AND VarFanVarFlow
-            } else if ((SELECT_CASE_var == CCM_CycFan) || (SELECT_CASE_var == CCM_VarFanVarFlow)) {
+            } else if ((SELECT_CASE_var == CCM::CCM_CycFan) || (SELECT_CASE_var == CCM::CCM_VarFanVarFlow)) {
 
                 if (CurDeadBandOrSetback(ZoneNum) || AirMassFlow < SmallMassFlow) UnitOn = false;
 
@@ -2731,7 +2723,7 @@ namespace FanCoilUnits {
                 QCoilCoolSP = ZoneSysEnergyDemand(ZoneNum).RemainingOutputReqToCoolSP - QUnitOutNoHC;
 
                 // speed fan selection only for multispeed cycling fan
-                if (UnitOn && (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_CycFan)) {
+                if (UnitOn && (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_CycFan)) {
                     QZnReq = ZoneSysEnergyDemand(ZoneNum).RemainingOutputRequired;
 
                     // set water side mass flow rate
@@ -3021,7 +3013,7 @@ namespace FanCoilUnits {
                 PowerMet = QUnitOut;
                 LatOutputProvided = LatentOutput;
 
-            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_ASHRAE) {
+            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_ASHRAE) {
 
                 if (AirMassFlow < SmallMassFlow) UnitOn = false;
 
@@ -3186,7 +3178,7 @@ namespace FanCoilUnits {
                 FanCoil(FanCoilNum).PLR = PLR;
 
                 // cycling fan constant water flow AND VarFanVarFlow
-            } else if (SELECT_CASE_var == CCM_VarFanConsFlow) {
+            } else if (SELECT_CASE_var == CCM::CCM_VarFanConsFlow) {
 
                 if (CurDeadBandOrSetback(ZoneNum) || AirMassFlow < SmallMassFlow) UnitOn = false;
 
@@ -3356,7 +3348,7 @@ namespace FanCoilUnits {
                 PowerMet = QUnitOut;
                 LatOutputProvided = LatentOutput;
 
-            } else if (SELECT_CASE_var == CCM_MultiSpeedFan) {
+            } else if (SELECT_CASE_var == CCM::CCM_MultiSpeedFan) {
                 // call multi-speed fan staging calculation
                 SimMultiStage4PipeFanCoil(state, FanCoilNum, ControlledZoneNum, FirstHVACIteration, QUnitOut);
                 AirMassFlow = Node(InletNode).MassFlowRate;
@@ -3622,8 +3614,8 @@ namespace FanCoilUnits {
         if (((GetCurrentScheduleValue(state, FanCoil(FanCoilNum).SchedPtr) > 0.0 && GetCurrentScheduleValue(state, FanCoil(FanCoilNum).fanAvailSchIndex) > 0.0) ||
              DataHVACGlobals::ZoneCompTurnFansOn) &&
             !DataHVACGlobals::ZoneCompTurnFansOff) {
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM_ConsFanVarFlow) {
-                if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM_ASHRAE) Node(InletNode).MassFlowRate = PartLoad * Node(InletNode).MassFlowRateMax;
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM::CCM_ConsFanVarFlow) {
+                if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM::CCM_ASHRAE) Node(InletNode).MassFlowRate = PartLoad * Node(InletNode).MassFlowRateMax;
             } else {
                 Node(InletNode).MassFlowRate = Node(InletNode).MassFlowRateMax;
             }
@@ -3649,15 +3641,15 @@ namespace FanCoilUnits {
             AirMassFlow = Node(InletNode).MassFlowRate;
         } else {
             // OutdoorAir:Mixer
-            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_CycFan) {
+            if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_CycFan) {
                 Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRate =
                     min(OASchedValue * Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRateMax * PartLoad * FanCoil(FanCoilNum).SpeedFanRatSel,
                         Node(InletNode).MassFlowRate);
-            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_MultiSpeedFan) {
+            } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_MultiSpeedFan) {
                 Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRate = min(
                     OASchedValue * Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRateMax * PartLoad * FanFlowRatio, Node(InletNode).MassFlowRate);
             } else {
-                if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM_ConsFanVarFlow && FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM_ASHRAE) {
+                if (FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM::CCM_ConsFanVarFlow && FanCoil(FanCoilNum).CapCtrlMeth_Num != CCM::CCM_ASHRAE) {
                     Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRate =
                         min(OASchedValue * Node(FanCoil(FanCoilNum).OutsideAirNode).MassFlowRateMax * PartLoad, Node(InletNode).MassFlowRate);
                 } else {
@@ -3670,7 +3662,7 @@ namespace FanCoilUnits {
             SimOAMixer(state, FanCoil(FanCoilNum).OAMixName, FirstHVACIteration, FanCoil(FanCoilNum).OAMixIndex);
         }
 
-        if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_CycFan) {
+        if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_CycFan) {
             // cycling fan coil unit calculation
             if (FanCoil(FanCoilNum).SpeedFanSel == 1) {
                 if (FanCoil(FanCoilNum).FanType_Num != DataHVACGlobals::FanType_SystemModelObject) {
@@ -3744,7 +3736,7 @@ namespace FanCoilUnits {
                                               PartLoad);
             }
 
-        } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM_MultiSpeedFan) {
+        } else if (FanCoil(FanCoilNum).CapCtrlMeth_Num == CCM::CCM_MultiSpeedFan) {
             if (FanCoil(FanCoilNum).FanType_Num != DataHVACGlobals::FanType_SystemModelObject) {
                 Fans::SimulateFanComponents(state,
                                             FanCoil(FanCoilNum).FanName,

@@ -91,12 +91,15 @@ namespace FanCoilUnits {
     extern int const HCoil_Electric;
 
     // capacity control method supported in this module
-    extern int const CCM_ConsFanVarFlow;
-    extern int const CCM_CycFan;
-    extern int const CCM_VarFanVarFlow;
-    extern int const CCM_VarFanConsFlow;
-    extern int const CCM_MultiSpeedFan;
-    extern int const CCM_ASHRAE;
+    enum class CCM {
+        Unassigned,
+        CCM_ConsFanVarFlow,
+        CCM_CycFan,
+        CCM_VarFanVarFlow,
+        CCM_VarFanConsFlow,
+        CCM_MultiSpeedFan,
+        CCM_ASHRAE,
+    };
 
     // DERIVED TYPE DEFINITIONS
 
@@ -133,7 +136,7 @@ namespace FanCoilUnits {
         // 'CyclingFan' or
         // 'VariableFanVariableFlow'
         int SpeedFanSel; // Speed fan selected
-        int CapCtrlMeth_Num;
+        CCM CapCtrlMeth_Num;
         Real64 PLR;               // Part Load Ratio, fraction of time step fancoil is on
         int MaxIterIndexH;        // Maximum iterations exceeded for heating
         int BadMassFlowLimIndexH; // Bad mass flow limit error index for heating
@@ -261,7 +264,7 @@ namespace FanCoilUnits {
         int RegulaFalsiFailedIndex;      // iteration loop warning
 
         FanCoilData() // Default Constructor
-            : UnitType_Num(0), SchedPtr(0), SchedOutAirPtr(0), FanType_Num(0), SpeedFanSel(0), CapCtrlMeth_Num(0), PLR(0.0), MaxIterIndexH(0),
+            : UnitType_Num(0), SchedPtr(0), SchedOutAirPtr(0), FanType_Num(0), SpeedFanSel(0), CapCtrlMeth_Num(CCM::Unassigned), PLR(0.0), MaxIterIndexH(0),
               BadMassFlowLimIndexH(0), MaxIterIndexC(0), BadMassFlowLimIndexC(0), FanAirVolFlow(0.0), MaxAirVolFlow(0.0), MaxAirMassFlow(0.0),
               LowSpeedRatio(0.0), MedSpeedRatio(0.0), SpeedFanRatSel(0.0), OutAirVolFlow(0.0), OutAirMassFlow(0.0), AirInNode(0), AirOutNode(0),
               OutsideAirNode(0), AirReliefNode(0), MixedAirNode(0), OAMixIndex(0), FanIndex(0), CCoilName_Index(0), CCoilType_Num(0),
