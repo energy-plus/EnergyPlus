@@ -46,9 +46,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 // C++ Headers
+#include "/usr/local/opt/libomp/include/omp.h"
 #include <cassert>
 #include <cmath>
-#include "/usr/local/opt/libomp/include/omp.h"
 
 // ObjexxFCL Headers
 #include <ObjexxFCL/Array.functions.hh>
@@ -206,19 +206,19 @@ namespace HeatBalanceIntRadExchange {
             for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; SurfNum++)
                 state.dataSurface->SurfWinIRfromParentZone(SurfNum) = 0.0;
         }
-        
-//        high_resolution_clock::time_point t1 = high_resolution_clock::now();
-//        high_resolution_clock::time_point t2 = high_resolution_clock::now();
-//        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-//        t1 = high_resolution_clock::now();
-//#pragma omp parallel
-//{
-//        int p = omp_get_num_threads();
-//        int tid = omp_get_thread_num();
-//        int zone_start = (endEnclosure  * tid) / p + startEnclosure;
-//        int zone_end = min((endEnclosure * (tid + 1)) / p + startEnclosure - 1, endEnclosure);
 
-//        for (int enclosureNum = zone_start; enclosureNum <= zone_end; ++enclosureNum) {
+        //        high_resolution_clock::time_point t1 = high_resolution_clock::now();
+        //        high_resolution_clock::time_point t2 = high_resolution_clock::now();
+        //        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+        //        t1 = high_resolution_clock::now();
+        //#pragma omp parallel
+        //{
+        //        int p = omp_get_num_threads();
+        //        int tid = omp_get_thread_num();
+        //        int zone_start = (endEnclosure  * tid) / p + startEnclosure;
+        //        int zone_end = min((endEnclosure * (tid + 1)) / p + startEnclosure - 1, endEnclosure);
+
+        //        for (int enclosureNum = zone_start; enclosureNum <= zone_end; ++enclosureNum) {
         for (int enclosureNum = startEnclosure; enclosureNum <= endEnclosure; ++enclosureNum) {
             auto &zone_info(state.dataViewFactor->ZoneRadiantInfo(enclosureNum));
             auto &zone_ScriptF(zone_info.ScriptF); // Tuned Transposed
@@ -364,7 +364,6 @@ namespace HeatBalanceIntRadExchange {
                     auto const &rec_construct(state.dataConstruction->Construct(ConstrNumRec));
                     auto &netLWRadToRecSurf(NetLWRadToSurf(RecSurfNum));
                     if (rec_construct.TypeIsWindow) {
-                        //                        auto& rec_surface_window(SurfaceWindow(RecSurfNum));
                         Real64 CarrollMRTInKTo4thWin = CarrollMRTInKTo4th; // arbitrary value, IR will be zero
                         Real64 CarrollMRTNumeratorWin(0.0);
                         Real64 CarrollMRTDenominatorWin(0.0);
@@ -404,17 +403,12 @@ namespace HeatBalanceIntRadExchange {
                             // Calculate interior LW incident on window rather than net LW for use in window layer heat balance calculation.
                             IRfromParentZone_acc += scriptF_temp_ink_4th;
                         }
+                        netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
                         for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
                             size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
-                            Real64 const scriptF(zone_ScriptF[lSR]); // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
-//                            Real64 const scriptF_temp_ink_4th(scriptF * SurfaceTempInKto4th[SendZoneSurfNum]);
                             if (RecZoneSurfNum != SendZoneSurfNum) {
-                                scriptF_acc += scriptF;
+                                scriptF_acc += zone_ScriptF[lSR];
                             }
-//                            else {
-//                                netLWRadToRecSurf_cor = scriptF_temp_ink_4th;
-//                            }
-//                            netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
 
                             // Per BG -- this should never happened.  (CR6346,CR6550 caused this to be put in.  Now removed. LKL 1/2013)
                             //          IF (SurfaceWindow(RecSurfNum)%IRfromParentZone < 0.0) THEN
@@ -427,19 +421,15 @@ namespace HeatBalanceIntRadExchange {
                             //            SurfaceWindow(RecSurfNum)%IRfromParentZone=0.0
                             //          ENDIF
                         }
-                        netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
 
                         netLWRadToRecSurf += IRfromParentZone_acc - netLWRadToRecSurf_cor - (scriptF_acc * SurfaceTempInKto4th[RecZoneSurfNum]);
                         state.dataSurface->SurfWinIRfromParentZone(RecSurfNum) += IRfromParentZone_acc / SurfaceEmiss[RecZoneSurfNum];
                     } else {
                         Real64 netLWRadToRecSurf_acc(0.0); // Local accumulator
+                        zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] = 0;
                         for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
-                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
-                            if (RecZoneSurfNum != SendZoneSurfNum) {
-                                netLWRadToRecSurf_acc +=
-                                    zone_ScriptF[lSR] * (SurfaceTempInKto4th[SendZoneSurfNum] -
-                                                         SurfaceTempInKto4th[RecZoneSurfNum]); // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
-                            }
+                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum; // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
+                            netLWRadToRecSurf_acc += zone_ScriptF[lSR] * (SurfaceTempInKto4th[SendZoneSurfNum] - SurfaceTempInKto4th[RecZoneSurfNum]);
                         }
                         netLWRadToRecSurf += netLWRadToRecSurf_acc;
                     }
