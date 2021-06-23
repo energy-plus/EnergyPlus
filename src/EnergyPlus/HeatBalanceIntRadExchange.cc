@@ -151,6 +151,8 @@ namespace HeatBalanceIntRadExchange {
         auto &ZoneSurfaceTempRad(state.dataHeatBalIntRadExchg->SurfaceTempRad);
         auto &ZoneSurfaceTempInKto4th(state.dataHeatBalIntRadExchg->SurfaceTempInKto4th);
         auto &ZoneSurfaceEmiss(state.dataHeatBalIntRadExchg->SurfaceEmiss);
+        auto &EnclWinSurfPtr(state.dataHeatBalIntRadExchg->EnclWinSurfPtr);
+        auto &EnclNonWinSurfPtr(state.dataHeatBalIntRadExchg->EnclNonWinSurfPtr);
 
 #ifdef EP_Detailed_Timings
         epStartTime("CalcInteriorRadExchange=");
@@ -159,11 +161,26 @@ namespace HeatBalanceIntRadExchange {
             ZoneSurfaceTempRad.allocate(state.dataViewFactor->NumOfRadiantEnclosures);
             ZoneSurfaceTempInKto4th.allocate(state.dataViewFactor->NumOfRadiantEnclosures);
             ZoneSurfaceEmiss.allocate(state.dataViewFactor->NumOfRadiantEnclosures);
+            EnclWinSurfPtr.resize(state.dataViewFactor->NumOfRadiantEnclosures + 1);
+            EnclNonWinSurfPtr.resize(state.dataViewFactor->NumOfRadiantEnclosures + 1);
 
             for (int enclosureNum = 1; enclosureNum <= state.dataViewFactor->NumOfRadiantEnclosures; ++enclosureNum) {
                 ZoneSurfaceTempRad(enclosureNum).allocate(state.dataHeatBalIntRadExchg->MaxNumOfRadEnclosureSurfs);
                 ZoneSurfaceTempInKto4th(enclosureNum).allocate(state.dataHeatBalIntRadExchg->MaxNumOfRadEnclosureSurfs);
                 ZoneSurfaceEmiss(enclosureNum).allocate(state.dataHeatBalIntRadExchg->MaxNumOfRadEnclosureSurfs);
+            }
+            for (int enclosureNum = 1; enclosureNum <= state.dataViewFactor->NumOfRadiantEnclosures; ++enclosureNum) {
+                auto &zone_info(state.dataViewFactor->ZoneRadiantInfo(enclosureNum));
+                for (int ZoneSurfNum = 0; ZoneSurfNum < zone_info.NumOfSurfaces; ++ZoneSurfNum) {
+                    int const SurfNum = zone_info.SurfacePtr[ZoneSurfNum];
+                    int const ConstrNum = state.dataSurface->Surface(SurfNum).Construction;
+                    auto const &construct(state.dataConstruction->Construct(ConstrNum));
+                    if (construct.TypeIsWindow) {
+                        EnclWinSurfPtr[enclosureNum].push_back(ZoneSurfNum);
+                    } else {
+                        EnclNonWinSurfPtr[enclosureNum].push_back(ZoneSurfNum);
+                    }
+                }
             }
             state.dataHeatBalIntRadExchg->CalcInteriorRadExchangefirstTime = false;
             if (state.dataSysVars->DeveloperFlag) {
@@ -383,56 +400,106 @@ namespace HeatBalanceIntRadExchange {
                     netLWRadToRecSurf += zone_info.Fp[RecZoneSurfNum] * (CarrollMRTInKTo4th - SurfaceTempInKto4th[RecZoneSurfNum]);
                 }
             } else {
-                for (size_type RecZoneSurfNum = 0; RecZoneSurfNum < s_zone_Surfaces; ++RecZoneSurfNum) {
+
+                for (size_type RecZoneSurfNum : EnclWinSurfPtr[enclosureNum]) {
                     int const RecSurfNum = zone_SurfacePtr[RecZoneSurfNum];
-                    int const ConstrNumRec = state.dataSurface->Surface(RecSurfNum).Construction;
-                    auto const &rec_construct(state.dataConstruction->Construct(ConstrNumRec));
+//                    int const ConstrNumRec = state.dataSurface->Surface(RecSurfNum).Construction;
+//                    auto const &rec_construct(state.dataConstruction->Construct(ConstrNumRec));
                     auto &netLWRadToRecSurf(NetLWRadToSurf(RecSurfNum));
 
                     // Calculate net long-wave radiation for opaque surfaces and incident
                     // long-wave radiation for windows.
-                    if (rec_construct.TypeIsWindow) {      // Window
-                                                           //                        auto& rec_surface_window(SurfaceWindow(RecSurfNum));
-                        Real64 scriptF_acc(0.0);           // Local accumulator
-                        Real64 netLWRadToRecSurf_cor(0.0); // Correction
-                        Real64 IRfromParentZone_acc(0.0);  // Local accumulator
-                        for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
-                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
-                            Real64 const scriptF(zone_ScriptF[lSR]); // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
-                            Real64 const scriptF_temp_ink_4th(scriptF * SurfaceTempInKto4th[SendZoneSurfNum]);
-                            // Calculate interior LW incident on window rather than net LW for use in window layer heat balance calculation.
-                            IRfromParentZone_acc += scriptF_temp_ink_4th;
-                        }
-                        netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
-                        for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
-                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
-                            if (RecZoneSurfNum != SendZoneSurfNum) {
-                                scriptF_acc += zone_ScriptF[lSR];
-                            }
-
-                            // Per BG -- this should never happened.  (CR6346,CR6550 caused this to be put in.  Now removed. LKL 1/2013)
-                            //          IF (SurfaceWindow(RecSurfNum)%IRfromParentZone < 0.0) THEN
-                            //            CALL ShowRecurringWarningErrorAtEnd(state, 'CalcInteriorRadExchange: Window_IRFromParentZone negative,
-                            //            Window="'// &
-                            //                TRIM(Surface(RecSurfNum)%Name)//'"',  &
-                            //                S0urfaceWindow(RecSurfNum)%IRErrCount)
-                            //            CALL ShowRecurringContinueErrorAtEnd(state, '..occurs in Zone="'//TRIM(Surface(RecSurfNum)%ZoneName)//  &
-                            //                '", reset to 0.0 for remaining calculations.',SurfaceWindow(RecSurfNum)%IRErrCountC)
-                            //            SurfaceWindow(RecSurfNum)%IRfromParentZone=0.0
-                            //          ENDIF
-                        }
-
-                        netLWRadToRecSurf += IRfromParentZone_acc - netLWRadToRecSurf_cor - (scriptF_acc * SurfaceTempInKto4th[RecZoneSurfNum]);
-                        state.dataSurface->SurfWinIRfromParentZone(RecSurfNum) += IRfromParentZone_acc / SurfaceEmiss[RecZoneSurfNum];
-                    } else {
-                        Real64 netLWRadToRecSurf_acc(0.0); // Local accumulator
-                        zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] = 0;
-                        for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
-                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum; // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
-                            netLWRadToRecSurf_acc += zone_ScriptF[lSR] * (SurfaceTempInKto4th[SendZoneSurfNum] - SurfaceTempInKto4th[RecZoneSurfNum]);
-                        }
-                        netLWRadToRecSurf += netLWRadToRecSurf_acc;
+//                    if (rec_construct.TypeIsWindow) { // Window
+                        //                        auto& rec_surface_window(SurfaceWindow(RecSurfNum));
+                    Real64 scriptF_acc(0.0);           // Local accumulator
+                    Real64 netLWRadToRecSurf_cor(0.0); // Correction
+                    Real64 IRfromParentZone_acc(0.0);  // Local accumulator
+                    for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
+                        size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
+                        Real64 const scriptF(zone_ScriptF[lSR]); // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
+                        Real64 const scriptF_temp_ink_4th(scriptF * SurfaceTempInKto4th[SendZoneSurfNum]);
+                        // Calculate interior LW incident on window rather than net LW for use in window layer heat balance calculation.
+                        IRfromParentZone_acc += scriptF_temp_ink_4th;
                     }
+                    netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
+                    for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
+                        size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
+                        if (RecZoneSurfNum != SendZoneSurfNum) {
+                            scriptF_acc += zone_ScriptF[lSR];
+                        }
+
+                        // Per BG -- this should never happened.  (CR6346,CR6550 caused this to be put in.  Now removed. LKL 1/2013)
+                        //          IF (SurfaceWindow(RecSurfNum)%IRfromParentZone < 0.0) THEN
+                        //            CALL ShowRecurringWarningErrorAtEnd(state, 'CalcInteriorRadExchange: Window_IRFromParentZone negative,
+                        //            Window="'// &
+                        //                TRIM(Surface(RecSurfNum)%Name)//'"',  &
+                        //                S0urfaceWindow(RecSurfNum)%IRErrCount)
+                        //            CALL ShowRecurringContinueErrorAtEnd(state, '..occurs in Zone="'//TRIM(Surface(RecSurfNum)%ZoneName)//  &
+                        //                '", reset to 0.0 for remaining calculations.',SurfaceWindow(RecSurfNum)%IRErrCountC)
+                        //            SurfaceWindow(RecSurfNum)%IRfromParentZone=0.0
+                        //          ENDIF
+                    }
+
+                    netLWRadToRecSurf += IRfromParentZone_acc - netLWRadToRecSurf_cor - (scriptF_acc * SurfaceTempInKto4th[RecZoneSurfNum]);
+                    state.dataSurface->SurfWinIRfromParentZone(RecSurfNum) += IRfromParentZone_acc / SurfaceEmiss[RecZoneSurfNum];
+//                    }
+                }
+//                for (size_type RecZoneSurfNum = 0; RecZoneSurfNum < s_zone_Surfaces; ++RecZoneSurfNum) {
+//                    int const RecSurfNum = zone_SurfacePtr[RecZoneSurfNum];
+//                    int const ConstrNumRec = state.dataSurface->Surface(RecSurfNum).Construction;
+//                    auto const &rec_construct(state.dataConstruction->Construct(ConstrNumRec));
+//                    auto &netLWRadToRecSurf(NetLWRadToSurf(RecSurfNum));
+//
+//                    // Calculate net long-wave radiation for opaque surfaces and incident
+//                    // long-wave radiation for windows.
+//                    if (rec_construct.TypeIsWindow) {      // Window
+//                                                           //                        auto& rec_surface_window(SurfaceWindow(RecSurfNum));
+//                        Real64 scriptF_acc(0.0);           // Local accumulator
+//                        Real64 netLWRadToRecSurf_cor(0.0); // Correction
+//                        Real64 IRfromParentZone_acc(0.0);  // Local accumulator
+//                        for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
+//                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
+//                            Real64 const scriptF(zone_ScriptF[lSR]); // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
+//                            Real64 const scriptF_temp_ink_4th(scriptF * SurfaceTempInKto4th[SendZoneSurfNum]);
+//                            // Calculate interior LW incident on window rather than net LW for use in window layer heat balance calculation.
+//                            IRfromParentZone_acc += scriptF_temp_ink_4th;
+//                        }
+//                        netLWRadToRecSurf_cor = zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] * SurfaceTempInKto4th[RecZoneSurfNum];
+//                        for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
+//                            size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum;
+//                            if (RecZoneSurfNum != SendZoneSurfNum) {
+//                                scriptF_acc += zone_ScriptF[lSR];
+//                            }
+//
+//                            // Per BG -- this should never happened.  (CR6346,CR6550 caused this to be put in.  Now removed. LKL 1/2013)
+//                            //          IF (SurfaceWindow(RecSurfNum)%IRfromParentZone < 0.0) THEN
+//                            //            CALL ShowRecurringWarningErrorAtEnd(state, 'CalcInteriorRadExchange: Window_IRFromParentZone negative,
+//                            //            Window="'// &
+//                            //                TRIM(Surface(RecSurfNum)%Name)//'"',  &
+//                            //                S0urfaceWindow(RecSurfNum)%IRErrCount)
+//                            //            CALL ShowRecurringContinueErrorAtEnd(state, '..occurs in Zone="'//TRIM(Surface(RecSurfNum)%ZoneName)//  &
+//                            //                '", reset to 0.0 for remaining calculations.',SurfaceWindow(RecSurfNum)%IRErrCountC)
+//                            //            SurfaceWindow(RecSurfNum)%IRfromParentZone=0.0
+//                            //          ENDIF
+//                        }
+//
+//                        netLWRadToRecSurf += IRfromParentZone_acc - netLWRadToRecSurf_cor - (scriptF_acc * SurfaceTempInKto4th[RecZoneSurfNum]);
+//                        state.dataSurface->SurfWinIRfromParentZone(RecSurfNum) += IRfromParentZone_acc / SurfaceEmiss[RecZoneSurfNum];
+//                    }
+                for (size_type RecZoneSurfNum : EnclNonWinSurfPtr[enclosureNum]) {
+                    int const RecSurfNum = zone_SurfacePtr[RecZoneSurfNum];
+//                    int const ConstrNumRec = state.dataSurface->Surface(RecSurfNum).Construction;
+//                    auto const &rec_construct(state.dataConstruction->Construct(ConstrNumRec));
+                    auto &netLWRadToRecSurf(NetLWRadToSurf(RecSurfNum));
+
+                    Real64 netLWRadToRecSurf_acc(0.0); // Local accumulator
+                    zone_ScriptF[RecZoneSurfNum * s_zone_Surfaces + RecZoneSurfNum] = 0;
+                    for (size_type SendZoneSurfNum = 0; SendZoneSurfNum < s_zone_Surfaces; ++SendZoneSurfNum) {
+                        size_type lSR = RecZoneSurfNum * s_zone_Surfaces + SendZoneSurfNum; // [ lSR ] == ( SendZoneSurfNum+1, RecZoneSurfNum+1 )
+                        netLWRadToRecSurf_acc += zone_ScriptF[lSR] * (SurfaceTempInKto4th[SendZoneSurfNum] - SurfaceTempInKto4th[RecZoneSurfNum]);
+                    }
+                    netLWRadToRecSurf += netLWRadToRecSurf_acc;
+
                 }
             }
         }

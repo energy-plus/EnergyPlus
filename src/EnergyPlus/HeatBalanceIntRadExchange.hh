@@ -179,6 +179,8 @@ struct HeatBalanceIntRadExchgData : BaseGlobalStruct
     Array1D<Array1D<Real64>> SurfaceTempRad;
     Array1D<Array1D<Real64>> SurfaceTempInKto4th;
     Array1D<Array1D<Real64>> SurfaceEmiss;
+    std::vector<std::vector<int>> EnclWinSurfPtr;
+    std::vector<std::vector<int>> EnclNonWinSurfPtr;
     bool ViewFactorReport = false; // Flag to output view factor report in eio file
     int LargestSurf = 0;
 
