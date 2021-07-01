@@ -403,7 +403,7 @@ int RunEnergyPlus(EnergyPlus::EnergyPlusData &state, std::string const &filepath
         EnergyPlus::ShowSevereError(state, e.what());
         return EnergyPlus::AbortEnergyPlus(state);
     }
-    std::cout << EnergyPlus::DataSurfaces::timer_rad << std::endl;
+    std::cout << EnergyPlus::DataSurfaces::counter << "," << EnergyPlus::DataSurfaces::timer_rad << std::endl;
     return wrapUpEnergyPlus(state);
 }
 

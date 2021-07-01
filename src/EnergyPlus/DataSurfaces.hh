@@ -83,6 +83,7 @@ namespace DataSurfaces {
     constexpr int MaxPolyCoeff(6);
 
     extern double timer_rad;
+    extern int counter;
 
     // Parameters to indicate surface shape for use with the Surface
     // derived type (see below):

@@ -87,6 +87,7 @@ using namespace DataEnvironment;
 using namespace WindowManager;
 
 double timer_rad;
+int counter;
 
 Array1D_string const cExtBoundCondition({-6, 0}, {"KivaFoundation", "FCGround", "OSCM", "OSC", "OSC", "Ground", "ExternalEnvironment"});
 
