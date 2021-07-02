@@ -141,6 +141,7 @@ namespace HeatBalanceIntRadExchange {
         typedef Array1D<Real64>::size_type size_type;
 
         // Using/Aliasing
+        using namespace std::chrono;
         using WindowEquivalentLayer::EQLWindowInsideEffectiveEmiss;
 
         Real64 const StefanBoltzmannConst(5.6697e-8); // Stefan-Boltzmann constant in W/(m2*K4)
@@ -224,19 +225,19 @@ namespace HeatBalanceIntRadExchange {
                 state.dataSurface->SurfWinIRfromParentZone(SurfNum) = 0.0;
         }
 
-//        high_resolution_clock::time_point t1 = high_resolution_clock::now();
-//        high_resolution_clock::time_point t2 = high_resolution_clock::now();
-//        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-//        t1 = high_resolution_clock::now();
-//#pragma omp parallel
-//{
-//        int p = omp_get_num_threads();
-//        int tid = omp_get_thread_num();
-//        int zone_start = (endEnclosure  * tid) / p + startEnclosure;
-//        int zone_end = min((endEnclosure * (tid + 1)) / p + startEnclosure - 1, endEnclosure);
+        high_resolution_clock::time_point t1 = high_resolution_clock::now();
+        high_resolution_clock::time_point t2 = high_resolution_clock::now();
+        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+        t1 = high_resolution_clock::now();
+#pragma omp parallel
+{
+        int p = omp_get_num_threads();
+        int tid = omp_get_thread_num();
+        int zone_start = (endEnclosure  * tid) / p + startEnclosure;
+        int zone_end = min((endEnclosure * (tid + 1)) / p + startEnclosure - 1, endEnclosure);
 
-//        for (int enclosureNum = zone_start; enclosureNum <= zone_end; ++enclosureNum) {
-        for (int enclosureNum = startEnclosure; enclosureNum <= endEnclosure; ++enclosureNum) {
+        for (int enclosureNum = zone_start; enclosureNum <= zone_end; ++enclosureNum) {
+//        for (int enclosureNum = startEnclosure; enclosureNum <= endEnclosure; ++enclosureNum) {
             auto &zone_info(state.dataViewFactor->ZoneRadiantInfo(enclosureNum));
             auto &zone_ScriptF(zone_info.ScriptF); // Tuned Transposed
             auto &zone_SurfacePtr(zone_info.SurfacePtr);
@@ -452,11 +453,11 @@ namespace HeatBalanceIntRadExchange {
                 }
             }
         }
-//}
-//
-//        t2 = high_resolution_clock::now();
-//        duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-//        DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+}
+
+        t2 = high_resolution_clock::now();
+        duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+        DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 #ifdef EP_Detailed_Timings
         epStopTime("CalcInteriorRadExchange=");
 #endif

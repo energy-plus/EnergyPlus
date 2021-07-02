@@ -150,8 +150,8 @@ void InitInteriorConvectionCoeffs(EnergyPlusData &state,
     // 5.  ISO Standard 15099:2003e
 
     // SUBROUTINE LOCAL VARIABLE DECLARATIONS:
-    int ZoneNum; // DO loop counter for zones
-    int SurfNum; // DO loop counter for surfaces in zone
+//    int ZoneNum; // DO loop counter for zones
+//    int SurfNum; // DO loop counter for surfaces in zone
 
     auto &Zone(state.dataHeatBal->Zone);
     auto &Surface(state.dataSurface->Surface);
@@ -165,7 +165,7 @@ void InitInteriorConvectionCoeffs(EnergyPlusData &state,
         if (!state.dataGlobal->SysSizingCalc && !state.dataGlobal->ZoneSizingCalc && state.dataZoneEquip->ZoneEquipInputsFilled &&
             allocated(state.dataLoopNodes->Node)) {
             state.dataConvectionCoefficient->NodeCheck = false;
-            for (ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
+            for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
                 if (Zone(ZoneNum).InsideConvectionAlgo != CeilingDiffuser) continue;
                 if (Zone(ZoneNum).SystemZoneNodeNumber != 0) continue;
                 ShowSevereError(state,
@@ -237,7 +237,7 @@ void InitInteriorConvectionCoeffs(EnergyPlusData &state,
         state.dataConvectionCoefficient->MyEnvirnFlag = false;
     }
     if (!state.dataGlobal->BeginEnvrnFlag) state.dataConvectionCoefficient->MyEnvirnFlag = true;
-    for (ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
+    for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
 
         {
             auto const SELECT_CASE_var(Zone(ZoneNum).InsideConvectionAlgo);
@@ -253,9 +253,10 @@ void InitInteriorConvectionCoeffs(EnergyPlusData &state,
             }
         }
     }
-    for (ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
+#pragma omp parallel for
+    for (int ZoneNum = 1; ZoneNum <= state.dataGlobal->NumOfZones; ++ZoneNum) {
 
-        for (SurfNum = Zone(ZoneNum).HTSurfaceFirst; SurfNum <= Zone(ZoneNum).HTSurfaceLast; ++SurfNum) {
+        for (int SurfNum = Zone(ZoneNum).HTSurfaceFirst; SurfNum <= Zone(ZoneNum).HTSurfaceLast; ++SurfNum) {
 
             if (present(ZoneToResimulate)) {
                 if ((ZoneNum != ZoneToResimulate) && (state.dataSurface->SurfAdjacentZone(SurfNum) != ZoneToResimulate)) {
