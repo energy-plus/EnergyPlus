@@ -244,6 +244,7 @@ void ManageSurfaceHeatBalance(EnergyPlusData &state)
     t1 = high_resolution_clock::now();
     ReportSurfaceHeatBalance(state);
     t2 = high_resolution_clock::now();
+    t2 = high_resolution_clock::now();
     time_span = duration_cast<duration<double>>(t2 - t1);
     DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 
