@@ -64460,15 +64460,11 @@ AirLoopHVAC:OutdoorAirSystem,
        \note AirLoopHVAC:DedicatedOutdoorAirSystem.
        \type object-list
        \object-list ControllerLists
-   A3, \field Outdoor Air Equipment List Name
+   A3; \field Outdoor Air Equipment List Name
        \note Enter the name of an AirLoopHVAC:OutdoorAirSystem:EquipmentList object.
        \required-field
        \type object-list
        \object-list AirLoopOAEquipmentLists
-   A4; \field Availability Manager List Name
-       \note This field is not used and may be omitted or left blank.
-       \type object-list
-       \object-list SystemAvailabilityManagerLists
 
 OutdoorAir:Mixer,
       \memo Outdoor air mixer. Node names cannot be duplicated within a single OutdoorAir:Mixer

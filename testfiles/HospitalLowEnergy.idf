@@ -71132,8 +71132,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     DOAS2_OA,                !- Name
     DOAS2_OA_Controllers,    !- Controller List Name
-    DOAS2_OA_Equipment,      !- Outdoor Air Equipment List Name
-    DOAS2 Availability Manager List;  !- Availability Manager List Name
+    DOAS2_OA_Equipment;      !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     DOAS2_OANode List;       !- Node or NodeList Name 1
@@ -71698,8 +71697,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     DOAS1_OA,                !- Name
     DOAS1_OA_Controllers,    !- Controller List Name
-    DOAS1_OA_Equipment,      !- Outdoor Air Equipment List Name
-    DOAS1 Availability Manager List;  !- Availability Manager List Name
+    DOAS1_OA_Equipment;      !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     DOAS1_OANode List;       !- Node or NodeList Name 1
@@ -72266,8 +72264,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     AHU3_OA,                 !- Name
     AHU3_OA_Controllers,     !- Controller List Name
-    AHU3_OA_Equipment,       !- Outdoor Air Equipment List Name
-    AHU3 Availability Manager List;  !- Availability Manager List Name
+    AHU3_OA_Equipment;       !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     AHU3_OANode List;        !- Node or NodeList Name 1
@@ -72766,8 +72763,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     DOAS5_OA,                !- Name
     DOAS5_OA_Controllers,    !- Controller List Name
-    DOAS5_OA_Equipment,      !- Outdoor Air Equipment List Name
-    DOAS5 Availability Manager List;  !- Availability Manager List Name
+    DOAS5_OA_Equipment;      !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     DOAS5_OANode List;       !- Node or NodeList Name 1
@@ -73298,8 +73294,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     DOAS4_OA,                !- Name
     DOAS4_OA_Controllers,    !- Controller List Name
-    DOAS4_OA_Equipment,      !- Outdoor Air Equipment List Name
-    DOAS4 Availability Manager List;  !- Availability Manager List Name
+    DOAS4_OA_Equipment;      !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     DOAS4_OANode List;       !- Node or NodeList Name 1
@@ -73825,8 +73820,7 @@
   AirLoopHVAC:OutdoorAirSystem,
     DOAS6_OA,                !- Name
     DOAS6_OA_Controllers,    !- Controller List Name
-    DOAS6_OA_Equipment,      !- Outdoor Air Equipment List Name
-    DOAS6 Availability Manager List;  !- Availability Manager List Name
+    DOAS6_OA_Equipment;      !- Outdoor Air Equipment List Name
 
   OutdoorAir:NodeList,
     DOAS6_OANode List;       !- Node or NodeList Name 1
