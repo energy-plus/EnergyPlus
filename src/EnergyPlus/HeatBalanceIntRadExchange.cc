@@ -225,10 +225,10 @@ namespace HeatBalanceIntRadExchange {
                 state.dataSurface->SurfWinIRfromParentZone(SurfNum) = 0.0;
         }
 
-        high_resolution_clock::time_point t1 = high_resolution_clock::now();
-        high_resolution_clock::time_point t2 = high_resolution_clock::now();
-        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-        t1 = high_resolution_clock::now();
+//        high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//        high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//        duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+//        t1 = high_resolution_clock::now();
 #pragma omp parallel
 {
         int p = omp_get_num_threads();
@@ -455,9 +455,9 @@ namespace HeatBalanceIntRadExchange {
         }
 }
 
-        t2 = high_resolution_clock::now();
-        duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-        DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//        t2 = high_resolution_clock::now();
+//        duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//        DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 #ifdef EP_Detailed_Timings
         epStopTime("CalcInteriorRadExchange=");
 #endif

@@ -211,16 +211,16 @@ void ManageSurfaceHeatBalance(EnergyPlusData &state)
     UpdateFinalSurfaceHeatBalance(state);
 
     // Before we leave the Surface Manager the thermal histories need to be updated
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-    t1 = high_resolution_clock::now();
+//    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+//    t1 = high_resolution_clock::now();
     if (state.dataHeatBal->AnyCTF || state.dataHeatBal->AnyEMPD) {
         UpdateThermalHistories(state); // Update the thermal histories
     }
-    t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//    t2 = high_resolution_clock::now();
+//    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
     if (state.dataHeatBal->AnyCondFD) {
         for (int SurfNum = 1; SurfNum <= state.dataSurface->TotSurfaces; ++SurfNum) {
             int const ConstrNum = Surface(SurfNum).Construction;
@@ -233,12 +233,12 @@ void ManageSurfaceHeatBalance(EnergyPlusData &state)
 
     ManageThermalComfort(state, false); // "Record keeping" for the zone
 
-    t1 = high_resolution_clock::now();
+//    t1 = high_resolution_clock::now();
     ReportSurfaceHeatBalance(state);
-    t2 = high_resolution_clock::now();
-    t2 = high_resolution_clock::now();
-    time_span = duration_cast<duration<double>>(t2 - t1);
-    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//    t2 = high_resolution_clock::now();
+//    t2 = high_resolution_clock::now();
+//    time_span = duration_cast<duration<double>>(t2 - t1);
+//    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 
     if (state.dataGlobal->ZoneSizingCalc) GatherComponentLoadsSurface(state);
 
@@ -676,17 +676,17 @@ void InitSurfaceHeatBalance(EnergyPlusData &state)
     if (state.dataHeatBalSurfMgr->InitSurfaceHeatBalancefirstTime) DisplayString(state, "Initializing Interior Solar Distribution");
     InitIntSolarDistribution(state);
 
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-    t1 = high_resolution_clock::now();;
+//    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+//    t1 = high_resolution_clock::now();;
 
     if (state.dataHeatBalSurfMgr->InitSurfaceHeatBalancefirstTime) DisplayString(state, "Initializing Interior Convection Coefficients");
     InitInteriorConvectionCoeffs(state, state.dataHeatBalSurf->SurfTempInTmp);
 
-    t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//    t2 = high_resolution_clock::now();
+//    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 
     if (state.dataGlobal->BeginSimFlag) { // Now's the time to report surfaces, if desired
         //    if (firstTime) CALL DisplayString('Reporting Surfaces')
@@ -699,7 +699,7 @@ void InitSurfaceHeatBalance(EnergyPlusData &state)
     if (state.dataHeatBal->AnyCondFD) {
         InitHeatBalFiniteDiff(state);
     }
-    t1 = high_resolution_clock::now();
+//    t1 = high_resolution_clock::now();
 #pragma omp parallel
 {
     int p = omp_get_num_threads();
@@ -814,9 +814,9 @@ void InitSurfaceHeatBalance(EnergyPlusData &state)
     }     // ...end of Zone loop
 
 }
-    t2 = high_resolution_clock::now();
-    time_span = duration_cast<duration<double>>(t2 - t1);
-    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//    t2 = high_resolution_clock::now();
+//    time_span = duration_cast<duration<double>>(t2 - t1);
+//    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
     if (state.dataGlobal->ZoneSizingCalc) GatherComponentLoadsSurfAbsFact(state);
 
     if (state.dataHeatBalSurfMgr->InitSurfaceHeatBalancefirstTime) DisplayString(state, "Completed Initializing Surface Heat Balance");
@@ -5869,10 +5869,10 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
     } else {
         CalcInteriorRadExchange(state, state.dataHeatBalSurf->TH(2, 1, _), 0, state.dataHeatBalSurf->SurfNetLWRadToSurf, _, Outside);
     }
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
-    t1 = high_resolution_clock::now();
+//    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+//    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+//    duration<double> time_span_1 = duration_cast<duration<double>>(t2 - t1);
+//    t1 = high_resolution_clock::now();
 #pragma omp parallel
 {
     int p = omp_get_num_threads();
@@ -6506,9 +6506,9 @@ void CalcHeatBalanceOutsideSurf(EnergyPlusData &state,
         }
     } // ...end of DO loop over all surface (actually heat transfer surfaces)
 }
-    t2 = high_resolution_clock::now();
-    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
-    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
+//    t2 = high_resolution_clock::now();
+//    duration<double> time_span = duration_cast<duration<double>>(t2 - t1);
+//    DataSurfaces::timer_rad += time_span.count() - time_span_1.count();
 }
 
 Real64 GetQdotConvOutRepPerArea(EnergyPlusData &state, int const SurfNum)
