@@ -630,6 +630,14 @@ SUBROUTINE CreateNewIDFUsingRules(EndOfFile,DiffOnly,InLfn,AskForInput,InputFile
                  OutArgs(10)=TempArgs(27) ! Evaporative Condenser Supply Water Storage Tank Name
                  CurArgs=10
                  CALL WriteOutIDFLines(DifLfn,ObjectName,CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 
+                 ! If condenser inlet node was blank, add OutdoorAir:Node object
+                 IF ( TempArgs(20) == Blank ) THEN
+                   CALL GetNewObjectDefInIDD('OutdoorAir:Node',NwNumArgs,NwAorN,NwReqFld,NwObjMinFlds,NwFldNames,NwFldDefaults,NwFldUnits)
+                   OutArgs(1)=TRIM(TempArgs(1)) // TRIM(' Condenser Inlet Node') ! Condenser Inlet Node Name ! Name
+                   CurArgs=1
+                   CALL WriteOutIDFLines(DifLfn,'OutdoorAir:Node',CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 END IF
 
                  ! write the Performance object
                  OutArgs=Blank
@@ -720,6 +728,15 @@ SUBROUTINE CreateNewIDFUsingRules(EndOfFile,DiffOnly,InLfn,AskForInput,InputFile
                  OutArgs(10)=TempArgs(30) ! Evaporative Condenser Supply Water Storage Tank Name
                  CurArgs=10
                  CALL WriteOutIDFLines(DifLfn,ObjectName,CurArgs,OutArgs,NwFldNames,NwFldUnits)
+
+                 ! If condenser inlet node was blank, add OutdoorAir:Node object
+                 IF ( TempArgs(21) == Blank ) THEN
+                   CALL GetNewObjectDefInIDD('OutdoorAir:Node',NwNumArgs,NwAorN,NwReqFld,NwObjMinFlds,NwFldNames,NwFldDefaults,NwFldUnits)
+                   OutArgs(1)=TRIM(TempArgs(1)) // TRIM(' Condenser Inlet Node') ! Condenser Inlet Node Name ! Name
+                   CurArgs=1
+                   CALL WriteOutIDFLines(DifLfn,'OutdoorAir:Node',CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 END IF
+
                   ! write the Performance object
                  OutArgs=Blank
                  ObjectName='Coil:Cooling:DX:CurveFit:Performance'
@@ -952,6 +969,15 @@ SUBROUTINE CreateNewIDFUsingRules(EndOfFile,DiffOnly,InLfn,AskForInput,InputFile
                  OutArgs(10)=TempArgs(8) ! Evaporative Condenser Supply Water Storage Tank Name
                  CurArgs=10
                  CALL WriteOutIDFLines(DifLfn,ObjectName,CurArgs,OutArgs,NwFldNames,NwFldUnits)
+
+                 ! If condenser inlet node was blank, add OutdoorAir:Node object
+                 IF ( TempArgs(5) == Blank ) THEN
+                   CALL GetNewObjectDefInIDD('OutdoorAir:Node',NwNumArgs,NwAorN,NwReqFld,NwObjMinFlds,NwFldNames,NwFldDefaults,NwFldUnits)
+                   OutArgs(1)=TRIM(TempArgs(1)) // TRIM(' Condenser Inlet Node') ! Condenser Inlet Node Name ! Name
+                   CurArgs=1
+                   CALL WriteOutIDFLines(DifLfn,'OutdoorAir:Node',CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 END IF
+
                  ! write the Performance object
                  OutArgs=Blank
                  ObjectName='Coil:Cooling:DX:CurveFit:Performance'
@@ -1191,6 +1217,14 @@ SUBROUTINE CreateNewIDFUsingRules(EndOfFile,DiffOnly,InLfn,AskForInput,InputFile
                   CurArgs=10
                   CALL WriteOutIDFLines(DifLfn,ObjectName,CurArgs,OutArgs,NwFldNames,NwFldUnits)
 
+                 ! If condenser inlet node was blank, add OutdoorAir:Node object
+                 IF ( TempArgs(11) == Blank ) THEN
+                   CALL GetNewObjectDefInIDD('OutdoorAir:Node',NwNumArgs,NwAorN,NwReqFld,NwObjMinFlds,NwFldNames,NwFldDefaults,NwFldUnits)
+                   OutArgs(1)=TRIM(TempArgs(1)) // TRIM(' Condenser Inlet Node') ! Condenser Inlet Node Name ! Name
+                   CurArgs=1
+                   CALL WriteOutIDFLines(DifLfn,'OutdoorAir:Node',CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 END IF
+
                   ! write the Performance object
                   OutArgs=Blank
                   ObjectName='Coil:Cooling:DX:CurveFit:Performance'
@@ -1364,6 +1398,14 @@ SUBROUTINE CreateNewIDFUsingRules(EndOfFile,DiffOnly,InLfn,AskForInput,InputFile
                   OutArgs(10)=TempArgs(17) ! Evaporative Condenser Supply Water Storage Tank Name
                   CurArgs=10
                   CALL WriteOutIDFLines(DifLfn,ObjectName,CurArgs,OutArgs,NwFldNames,NwFldUnits)
+
+                 ! If condenser inlet node was blank, add OutdoorAir:Node object
+                 IF ( TempArgs(5) == Blank ) THEN
+                   CALL GetNewObjectDefInIDD('OutdoorAir:Node',NwNumArgs,NwAorN,NwReqFld,NwObjMinFlds,NwFldNames,NwFldDefaults,NwFldUnits)
+                   OutArgs(1)=TRIM(TempArgs(1)) // TRIM(' Condenser Inlet Node') ! Condenser Inlet Node Name ! Name
+                   CurArgs=1
+                   CALL WriteOutIDFLines(DifLfn,'OutdoorAir:Node',CurArgs,OutArgs,NwFldNames,NwFldUnits)
+                 END IF
 
                   ! write the Performance object
                   OutArgs=Blank
