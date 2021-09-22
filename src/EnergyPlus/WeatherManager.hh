@@ -83,6 +83,7 @@ namespace WeatherManager {
     // Water mains temperatures calculation methods
     enum class WaterMainsTempCalcMethod
     {
+        FixedDefault = 0,
         Schedule = 1,
         Correlation = 2,
         CorrelationFromWeatherFile = 3
@@ -183,6 +184,7 @@ namespace WeatherManager {
         bool MatchYear;                  // for actual weather will be true
         bool ActualWeather;              // true when using actual weather data
         int RawSimDays;                  // number of basic sim days.
+        bool firstHrInterpUseHr1;        // true when using Hour 1 for first hour interpolations; false to use Hour 24
 
         // Default Constructor
         EnvironmentData()
@@ -191,7 +193,8 @@ namespace WeatherManager {
               EndJDay(0), EndYear(0), EndDate(0), DayOfWeek(0), UseDST(false), UseHolidays(false), ApplyWeekendRule(false), UseRain(true),
               UseSnow(true), MonWeekDay(12, 0), SetWeekDays(false), NumSimYears(1), CurrentCycle(0), WP_Type1(0),
               SkyTempModel(EmissivityCalcType::ClarkAllenModel), UseWeatherFileHorizontalIR(true), CurrentYear(0), IsLeapYear(false),
-              RollDayTypeOnRepeat(true), TreatYearsAsConsecutive(true), MatchYear(false), ActualWeather(false), RawSimDays(0)
+              RollDayTypeOnRepeat(true), TreatYearsAsConsecutive(true), MatchYear(false), ActualWeather(false), RawSimDays(0),
+              firstHrInterpUseHr1(false)
         {
         }
     };
@@ -268,13 +271,14 @@ namespace WeatherManager {
         bool RollDayTypeOnRepeat;     // If repeating run period, increment day type on repeat.
         bool TreatYearsAsConsecutive; // When year rolls over, increment year and recalculate Leap Year
         bool actualWeather;           // true when using actual weather data
+        bool firstHrInterpUsingHr1;   // true for using Hour 1 for first hour interpolate; fals for using Hour 24
 
         // Default Constructor
         RunPeriodData()
             : totalDays(365), startMonth(1), startDay(1), startJulianDate(2457755), startYear(2017), endMonth(12), endDay(31), endJulianDate(2458119),
               endYear(2017), dayOfWeek(1), startWeekDay(WeekDay::Sunday), useDST(false), useHolidays(false), applyWeekendRule(false), useRain(true),
               useSnow(true), monWeekDay{{1, 4, 4, 7, 2, 5, 7, 3, 6, 1, 4, 6}}, numSimYears(1), isLeapYear(false), RollDayTypeOnRepeat(true),
-              TreatYearsAsConsecutive(true), actualWeather(false)
+              TreatYearsAsConsecutive(true), actualWeather(false), firstHrInterpUsingHr1(false)
         {
         }
     };
@@ -579,10 +583,10 @@ namespace WeatherManager {
     );
 
     void ErrorInterpretWeatherDataLine(
-        EnergyPlusData &state, int WYear, int WMonth, int WDay, int WHour, int WMinute, std::string &SaveLine, std::string &Line);
+        EnergyPlusData &state, int WYear, int WMonth, int WDay, int WHour, int WMinute, std::string_view SaveLine, std::string_view Line);
 
     void InterpretWeatherDataLine(EnergyPlusData &state,
-                                  std::string &Line,
+                                  std::string_view Line,
                                   bool &ErrorFound, // True if an error is found, false otherwise
                                   int &WYear,
                                   int &WMonth,
@@ -1024,8 +1028,9 @@ struct WeatherManagerData : BaseGlobalStruct
         this->GroundTempsFCFromEPWHeader = Array1D<Real64>(12, 0.0);
         this->GroundReflectances = Array1D<Real64>(12, 0.2);
 
-        this->SnowGndRefModifier = 1.0;              // Modifier to ground reflectance during snow
-        this->SnowGndRefModifierForDayltg = 1.0;     // Modifier to ground reflectance during snow for daylighting
+        this->SnowGndRefModifier = 1.0;          // Modifier to ground reflectance during snow
+        this->SnowGndRefModifierForDayltg = 1.0; // Modifier to ground reflectance during snow for daylighting
+        this->WaterMainsTempsMethod = WeatherManager::WaterMainsTempCalcMethod::FixedDefault;
         this->WaterMainsTempsSchedule = 0;           // Water mains temperature schedule
         this->WaterMainsTempsAnnualAvgAirTemp = 0.0; // Annual average outdoor air temperature (C)
         this->WaterMainsTempsMaxDiffAirTemp = 0.0;   // Maximum difference in monthly average outdoor air temperatures (deltaC)
@@ -1207,14 +1212,15 @@ struct WeatherManagerData : BaseGlobalStruct
           PrintEnvrnStamp(false), Sigma(5.6697e-8), YearOfSim(1), NumDaysInYear(365), EnvironmentReportNbr(0), EnvironmentReportChr(""),
           WeatherFileExists(false), LocationGathered(false), WeatherFileLatitude(0.0), WeatherFileLongitude(0.0), WeatherFileTimeZone(0.0),
           WeatherFileElevation(0.0), GroundTempsFCFromEPWHeader(12, 0.0), GroundReflectances(12, 0.2), SnowGndRefModifier(1.0),
-          SnowGndRefModifierForDayltg(1.0), WaterMainsTempsSchedule(0), WaterMainsTempsAnnualAvgAirTemp(0.0), WaterMainsTempsMaxDiffAirTemp(0.0),
-          WaterMainsTempsScheduleName(""), wthFCGroundTemps(false), TotRunPers(0), TotRunDesPers(0), NumSpecialDays(0), SpecialDayTypes(366, 0),
-          WeekDayTypes(366, 0), DSTIndex(366, 0), NumDataPeriods(0), NumIntervalsPerHour(1), UseDaylightSaving(true), UseSpecialDays(true),
-          UseRainValues(true), UseSnowValues(true), EPWDaylightSaving(false), IDFDaylightSaving(false), DaylightSavingIsActive(false),
-          WFAllowsLeapYears(false), curSimDayForEndOfRunPeriod(0), Envrn(0), NumOfEnvrn(0), NumEPWTypExtSets(0), NumWPSkyTemperatures(0),
-          RptIsRain(0), RptIsSnow(0), RptDayType(0), HrAngle(0.0), SolarAltitudeAngle(0.0), SolarAzimuthAngle(0.0), HorizIRSky(0.0),
-          TimeStepFraction(0.0), NumSPSiteScheduleNamePtrs(0), EndDayOfMonth(12, {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}), LeapYearAdd(0),
-          DatesShouldBeReset(false), StartDatesCycleShouldBeReset(false), Jan1DatesShouldBeReset(false), RPReadAllWeatherData(false)
+          SnowGndRefModifierForDayltg(1.0), WaterMainsTempsMethod{WeatherManager::WaterMainsTempCalcMethod::FixedDefault}, WaterMainsTempsSchedule(0),
+          WaterMainsTempsAnnualAvgAirTemp(0.0), WaterMainsTempsMaxDiffAirTemp(0.0), WaterMainsTempsScheduleName(""), wthFCGroundTemps(false),
+          TotRunPers(0), TotRunDesPers(0), NumSpecialDays(0), SpecialDayTypes(366, 0), WeekDayTypes(366, 0), DSTIndex(366, 0), NumDataPeriods(0),
+          NumIntervalsPerHour(1), UseDaylightSaving(true), UseSpecialDays(true), UseRainValues(true), UseSnowValues(true), EPWDaylightSaving(false),
+          IDFDaylightSaving(false), DaylightSavingIsActive(false), WFAllowsLeapYears(false), curSimDayForEndOfRunPeriod(0), Envrn(0), NumOfEnvrn(0),
+          NumEPWTypExtSets(0), NumWPSkyTemperatures(0), RptIsRain(0), RptIsSnow(0), RptDayType(0), HrAngle(0.0), SolarAltitudeAngle(0.0),
+          SolarAzimuthAngle(0.0), HorizIRSky(0.0), TimeStepFraction(0.0), NumSPSiteScheduleNamePtrs(0),
+          EndDayOfMonth(12, {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}), LeapYearAdd(0), DatesShouldBeReset(false),
+          StartDatesCycleShouldBeReset(false), Jan1DatesShouldBeReset(false), RPReadAllWeatherData(false)
     {
     }
 };

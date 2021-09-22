@@ -88,7 +88,7 @@
 ! Environmental Emissions:        None
 ! Utility Tariffs:                None
 
-  Version,9.5;
+  Version,9.6;
 
 !-   ===========  ALL OBJECTS IN CLASS: SIMULATIONCONTROL ===========
 
@@ -377,6 +377,7 @@
     WALL,                    !- Surface Type
     Room Wall - South,       !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     ,                        !- Outside Boundary Condition Object
     SunExposed,              !- Sun Exposure
@@ -393,6 +394,7 @@
     FLOOR,                   !- Surface Type
     Room Floor,              !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     ,                        !- Outside Boundary Condition Object
     NoSun,                   !- Sun Exposure
@@ -409,6 +411,7 @@
     WALL,                    !- Surface Type
     Room Wall - East West,   !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     Room102 West Wall,       !- Outside Boundary Condition Object
     SunExposed,              !- Sun Exposure
@@ -425,6 +428,7 @@
     WALL,                    !- Surface Type
     Room Wall - North,       !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     Room102 North Wall,      !- Outside Boundary Condition Object
     SunExposed,              !- Sun Exposure
@@ -441,6 +445,7 @@
     WALL,                    !- Surface Type
     Room Wall - East West,   !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     Room102 East Wall,       !- Outside Boundary Condition Object
     SunExposed,              !- Sun Exposure
@@ -457,6 +462,7 @@
     CEILING,                 !- Surface Type
     Room Ceiling,            !- Construction Name
     Room 102,                !- Zone Name
+    ,                        !- Space Name
     Outdoors,                !- Outside Boundary Condition
     Room102 Ceiling,         !- Outside Boundary Condition Object
     SunExposed,              !- Sun Exposure
@@ -738,7 +744,7 @@
     Gap_6_Layer,             !- Gap 2 Name
     ,                        !- Gap 2 Directional Front Absoptance Matrix Name
     ,                        !- Gap 2 Directional Back Absoptance Matrix Name
-    Glass_2027F_Layer,       !- Layer 3 Material
+    Glass_2027F_Layer,       !- Layer 3 Name
     CFS_Glz_813_Layer_3_fAbs,!- Layer 3 Directional Front Absoptance Matrix Name
     CFS_Glz_813_Layer_3_bAbs,!- Layer 3 Directional Back Absoptance Matrix Name
     Gap_6_Layer,             !- Gap 3 Name
@@ -86204,7 +86210,7 @@
     Gap_1_Layer,             !- Gap 2 Name
     ,                        !- Gap 2 Directional Front Absoptance Matrix Name
     ,                        !- Gap 2 Directional Back Absoptance Matrix Name
-    Glass_5012_Layer,        !- Layer 3 Material
+    Glass_5012_Layer,        !- Layer 3 Name
     CFS_Glz_2015_Layer_3_fAbs,  !- Layer 3 Directional Front Absoptance Matrix Name
     CFS_Glz_2015_Layer_3_bAbs;  !- Layer 3 Directional Back Absoptance Matrix Name
 
@@ -171364,7 +171370,7 @@
     Gap_1_Layer,             !- Gap 2 Name
     ,                        !- Gap 2 Directional Front Absoptance Matrix Name
     ,                        !- Gap 2 Directional Back Absoptance Matrix Name
-    Shade_46_Layer,          !- Layer 3 Material
+    Shade_46_Layer,          !- Layer 3 Name
     CFS_Glz_2046_Layer_3_fAbs,  !- Layer 3 Directional Front Absoptance Matrix Name
     CFS_Glz_2046_Layer_3_bAbs;  !- Layer 3 Directional Back Absoptance Matrix Name
 
@@ -256551,7 +256557,7 @@
     Gap_1_Layer,             !- Gap 2 Name
     ,                        !- Gap 2 Directional Front Absoptance Matrix Name
     ,                        !- Gap 2 Directional Back Absoptance Matrix Name
-    Glass_5012_Layer,        !- Layer 3 Material
+    Glass_5012_Layer,        !- Layer 3 Name
     CFS_Glz_2001_Layer_3_fAbs,  !- Layer 3 Directional Front Absoptance Matrix Name
     CFS_Glz_2001_Layer_3_bAbs;  !- Layer 3 Directional Back Absoptance Matrix Name
 

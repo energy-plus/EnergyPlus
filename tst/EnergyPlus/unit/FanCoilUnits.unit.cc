@@ -74,12 +74,10 @@
 #include <EnergyPlus/Plant/DataPlant.hh>
 #include <EnergyPlus/Psychrometrics.hh>
 #include <EnergyPlus/ScheduleManager.hh>
-#include <EnergyPlus/TempSolveRoot.hh>
 #include <EnergyPlus/WaterCoils.hh>
 
 #include "Fixtures/EnergyPlusFixture.hh"
 
-using namespace ObjexxFCL;
 using namespace EnergyPlus;
 using namespace EnergyPlus::DataHVACGlobals;
 using namespace EnergyPlus::DataLoopNode;
@@ -2266,7 +2264,6 @@ TEST_F(EnergyPlusFixture, Test_TightenWaterFlowLimits)
 {
 
     using General::SolveRoot;
-    using TempSolveRoot::SolveRoot;
 
     int FanCoilNum(1);
     bool FirstHVACIteration(false);
@@ -2534,19 +2531,18 @@ TEST_F(EnergyPlusFixture, Test_TightenWaterFlowLimits)
     int MaxIte = 4;
     int SolFla;
     Real64 mdot;
-    Real64 minFlow;
-    Real64 maxFlow;
     Array1D<Real64> Par(2); // Function parameters
     Par(1) = -1000.0;
     Par(2) = 0.0;
 
-    TempSolveRoot::SolveRoot(*state, ErrorToler, MaxIte, SolFla, mdot, ResidualFancoil, MinWaterFlow, MaxWaterFlow, Par, 2, minFlow, maxFlow);
+    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::Bisection;
+    General::SolveRoot(*state, ErrorToler, MaxIte, SolFla, mdot, ResidualFancoil, MinWaterFlow, MaxWaterFlow, Par);
     EXPECT_EQ(-1, SolFla);
-    EXPECT_NEAR(minFlow, 0.0, 0.0000001);
-    EXPECT_NEAR(maxFlow, 0.09375, 0.0000001);
     MaxIte = 20;
-    state->dataHVACGlobal->HVACSystemRootFinding.HVACSystemRootSolver = DataHVACGlobals::HVACSystemRootSolverAlgorithm::RegulaFalsi;
-    TempSolveRoot::SolveRoot(*state, ErrorToler, MaxIte, SolFla, mdot, ResidualFancoil, minFlow, maxFlow, Par);
+    MinWaterFlow = 0.0;
+    MaxWaterFlow = 0.09375;
+    state->dataRootFinder->HVACSystemRootFinding.HVACSystemRootSolver = HVACSystemRootSolverAlgorithm::RegulaFalsi;
+    General::SolveRoot(*state, ErrorToler, MaxIte, SolFla, mdot, ResidualFancoil, MinWaterFlow, MaxWaterFlow, Par);
     EXPECT_EQ(3, SolFla);
 }
 
@@ -4453,7 +4449,7 @@ TEST_F(EnergyPlusFixture, FanCoil_CalcFanCoilElecHeatCoilPLRResidual)
     Par(3) = ZoneNum;
     Par(4) = QZnReq;
     Par(5) = double(state->dataFanCoilUnits->FanCoil(FanCoilNum).HeatCoilFluidInletNode);
-    TempSolveRoot::SolveRoot(*state, 0.001, MaxIter, SolFlag, CyclingRatio, CalcFanCoilHeatCoilPLRResidual, 0.0, 1.0, Par);
+    General::SolveRoot(*state, 0.001, MaxIter, SolFlag, CyclingRatio, CalcFanCoilHeatCoilPLRResidual, 0.0, 1.0, Par);
     Real64 expectedAirFlowRate = thisFanCoil.MaxAirMassFlow * thisFanCoil.LowSpeedRatio;
     EXPECT_EQ(thisFanCoil.SpeedFanSel, 1);
     EXPECT_EQ(state->dataLoopNodes->Node(InletNode).MassFlowRate, expectedAirFlowRate);
@@ -4470,7 +4466,7 @@ TEST_F(EnergyPlusFixture, FanCoil_CalcFanCoilElecHeatCoilPLRResidual)
     Par(3) = ZoneNum;
     Par(4) = QZnReq;
     Par(5) = double(state->dataFanCoilUnits->FanCoil(FanCoilNum).HeatCoilFluidInletNode);
-    TempSolveRoot::SolveRoot(*state, 0.001, MaxIter, SolFlag, CyclingRatio, CalcFanCoilHeatCoilPLRResidual, 0.0, 1.0, Par);
+    General::SolveRoot(*state, 0.001, MaxIter, SolFlag, CyclingRatio, CalcFanCoilHeatCoilPLRResidual, 0.0, 1.0, Par);
     expectedAirFlowRate = thisFanCoil.MaxAirMassFlow * thisFanCoil.LowSpeedRatio;
     EXPECT_EQ(thisFanCoil.SpeedFanSel, 1);
     EXPECT_EQ(state->dataLoopNodes->Node(InletNode).MassFlowRate, expectedAirFlowRate);
