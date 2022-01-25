@@ -808,19 +808,19 @@
 
   People,
     SPACE1-1 People 1,       !- Name
-    SPACE1-1,                !- Zone or ZoneList Name
+    SPACE1-1,                !- Zone or ZoneList or Space or SpaceList Name
     OCCUPY-1,                !- Number of People Schedule Name
     people,                  !- Number of People Calculation Method
     11,                      !- Number of People
-    ,                        !- People per Zone Floor Area {person/m2}
-    ,                        !- Zone Floor Area per Person {m2/person}
+    ,                        !- People per Floor Area {person/m2}
+    ,                        !- Floor Area per Person {m2/person}
     0.3,                     !- Fraction Radiant
     ,                        !- Sensible Heat Fraction
     ActSchd;                 !- Activity Level Schedule Name
 
   Lights,
     SPACE1-1 Lights 1,       !- Name
-    SPACE1-1,                !- Zone or ZoneList Name
+    SPACE1-1,                !- Zone or ZoneList or Space or SpaceList Name
     LIGHTS-1,                !- Schedule Name
     LightingLevel,           !- Design Level Calculation Method
     1584,                    !- Lighting Level {W}
@@ -834,7 +834,7 @@
 
   ElectricEquipment,
     SPACE1-1 ElecEq 1,       !- Name
-    SPACE1-1,                !- Zone or ZoneList Name
+    SPACE1-1,                !- Zone or ZoneList or Space or SpaceList Name
     EQUIP-1,                 !- Schedule Name
     EquipmentLevel,          !- Design Level Calculation Method
     1056,                    !- Design Level {W}
@@ -1023,19 +1023,19 @@
 
   People,
     SPACE2-1 People 1,       !- Name
-    SPACE2-1,                !- Zone or ZoneList Name
+    SPACE2-1,                !- Zone or ZoneList or Space or SpaceList Name
     OCCUPY-1,                !- Number of People Schedule Name
     people,                  !- Number of People Calculation Method
     5,                       !- Number of People
-    ,                        !- People per Zone Floor Area {person/m2}
-    ,                        !- Zone Floor Area per Person {m2/person}
+    ,                        !- People per Floor Area {person/m2}
+    ,                        !- Floor Area per Person {m2/person}
     0.3,                     !- Fraction Radiant
     ,                        !- Sensible Heat Fraction
     ActSchd;                 !- Activity Level Schedule Name
 
   Lights,
     SPACE2-1 Lights 1,       !- Name
-    SPACE2-1,                !- Zone or ZoneList Name
+    SPACE2-1,                !- Zone or ZoneList or Space or SpaceList Name
     LIGHTS-1,                !- Schedule Name
     LightingLevel,           !- Design Level Calculation Method
     684,                     !- Lighting Level {W}
@@ -1049,7 +1049,7 @@
 
   ElectricEquipment,
     SPACE2-1 ElecEq 1,       !- Name
-    SPACE2-1,                !- Zone or ZoneList Name
+    SPACE2-1,                !- Zone or ZoneList or Space or SpaceList Name
     EQUIP-1,                 !- Schedule Name
     EquipmentLevel,          !- Design Level Calculation Method
     456,                     !- Design Level {W}
@@ -1203,19 +1203,19 @@
 
   People,
     SPACE3-1 People 1,       !- Name
-    SPACE3-1,                !- Zone or ZoneList Name
+    SPACE3-1,                !- Zone or ZoneList or Space or SpaceList Name
     OCCUPY-1,                !- Number of People Schedule Name
     people,                  !- Number of People Calculation Method
     11,                      !- Number of People
-    ,                        !- People per Zone Floor Area {person/m2}
-    ,                        !- Zone Floor Area per Person {m2/person}
+    ,                        !- People per Floor Area {person/m2}
+    ,                        !- Floor Area per Person {m2/person}
     0.3,                     !- Fraction Radiant
     ,                        !- Sensible Heat Fraction
     ActSchd;                 !- Activity Level Schedule Name
 
   Lights,
     SPACE3-1 Lights 1,       !- Name
-    SPACE3-1,                !- Zone or ZoneList Name
+    SPACE3-1,                !- Zone or ZoneList or Space or SpaceList Name
     LIGHTS-1,                !- Schedule Name
     LightingLevel,           !- Design Level Calculation Method
     1584,                    !- Lighting Level {W}
@@ -1229,7 +1229,7 @@
 
   ElectricEquipment,
     SPACE3-1 ElecEq 1,       !- Name
-    SPACE3-1,                !- Zone or ZoneList Name
+    SPACE3-1,                !- Zone or ZoneList or Space or SpaceList Name
     EQUIP-1,                 !- Schedule Name
     EquipmentLevel,          !- Design Level Calculation Method
     1056,                    !- Design Level {W}
@@ -1398,19 +1398,19 @@
 
   People,
     SPACE4-1 People 1,       !- Name
-    SPACE4-1,                !- Zone or ZoneList Name
+    SPACE4-1,                !- Zone or ZoneList or Space or SpaceList Name
     OCCUPY-1,                !- Number of People Schedule Name
     people,                  !- Number of People Calculation Method
     5,                       !- Number of People
-    ,                        !- People per Zone Floor Area {person/m2}
-    ,                        !- Zone Floor Area per Person {m2/person}
+    ,                        !- People per Floor Area {person/m2}
+    ,                        !- Floor Area per Person {m2/person}
     0.3,                     !- Fraction Radiant
     ,                        !- Sensible Heat Fraction
     ActSchd;                 !- Activity Level Schedule Name
 
   Lights,
     SPACE4-1 Lights 1,       !- Name
-    SPACE4-1,                !- Zone or ZoneList Name
+    SPACE4-1,                !- Zone or ZoneList or Space or SpaceList Name
     LIGHTS-1,                !- Schedule Name
     LightingLevel,           !- Design Level Calculation Method
     684,                     !- Lighting Level {W}
@@ -1424,7 +1424,7 @@
 
   ElectricEquipment,
     SPACE4-1 ElecEq 1,       !- Name
-    SPACE4-1,                !- Zone or ZoneList Name
+    SPACE4-1,                !- Zone or ZoneList or Space or SpaceList Name
     EQUIP-1,                 !- Schedule Name
     EquipmentLevel,          !- Design Level Calculation Method
     456,                     !- Design Level {W}
@@ -1578,19 +1578,19 @@
 
   People,
     SPACE5-1 People 1,       !- Name
-    SPACE5-1,                !- Zone or ZoneList Name
+    SPACE5-1,                !- Zone or ZoneList or Space or SpaceList Name
     OCCUPY-1,                !- Number of People Schedule Name
     people,                  !- Number of People Calculation Method
     20,                      !- Number of People
-    ,                        !- People per Zone Floor Area {person/m2}
-    ,                        !- Zone Floor Area per Person {m2/person}
+    ,                        !- People per Floor Area {person/m2}
+    ,                        !- Floor Area per Person {m2/person}
     0.3,                     !- Fraction Radiant
     ,                        !- Sensible Heat Fraction
     ActSchd;                 !- Activity Level Schedule Name
 
   Lights,
     SPACE5-1 Lights 1,       !- Name
-    SPACE5-1,                !- Zone or ZoneList Name
+    SPACE5-1,                !- Zone or ZoneList or Space or SpaceList Name
     LIGHTS-1,                !- Schedule Name
     LightingLevel,           !- Design Level Calculation Method
     2964,                    !- Lighting Level {W}
@@ -1604,7 +1604,7 @@
 
   ElectricEquipment,
     SPACE5-1 ElecEq 1,       !- Name
-    SPACE5-1,                !- Zone or ZoneList Name
+    SPACE5-1,                !- Zone or ZoneList or Space or SpaceList Name
     EQUIP-1,                 !- Schedule Name
     EquipmentLevel,          !- Design Level Calculation Method
     1976,                    !- Design Level {W}
@@ -2408,7 +2408,7 @@
     Coil:Heating:Fuel,       !- Heating Coil Object Type
     Sys 1 Furnace DX Cool Heating Coil,  !- Heating Coil Name
     1.0,                     !- DX Heating Coil Sizing Ratio
-    Coil:Cooling:DX,         !- Cooling Coil Object Type
+    Coil:Cooling:DX:SingleSpeed,  !- Cooling Coil Object Type
     Sys 1 Furnace DX Cool Cooling Coil,  !- Cooling Coil Name
     ,                        !- Use DOAS DX Cooling Coil
     ,                        !- Minimum Supply Air Temperature {C}
@@ -2448,67 +2448,33 @@
     ,                        !- Design Specification Multispeed Object Type
     ;                        !- Design Specification Multispeed Object Name
 
-  Coil:Cooling:DX,
+  Coil:Cooling:DX:SingleSpeed,
     Sys 1 Furnace DX Cool Cooling Coil,  !- Name
-    Sys 1 Furnace DX Cool Supply Fan Outlet,  !- Evaporator Inlet Node Name
-    Sys 1 Furnace DX Cool Cooling Coil Outlet,  !- Evaporator Outlet Node Name
     ,                        !- Availability Schedule Name
-    ,                        !- Condenser Zone Name
-    Sys 1 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Inlet Node Name
-    Sys 1 Furnace DX Cool Cooling Coil Condenser Outlet Node,  !- Condenser Outlet Node Name
-    Sys 1 Furnace DX Cool Cooling Coil Performance,  !- Performance Object Name
-    ,                        !- Condensate Collection Water Storage Tank Name
-    ;                        !- Evaporative Condenser Supply Water Storage Tank Name
-
-  Coil:Cooling:DX:CurveFit:Performance,
-    Sys 1 Furnace DX Cool Cooling Coil Performance,  !- Name
-    0,                       !- Crankcase Heater Capacity {W}
-    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
-    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
-    ,                        !- Unit Internal Static Air Pressure {Pa}
-    ,                        !- Capacity Control Method
-    ,                        !- Evaporative Condenser Basin Heater Capacity {W/K}
-    ,                        !- Evaporative Condenser Basin Heater Setpoint Temperature {C}
-    ,                        !- Evaporative Condenser Basin Heater Operating Schedule Name
-    Electricity,             !- Compressor Fuel Type
-    Sys 1 Furnace DX Cool Cooling Coil Operating Mode;  !- Base Operating Mode
-
-  Coil:Cooling:DX:CurveFit:OperatingMode,
-    Sys 1 Furnace DX Cool Cooling Coil Operating Mode,  !- Name
-    autosize,                !- Rated Gross Total Cooling Capacity {W}
-    autosize,                !- Rated Evaporator Air Flow Rate {m3/s}
-    ,                        !- Rated Condenser Air Flow Rate {m3/s}
-    0,                       !- Maximum Cycling Rate {cycles/hr}
-    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
-    0,                       !- Latent Capacity Time Constant {s}
-    0,                       !- Nominal Time for Condensate Removal to Begin {s}
-    ,                        !- Apply Latent Degradation to Speeds Greater than 1
-    AirCooled,               !- Condenser Type
-    0,                       !- Nominal Evaporative Condenser Pump Power {W}
-    1,                       !- Nominal Speed Number
-    Sys 1 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Speed 1 Name
-    ;                        !- Speed 2 Name
-
-  Coil:Cooling:DX:CurveFit:Speed,
-    Sys 1 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Name
-    1.0,                     !- Gross Total Cooling Capacity Fraction
-    1.0,                     !- Evaporator Air Flow Rate Fraction
-    1.0,                     !- Condenser Air Flow Rate Fraction
-    autosize,                !- Gross Sensible Heat Ratio
-    3,                       !- Gross Cooling COP {W/W}
-    1.0,                     !- Active Fraction of Coil Face Area
+    autosize,                !- Gross Rated Total Cooling Capacity {W}
+    autosize,                !- Gross Rated Sensible Heat Ratio
+    3,                       !- Gross Rated Cooling COP {W/W}
+    autosize,                !- Rated Air Flow Rate {m3/s}
     ,                        !- Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}
-    1.0,                     !- Evaporative Condenser Pump Power Fraction
-    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
-    Sys 1 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Modifier Function of Temperature Curve Name
-    Sys 1 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Modifier Function of Air Flow Fraction Curve Name
-    Sys 1 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Modifier Function of Temperature Curve Name
-    Sys 1 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Modifier Function of Air Flow Fraction Curve Name
+    Sys 1 Furnace DX Cool Supply Fan Outlet,  !- Air Inlet Node Name
+    Sys 1 Furnace DX Cool Cooling Coil Outlet,  !- Air Outlet Node Name
+    Sys 1 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Function of Temperature Curve Name
+    Sys 1 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Function of Flow Fraction Curve Name
+    Sys 1 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Function of Temperature Curve Name
+    Sys 1 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Function of Flow Fraction Curve Name
     Sys 1 Furnace DX Cool Cool Coil PLF,  !- Part Load Fraction Correlation Curve Name
-    ,                        !- Rated Waste Heat Fraction of Power Input {dimensionless}
-    ,                        !- Waste Heat Modifier Function of Temperature Curve Name
-    ,                        !- Sensible Heat Ratio Modifier Function of Temperature Curve Name
-    ;                        !- Sensible Heat Ratio Modifier Function of Flow Fraction Curve Name
+    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
+    0,                       !- Nominal Time for Condensate Removal to Begin {s}
+    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
+    0,                       !- Maximum Cycling Rate {cycles/hr}
+    0,                       !- Latent Capacity Time Constant {s}
+    Sys 1 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Air Inlet Node Name
+    AirCooled,               !- Condenser Type
+    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
+    ,                        !- Evaporative Condenser Air Flow Rate {m3/s}
+    0,                       !- Evaporative Condenser Pump Rated Power Consumption {W}
+    0,                       !- Crankcase Heater Capacity {W}
+    10;                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
 
 ! DOE-2.1E, COOL-CAP-FT for PTAC w/ SI temps
 
@@ -2785,7 +2751,7 @@
     Coil:Heating:Electric,   !- Heating Coil Object Type
     Sys 2 Furnace DX Cool Heating Coil,  !- Heating Coil Name
     1.0,                     !- DX Heating Coil Sizing Ratio
-    Coil:Cooling:DX,         !- Cooling Coil Object Type
+    Coil:Cooling:DX:SingleSpeed,  !- Cooling Coil Object Type
     Sys 2 Furnace DX Cool Cooling Coil,  !- Cooling Coil Name
     ,                        !- Use DOAS DX Cooling Coil
     ,                        !- Minimum Supply Air Temperature {C}
@@ -2825,67 +2791,33 @@
     ,                        !- Design Specification Multispeed Object Type
     ;                        !- Design Specification Multispeed Object Name
 
-  Coil:Cooling:DX,
+  Coil:Cooling:DX:SingleSpeed,
     Sys 2 Furnace DX Cool Cooling Coil,  !- Name
-    Sys 2 Furnace DX Cool Mixed Air Outlet,  !- Evaporator Inlet Node Name
-    Sys 2 Furnace DX Cool Cooling Coil Outlet,  !- Evaporator Outlet Node Name
     ,                        !- Availability Schedule Name
-    ,                        !- Condenser Zone Name
-    Sys 2 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Inlet Node Name
-    Sys 2 Furnace DX Cool Cooling Coil Condenser Outlet Node,  !- Condenser Outlet Node Name
-    Sys 2 Furnace DX Cool Cooling Coil Performance,  !- Performance Object Name
-    ,                        !- Condensate Collection Water Storage Tank Name
-    ;                        !- Evaporative Condenser Supply Water Storage Tank Name
-
-  Coil:Cooling:DX:CurveFit:Performance,
-    Sys 2 Furnace DX Cool Cooling Coil Performance,  !- Name
-    0,                       !- Crankcase Heater Capacity {W}
-    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
-    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
-    ,                        !- Unit Internal Static Air Pressure {Pa}
-    ,                        !- Capacity Control Method
-    ,                        !- Evaporative Condenser Basin Heater Capacity {W/K}
-    ,                        !- Evaporative Condenser Basin Heater Setpoint Temperature {C}
-    ,                        !- Evaporative Condenser Basin Heater Operating Schedule Name
-    Electricity,             !- Compressor Fuel Type
-    Sys 2 Furnace DX Cool Cooling Coil Operating Mode;  !- Base Operating Mode
-
-  Coil:Cooling:DX:CurveFit:OperatingMode,
-    Sys 2 Furnace DX Cool Cooling Coil Operating Mode,  !- Name
-    autosize,                !- Rated Gross Total Cooling Capacity {W}
-    autosize,                !- Rated Evaporator Air Flow Rate {m3/s}
-    ,                        !- Rated Condenser Air Flow Rate {m3/s}
-    0,                       !- Maximum Cycling Rate {cycles/hr}
-    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
-    0,                       !- Latent Capacity Time Constant {s}
-    0,                       !- Nominal Time for Condensate Removal to Begin {s}
-    ,                        !- Apply Latent Degradation to Speeds Greater than 1
-    AirCooled,               !- Condenser Type
-    0,                       !- Nominal Evaporative Condenser Pump Power {W}
-    1,                       !- Nominal Speed Number
-    Sys 2 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Speed 1 Name
-    ;                        !- Speed 2 Name
-
-  Coil:Cooling:DX:CurveFit:Speed,
-    Sys 2 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Name
-    1.0,                     !- Gross Total Cooling Capacity Fraction
-    1.0,                     !- Evaporator Air Flow Rate Fraction
-    1.0,                     !- Condenser Air Flow Rate Fraction
-    autosize,                !- Gross Sensible Heat Ratio
-    3,                       !- Gross Cooling COP {W/W}
-    1.0,                     !- Active Fraction of Coil Face Area
+    autosize,                !- Gross Rated Total Cooling Capacity {W}
+    autosize,                !- Gross Rated Sensible Heat Ratio
+    3,                       !- Gross Rated Cooling COP {W/W}
+    autosize,                !- Rated Air Flow Rate {m3/s}
     ,                        !- Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}
-    1.0,                     !- Evaporative Condenser Pump Power Fraction
-    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
-    Sys 2 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Modifier Function of Temperature Curve Name
-    Sys 2 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Modifier Function of Air Flow Fraction Curve Name
-    Sys 2 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Modifier Function of Temperature Curve Name
-    Sys 2 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Modifier Function of Air Flow Fraction Curve Name
+    Sys 2 Furnace DX Cool Mixed Air Outlet,  !- Air Inlet Node Name
+    Sys 2 Furnace DX Cool Cooling Coil Outlet,  !- Air Outlet Node Name
+    Sys 2 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Function of Temperature Curve Name
+    Sys 2 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Function of Flow Fraction Curve Name
+    Sys 2 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Function of Temperature Curve Name
+    Sys 2 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Function of Flow Fraction Curve Name
     Sys 2 Furnace DX Cool Cool Coil PLF,  !- Part Load Fraction Correlation Curve Name
-    ,                        !- Rated Waste Heat Fraction of Power Input {dimensionless}
-    ,                        !- Waste Heat Modifier Function of Temperature Curve Name
-    ,                        !- Sensible Heat Ratio Modifier Function of Temperature Curve Name
-    ;                        !- Sensible Heat Ratio Modifier Function of Flow Fraction Curve Name
+    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
+    0,                       !- Nominal Time for Condensate Removal to Begin {s}
+    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
+    0,                       !- Maximum Cycling Rate {cycles/hr}
+    0,                       !- Latent Capacity Time Constant {s}
+    Sys 2 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Air Inlet Node Name
+    AirCooled,               !- Condenser Type
+    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
+    ,                        !- Evaporative Condenser Air Flow Rate {m3/s}
+    0,                       !- Evaporative Condenser Pump Rated Power Consumption {W}
+    0,                       !- Crankcase Heater Capacity {W}
+    10;                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
 
 ! DOE-2.1E, COOL-CAP-FT for PTAC w/ SI temps
 
@@ -3149,7 +3081,7 @@
     Coil:Heating:DX:SingleSpeed,  !- Heating Coil Object Type
     Sys 3 Heat Pump Air Source Heating Coil,  !- Heating Coil Name
     1.0,                     !- DX Heating Coil Sizing Ratio
-    Coil:Cooling:DX,         !- Cooling Coil Object Type
+    Coil:Cooling:DX:SingleSpeed,  !- Cooling Coil Object Type
     Sys 3 Heat Pump Air Source Cooling Coil,  !- Cooling Coil Name
     ,                        !- Use DOAS DX Cooling Coil
     ,                        !- Minimum Supply Air Temperature {C}
@@ -3189,67 +3121,33 @@
     ,                        !- Design Specification Multispeed Object Type
     ;                        !- Design Specification Multispeed Object Name
 
-  Coil:Cooling:DX,
+  Coil:Cooling:DX:SingleSpeed,
     Sys 3 Heat Pump Air Source Cooling Coil,  !- Name
-    Sys 3 Heat Pump Air Source Supply Fan Outlet,  !- Evaporator Inlet Node Name
-    Sys 3 Heat Pump Air Source Cooling Coil Outlet,  !- Evaporator Outlet Node Name
     ,                        !- Availability Schedule Name
-    ,                        !- Condenser Zone Name
-    Sys 3 Heat Pump Air Source Cooling Coil Condenser Inlet,  !- Condenser Inlet Node Name
-    Sys 3 Heat Pump Air Source Cooling Coil Condenser Outlet Node,  !- Condenser Outlet Node Name
-    Sys 3 Heat Pump Air Source Cooling Coil Performance,  !- Performance Object Name
-    ,                        !- Condensate Collection Water Storage Tank Name
-    ;                        !- Evaporative Condenser Supply Water Storage Tank Name
-
-  Coil:Cooling:DX:CurveFit:Performance,
-    Sys 3 Heat Pump Air Source Cooling Coil Performance,  !- Name
-    0,                       !- Crankcase Heater Capacity {W}
-    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
-    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
-    ,                        !- Unit Internal Static Air Pressure {Pa}
-    ,                        !- Capacity Control Method
-    ,                        !- Evaporative Condenser Basin Heater Capacity {W/K}
-    ,                        !- Evaporative Condenser Basin Heater Setpoint Temperature {C}
-    ,                        !- Evaporative Condenser Basin Heater Operating Schedule Name
-    Electricity,             !- Compressor Fuel Type
-    Sys 3 Heat Pump Air Source Cooling Coil Operating Mode;  !- Base Operating Mode
-
-  Coil:Cooling:DX:CurveFit:OperatingMode,
-    Sys 3 Heat Pump Air Source Cooling Coil Operating Mode,  !- Name
-    autosize,                !- Rated Gross Total Cooling Capacity {W}
-    autosize,                !- Rated Evaporator Air Flow Rate {m3/s}
-    ,                        !- Rated Condenser Air Flow Rate {m3/s}
-    0,                       !- Maximum Cycling Rate {cycles/hr}
-    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
-    0,                       !- Latent Capacity Time Constant {s}
-    0,                       !- Nominal Time for Condensate Removal to Begin {s}
-    ,                        !- Apply Latent Degradation to Speeds Greater than 1
-    AirCooled,               !- Condenser Type
-    0,                       !- Nominal Evaporative Condenser Pump Power {W}
-    1,                       !- Nominal Speed Number
-    Sys 3 Heat Pump Air Source Cooling Coil Speed 1 Performance,  !- Speed 1 Name
-    ;                        !- Speed 2 Name
-
-  Coil:Cooling:DX:CurveFit:Speed,
-    Sys 3 Heat Pump Air Source Cooling Coil Speed 1 Performance,  !- Name
-    1.0,                     !- Gross Total Cooling Capacity Fraction
-    1.0,                     !- Evaporator Air Flow Rate Fraction
-    1.0,                     !- Condenser Air Flow Rate Fraction
-    autosize,                !- Gross Sensible Heat Ratio
-    3,                       !- Gross Cooling COP {W/W}
-    1.0,                     !- Active Fraction of Coil Face Area
+    autosize,                !- Gross Rated Total Cooling Capacity {W}
+    autosize,                !- Gross Rated Sensible Heat Ratio
+    3,                       !- Gross Rated Cooling COP {W/W}
+    autosize,                !- Rated Air Flow Rate {m3/s}
     ,                        !- Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}
-    1.0,                     !- Evaporative Condenser Pump Power Fraction
-    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
-    Sys 3 Heat Pump Air Source Cool Coil Cap-FT,  !- Total Cooling Capacity Modifier Function of Temperature Curve Name
-    Sys 3 Heat Pump Air Source Cool Coil Cap-FF,  !- Total Cooling Capacity Modifier Function of Air Flow Fraction Curve Name
-    Sys 3 Heat Pump Air Source Cool Coil EIR-FT,  !- Energy Input Ratio Modifier Function of Temperature Curve Name
-    Sys 3 Heat Pump Air Source Cool Coil EIR-FF,  !- Energy Input Ratio Modifier Function of Air Flow Fraction Curve Name
+    Sys 3 Heat Pump Air Source Supply Fan Outlet,  !- Air Inlet Node Name
+    Sys 3 Heat Pump Air Source Cooling Coil Outlet,  !- Air Outlet Node Name
+    Sys 3 Heat Pump Air Source Cool Coil Cap-FT,  !- Total Cooling Capacity Function of Temperature Curve Name
+    Sys 3 Heat Pump Air Source Cool Coil Cap-FF,  !- Total Cooling Capacity Function of Flow Fraction Curve Name
+    Sys 3 Heat Pump Air Source Cool Coil EIR-FT,  !- Energy Input Ratio Function of Temperature Curve Name
+    Sys 3 Heat Pump Air Source Cool Coil EIR-FF,  !- Energy Input Ratio Function of Flow Fraction Curve Name
     Sys 3 Heat Pump Air Source Cool Coil PLF,  !- Part Load Fraction Correlation Curve Name
-    ,                        !- Rated Waste Heat Fraction of Power Input {dimensionless}
-    ,                        !- Waste Heat Modifier Function of Temperature Curve Name
-    ,                        !- Sensible Heat Ratio Modifier Function of Temperature Curve Name
-    ;                        !- Sensible Heat Ratio Modifier Function of Flow Fraction Curve Name
+    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
+    0,                       !- Nominal Time for Condensate Removal to Begin {s}
+    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
+    0,                       !- Maximum Cycling Rate {cycles/hr}
+    0,                       !- Latent Capacity Time Constant {s}
+    Sys 3 Heat Pump Air Source Cooling Coil Condenser Inlet,  !- Condenser Air Inlet Node Name
+    AirCooled,               !- Condenser Type
+    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
+    ,                        !- Evaporative Condenser Air Flow Rate {m3/s}
+    0,                       !- Evaporative Condenser Pump Rated Power Consumption {W}
+    0,                       !- Crankcase Heater Capacity {W}
+    10;                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
 
 ! DOE-2.1E, COOL-CAP-FT for PTAC w/ SI temps
 
@@ -3594,7 +3492,7 @@
     Coil:Heating:DX:SingleSpeed,  !- Heating Coil Object Type
     Sys 4 Heat Pump Air Source Heating Coil,  !- Heating Coil Name
     1.0,                     !- DX Heating Coil Sizing Ratio
-    Coil:Cooling:DX,         !- Cooling Coil Object Type
+    Coil:Cooling:DX:SingleSpeed,  !- Cooling Coil Object Type
     Sys 4 Heat Pump Air Source Cooling Coil,  !- Cooling Coil Name
     ,                        !- Use DOAS DX Cooling Coil
     ,                        !- Minimum Supply Air Temperature {C}
@@ -3634,67 +3532,33 @@
     ,                        !- Design Specification Multispeed Object Type
     ;                        !- Design Specification Multispeed Object Name
 
-  Coil:Cooling:DX,
+  Coil:Cooling:DX:SingleSpeed,
     Sys 4 Heat Pump Air Source Cooling Coil,  !- Name
-    Sys 4 Heat Pump Air Source Supply Fan Outlet,  !- Evaporator Inlet Node Name
-    Sys 4 Heat Pump Air Source Cooling Coil Outlet,  !- Evaporator Outlet Node Name
     ,                        !- Availability Schedule Name
-    ,                        !- Condenser Zone Name
-    Sys 4 Heat Pump Air Source Cooling Coil Condenser Inlet,  !- Condenser Inlet Node Name
-    Sys 4 Heat Pump Air Source Cooling Coil Condenser Outlet Node,  !- Condenser Outlet Node Name
-    Sys 4 Heat Pump Air Source Cooling Coil Performance,  !- Performance Object Name
-    ,                        !- Condensate Collection Water Storage Tank Name
-    ;                        !- Evaporative Condenser Supply Water Storage Tank Name
-
-  Coil:Cooling:DX:CurveFit:Performance,
-    Sys 4 Heat Pump Air Source Cooling Coil Performance,  !- Name
-    0,                       !- Crankcase Heater Capacity {W}
-    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
-    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
-    ,                        !- Unit Internal Static Air Pressure {Pa}
-    ,                        !- Capacity Control Method
-    ,                        !- Evaporative Condenser Basin Heater Capacity {W/K}
-    ,                        !- Evaporative Condenser Basin Heater Setpoint Temperature {C}
-    ,                        !- Evaporative Condenser Basin Heater Operating Schedule Name
-    Electricity,             !- Compressor Fuel Type
-    Sys 4 Heat Pump Air Source Cooling Coil Operating Mode;  !- Base Operating Mode
-
-  Coil:Cooling:DX:CurveFit:OperatingMode,
-    Sys 4 Heat Pump Air Source Cooling Coil Operating Mode,  !- Name
-    autosize,                !- Rated Gross Total Cooling Capacity {W}
-    autosize,                !- Rated Evaporator Air Flow Rate {m3/s}
-    ,                        !- Rated Condenser Air Flow Rate {m3/s}
-    0,                       !- Maximum Cycling Rate {cycles/hr}
-    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
-    0,                       !- Latent Capacity Time Constant {s}
-    0,                       !- Nominal Time for Condensate Removal to Begin {s}
-    ,                        !- Apply Latent Degradation to Speeds Greater than 1
-    AirCooled,               !- Condenser Type
-    0,                       !- Nominal Evaporative Condenser Pump Power {W}
-    1,                       !- Nominal Speed Number
-    Sys 4 Heat Pump Air Source Cooling Coil Speed 1 Performance,  !- Speed 1 Name
-    ;                        !- Speed 2 Name
-
-  Coil:Cooling:DX:CurveFit:Speed,
-    Sys 4 Heat Pump Air Source Cooling Coil Speed 1 Performance,  !- Name
-    1.0,                     !- Gross Total Cooling Capacity Fraction
-    1.0,                     !- Evaporator Air Flow Rate Fraction
-    1.0,                     !- Condenser Air Flow Rate Fraction
-    autosize,                !- Gross Sensible Heat Ratio
-    3,                       !- Gross Cooling COP {W/W}
-    1.0,                     !- Active Fraction of Coil Face Area
+    autosize,                !- Gross Rated Total Cooling Capacity {W}
+    autosize,                !- Gross Rated Sensible Heat Ratio
+    3,                       !- Gross Rated Cooling COP {W/W}
+    autosize,                !- Rated Air Flow Rate {m3/s}
     ,                        !- Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}
-    1.0,                     !- Evaporative Condenser Pump Power Fraction
-    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
-    Sys 4 Heat Pump Air Source Cool Coil Cap-FT,  !- Total Cooling Capacity Modifier Function of Temperature Curve Name
-    Sys 4 Heat Pump Air Source Cool Coil Cap-FF,  !- Total Cooling Capacity Modifier Function of Air Flow Fraction Curve Name
-    Sys 4 Heat Pump Air Source Cool Coil EIR-FT,  !- Energy Input Ratio Modifier Function of Temperature Curve Name
-    Sys 4 Heat Pump Air Source Cool Coil EIR-FF,  !- Energy Input Ratio Modifier Function of Air Flow Fraction Curve Name
+    Sys 4 Heat Pump Air Source Supply Fan Outlet,  !- Air Inlet Node Name
+    Sys 4 Heat Pump Air Source Cooling Coil Outlet,  !- Air Outlet Node Name
+    Sys 4 Heat Pump Air Source Cool Coil Cap-FT,  !- Total Cooling Capacity Function of Temperature Curve Name
+    Sys 4 Heat Pump Air Source Cool Coil Cap-FF,  !- Total Cooling Capacity Function of Flow Fraction Curve Name
+    Sys 4 Heat Pump Air Source Cool Coil EIR-FT,  !- Energy Input Ratio Function of Temperature Curve Name
+    Sys 4 Heat Pump Air Source Cool Coil EIR-FF,  !- Energy Input Ratio Function of Flow Fraction Curve Name
     Sys 4 Heat Pump Air Source Cool Coil PLF,  !- Part Load Fraction Correlation Curve Name
-    ,                        !- Rated Waste Heat Fraction of Power Input {dimensionless}
-    ,                        !- Waste Heat Modifier Function of Temperature Curve Name
-    ,                        !- Sensible Heat Ratio Modifier Function of Temperature Curve Name
-    ;                        !- Sensible Heat Ratio Modifier Function of Flow Fraction Curve Name
+    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
+    0,                       !- Nominal Time for Condensate Removal to Begin {s}
+    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
+    0,                       !- Maximum Cycling Rate {cycles/hr}
+    0,                       !- Latent Capacity Time Constant {s}
+    Sys 4 Heat Pump Air Source Cooling Coil Condenser Inlet,  !- Condenser Air Inlet Node Name
+    AirCooled,               !- Condenser Type
+    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
+    ,                        !- Evaporative Condenser Air Flow Rate {m3/s}
+    0,                       !- Evaporative Condenser Pump Rated Power Consumption {W}
+    0,                       !- Crankcase Heater Capacity {W}
+    10;                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
 
 ! DOE-2.1E, COOL-CAP-FT for PTAC w/ SI temps
 
@@ -4039,7 +3903,7 @@
     Coil:Heating:Fuel,       !- Heating Coil Object Type
     Sys 5 Furnace DX Cool Heating Coil,  !- Heating Coil Name
     1.0,                     !- DX Heating Coil Sizing Ratio
-    Coil:Cooling:DX,         !- Cooling Coil Object Type
+    Coil:Cooling:DX:SingleSpeed,  !- Cooling Coil Object Type
     Sys 5 Furnace DX Cool Cooling Coil,  !- Cooling Coil Name
     ,                        !- Use DOAS DX Cooling Coil
     ,                        !- Minimum Supply Air Temperature {C}
@@ -4079,67 +3943,33 @@
     ,                        !- Design Specification Multispeed Object Type
     ;                        !- Design Specification Multispeed Object Name
 
-  Coil:Cooling:DX,
+  Coil:Cooling:DX:SingleSpeed,
     Sys 5 Furnace DX Cool Cooling Coil,  !- Name
-    Sys 5 Furnace DX Cool Supply Fan Outlet,  !- Evaporator Inlet Node Name
-    Sys 5 Furnace DX Cool Cooling Coil Outlet,  !- Evaporator Outlet Node Name
     ,                        !- Availability Schedule Name
-    ,                        !- Condenser Zone Name
-    Sys 5 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Inlet Node Name
-    Sys 5 Furnace DX Cool Cooling Coil Condenser Outlet Node,  !- Condenser Outlet Node Name
-    Sys 5 Furnace DX Cool Cooling Coil Performance,  !- Performance Object Name
-    ,                        !- Condensate Collection Water Storage Tank Name
-    ;                        !- Evaporative Condenser Supply Water Storage Tank Name
-
-  Coil:Cooling:DX:CurveFit:Performance,
-    Sys 5 Furnace DX Cool Cooling Coil Performance,  !- Name
-    0,                       !- Crankcase Heater Capacity {W}
-    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
-    10,                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
-    ,                        !- Unit Internal Static Air Pressure {Pa}
-    ,                        !- Capacity Control Method
-    ,                        !- Evaporative Condenser Basin Heater Capacity {W/K}
-    ,                        !- Evaporative Condenser Basin Heater Setpoint Temperature {C}
-    ,                        !- Evaporative Condenser Basin Heater Operating Schedule Name
-    Electricity,             !- Compressor Fuel Type
-    Sys 5 Furnace DX Cool Cooling Coil Operating Mode;  !- Base Operating Mode
-
-  Coil:Cooling:DX:CurveFit:OperatingMode,
-    Sys 5 Furnace DX Cool Cooling Coil Operating Mode,  !- Name
-    autosize,                !- Rated Gross Total Cooling Capacity {W}
-    autosize,                !- Rated Evaporator Air Flow Rate {m3/s}
-    ,                        !- Rated Condenser Air Flow Rate {m3/s}
-    0,                       !- Maximum Cycling Rate {cycles/hr}
-    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
-    0,                       !- Latent Capacity Time Constant {s}
-    0,                       !- Nominal Time for Condensate Removal to Begin {s}
-    ,                        !- Apply Latent Degradation to Speeds Greater than 1
-    AirCooled,               !- Condenser Type
-    0,                       !- Nominal Evaporative Condenser Pump Power {W}
-    1,                       !- Nominal Speed Number
-    Sys 5 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Speed 1 Name
-    ;                        !- Speed 2 Name
-
-  Coil:Cooling:DX:CurveFit:Speed,
-    Sys 5 Furnace DX Cool Cooling Coil Speed 1 Performance,  !- Name
-    1.0,                     !- Gross Total Cooling Capacity Fraction
-    1.0,                     !- Evaporator Air Flow Rate Fraction
-    1.0,                     !- Condenser Air Flow Rate Fraction
-    autosize,                !- Gross Sensible Heat Ratio
-    3,                       !- Gross Cooling COP {W/W}
-    1.0,                     !- Active Fraction of Coil Face Area
+    autosize,                !- Gross Rated Total Cooling Capacity {W}
+    autosize,                !- Gross Rated Sensible Heat Ratio
+    3,                       !- Gross Rated Cooling COP {W/W}
+    autosize,                !- Rated Air Flow Rate {m3/s}
     ,                        !- Rated Evaporator Fan Power Per Volume Flow Rate {W/(m3/s)}
-    1.0,                     !- Evaporative Condenser Pump Power Fraction
-    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
-    Sys 5 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Modifier Function of Temperature Curve Name
-    Sys 5 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Modifier Function of Air Flow Fraction Curve Name
-    Sys 5 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Modifier Function of Temperature Curve Name
-    Sys 5 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Modifier Function of Air Flow Fraction Curve Name
+    Sys 5 Furnace DX Cool Supply Fan Outlet,  !- Air Inlet Node Name
+    Sys 5 Furnace DX Cool Cooling Coil Outlet,  !- Air Outlet Node Name
+    Sys 5 Furnace DX Cool Cool Coil Cap-FT,  !- Total Cooling Capacity Function of Temperature Curve Name
+    Sys 5 Furnace DX Cool Cool Coil Cap-FF,  !- Total Cooling Capacity Function of Flow Fraction Curve Name
+    Sys 5 Furnace DX Cool Cool Coil EIR-FT,  !- Energy Input Ratio Function of Temperature Curve Name
+    Sys 5 Furnace DX Cool Cool Coil EIR-FF,  !- Energy Input Ratio Function of Flow Fraction Curve Name
     Sys 5 Furnace DX Cool Cool Coil PLF,  !- Part Load Fraction Correlation Curve Name
-    ,                        !- Rated Waste Heat Fraction of Power Input {dimensionless}
-    ,                        !- Waste Heat Modifier Function of Temperature Curve Name
-    ,                        !- Sensible Heat Ratio Modifier Function of Temperature Curve Name
-    ;                        !- Sensible Heat Ratio Modifier Function of Flow Fraction Curve Name
+    ,                        !- Minimum Outdoor Dry-Bulb Temperature for Compressor Operation {C}
+    0,                       !- Nominal Time for Condensate Removal to Begin {s}
+    0,                       !- Ratio of Initial Moisture Evaporation Rate and Steady State Latent Capacity {dimensionless}
+    0,                       !- Maximum Cycling Rate {cycles/hr}
+    0,                       !- Latent Capacity Time Constant {s}
+    Sys 5 Furnace DX Cool Cooling Coil Condenser Inlet,  !- Condenser Air Inlet Node Name
+    AirCooled,               !- Condenser Type
+    0,                       !- Evaporative Condenser Effectiveness {dimensionless}
+    ,                        !- Evaporative Condenser Air Flow Rate {m3/s}
+    0,                       !- Evaporative Condenser Pump Rated Power Consumption {W}
+    0,                       !- Crankcase Heater Capacity {W}
+    10;                      !- Maximum Outdoor Dry-Bulb Temperature for Crankcase Heater Operation {C}
 
 ! DOE-2.1E, COOL-CAP-FT for PTAC w/ SI temps
 
