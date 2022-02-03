@@ -10,9 +10,8 @@ double jcc::dot(int &n, std::vector<double> &A, int &begin_x, int &incx,
 
   int k;
   double summation = 0.;
-  // reduction notes: https://stackoverflow.com/a/26999512
-  //#pragma omp parallel for default(none) num_threads(n_threads) shared(n, A,
-  // begin_x, begin_y, incx, incy) private(k, _x, _y) reduction(+:summation)
+// reduction notes: https://stackoverflow.com/a/26999512
+#pragma omp parallel for default(none) num_threads(n_threads) shared(n, A,begin_x, begin_y, incx, incy) private(k, _x, _y) reduction(+:summation)
   for (k = 0; k < n; k++) {
     summation += A[incx * k + begin_x] * A[incy * k + begin_y];
   }
@@ -115,8 +114,7 @@ void jcc::CroutSolve(std::vector<double> &LU, std::vector<double> &b, int &n,
   for (i = 1; i < n; i++) {
     std::swap(b[i], b[indx[i]]);
     summation = 0.;
-    //#pragma omp parallel for default(none) num_threads(n_threads) shared(LU,
-    // b, n, i) private(j) reduction(+:summation)
+#pragma omp parallel for default(none) num_threads(n_threads) shared(LU, b, n, i) private(j) reduction(+:summation)
     for (j = 0; j < i; j++) {
       summation += LU[n * i + j] * b[j];
     } // next j
@@ -130,8 +128,7 @@ void jcc::CroutSolve(std::vector<double> &LU, std::vector<double> &b, int &n,
   // i = N-1, N-3,...,0
   for (i = (n - 2); i >= 0; i--) {
     summation = 0.;
-    //#pragma omp parallel for default(none) num_threads(n_threads) shared(LU,
-    // b, n, i) private(j) reduction(+:summation)
+#pragma omp parallel for default(none) num_threads(n_threads) shared(LU, b, n, i) private(j) reduction(+:summation)
     for (j = i + 1; j < n; j++) {
       summation += LU[n * i + j] * b[j];
     }
