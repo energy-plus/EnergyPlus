@@ -6948,12 +6948,12 @@ void Specular_EstimateDiffuseProps(EnergyPlusData &state, CFSSWP &SWP) // short 
     Real64 RAT_TAU;
     Real64 RAT_1MR;
 
-    //#if 1
+    // #if 1
     Specular_RATDiff(state, RAT_1MR, RAT_TAU);
-    //#else
-    //    ! estimate diffuse properties as 60 deg angle of incidence
-    //    CALL Specular_RAT60( RAT_TAU, RAT_1MR)
-    //#endif
+    // #else
+    //     ! estimate diffuse properties as 60 deg angle of incidence
+    //     CALL Specular_RAT60( RAT_TAU, RAT_1MR)
+    // #endif
     SWP.TAUS_DD = RAT_TAU * SWP.TAUSFBB;
     SWP.RHOSFDD = 1.0 - RAT_1MR * (1.0 - SWP.RHOSFBB);
     SWP.RHOSBDD = 1.0 - RAT_1MR * (1.0 - SWP.RHOSBBB);
